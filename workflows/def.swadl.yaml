@@ -1,0 +1,8 @@
+id: def
+activities:
+- send-message:
+    id: hello
+    on:
+      message-received:
+        content: "Hi!"
+    content: "Hi!"

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 import styled from "styled-components";
+import {Button} from "@symphony-ui/uitoolkit-components/components";
+import {editor} from "monaco-editor";
 
 window.MonacoEnvironment = {
     getWorker(moduleId, label) {
@@ -20,7 +22,7 @@ setDiagnosticsOptions({
 
 const Root = styled.div`
     border: grey 1px solid;
-    border-radius: .5rem;
+    border-radius: .4rem;
     height: 20rem;
     display: flex;
     flex-direction: column;
@@ -52,8 +54,7 @@ const ProblemEntry = styled.div`
     }
 `;
 
-const Editor = ({ editor, contents }) => {
-    const [ markers, setMarkers ] = useState([]);
+const Editor = ({ editor, contents, markers, setMarkers }) => {
     const ref = useRef(null);
 
     useEffect(() => {
