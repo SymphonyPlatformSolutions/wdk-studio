@@ -16,7 +16,7 @@ const LogsRoot = styled.div`
     white-space: pre;
 `;
 
-export default ({ logs, setLogs }) => {
+const Console = ({ logs, setLogs }) => {
     const logsRef = useRef();
     const [ tail, setTail ] = useState('checked');
     const apiRoot = window.location.hostname === 'localhost' ? 'https://localhost:10443/' : '';
@@ -47,3 +47,5 @@ export default ({ logs, setLogs }) => {
         </ConsoleRoot>
     );
 };
+
+export default Console;

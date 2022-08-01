@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@symphony-ui/uitoolkit-styles/dist/css/uitoolkit.css';
 import {
-    Button,
-    Dropdown,
+    Button, Dropdown, Toast, Loader,
+    Modal, ModalTitle, ModalBody, ModalFooter,
 } from "@symphony-ui/uitoolkit-components/components";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { editor } from 'monaco-editor';
 import Editor from './editor';
 import Console from './console';
@@ -26,6 +26,14 @@ const TopBar = styled.div`
     align-items: flex-end;
     gap: .5rem;
 `;
+const fade = keyframes`
+    0%, 100% { opacity: 0 }
+    10%, 90% { opacity: 1 }
+`;
+const FadeToast = styled(Toast)`
+    animation: ${fade} 2s linear forwards;
+    background: var(--tk-color-green-50);
+`;
 
 const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setContents }) => {
     const [ workflows, setWorkflows ] = useState([]);
@@ -38,11 +46,11 @@ const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setContents }) 
                 setCurrentWorkflow(values[0]);
             }
         });
-    }, []);
+    }, [ setCurrentWorkflow ]);
 
     useEffect(() => {
         currentWorkflow && Api('read-workflow', { workflow: currentWorkflow.value }, (res) => setContents(res.contents));
-    }, [ currentWorkflow ]);
+    }, [ currentWorkflow, setContents ]);
 
     return (
         <Dropdown
@@ -56,38 +64,28 @@ const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setContents }) 
     );
 }
 
-const ActionBar = ({ editor, currentWorkflow, showConsole, setShowConsole, markers }) => {
-    const ActionBarRoot = styled(FlexBar)`
-        justify-content: space-between;
-    `;
-    const ActionBarMain = styled(FlexBar)`
-        align-items: center;
-        font-weight: bold;
-        color: green;
-    `;
+const ActionBarRoot = styled(FlexBar)`
+    justify-content: space-between;
+`;
 
-    const [ status, setStatus ] = useState('');
-
+const ActionBar = ({ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast }) => {
     const saveWorkflow = (workflow, contents) => {
         Api('write-workflow', { workflow, contents }, () => {
-            setStatus('Saved!');
+            setToast({ show: true, content: 'Saved!'});
             setTimeout(() => {
-                setStatus('');
+                setToast({ show: false });
             }, 2000);
         });
     }
 
     return (
         <ActionBarRoot>
-            <ActionBarMain>
-                <Button
-                    disabled={markers.length > 0}
-                    onClick={() => saveWorkflow(currentWorkflow.value, editor.getModels()[0].getValue())}
-                >
-                    Save Workflow
-                </Button>
-                <div>{status}</div>
-            </ActionBarMain>
+            <Button
+                disabled={markers.length > 0}
+                onClick={() => saveWorkflow(currentWorkflow.value, editor.getModels()[0].getValue())}
+            >
+                Save Workflow
+            </Button>
             <Button
                 variant="secondary"
                 onClick={() => setShowConsole((old) => !old)}
@@ -104,21 +102,49 @@ const App = () => {
     const [ contents, setContents ] = useState();
     const [ logs, setLogs ] = useState('');
     const [ markers, setMarkers ] = useState([]);
+    const [ toast, setToast ] = useState({ show: false });
+    const [ deleteModal, setDeleteModal ] = useState({ show: false });
 
     return (
         <Root>
             <TopBar>
                 <WorkflowSelector {...{ currentWorkflow, setCurrentWorkflow, setContents }} />
                 <Button
-                    disabled
                     variant="secondary-destructive"
+                    onClick={() => setDeleteModal({ show: true })}
                 >
                     Delete Workflow
                 </Button>
+                <Modal size="small" show={deleteModal.show}>
+                    <ModalTitle>Confirm Delete</ModalTitle>
+                    <ModalBody>This will delete the workflow permanently. Are you sure?</ModalBody>
+                    <ModalFooter style={{ gap: '.5rem' }}>
+                        <Button
+                            variant="primary-destructive"
+                            onClick={() => setDeleteModal({ show: true, loading: true })}
+                            disabled={deleteModal.loading}
+                        >
+                            { deleteModal.loading ? <Loader /> : 'Delete' }
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setDeleteModal({ show: false })}
+                            disabled={deleteModal.loading}
+                        >
+                            Cancel
+                        </Button>
+                    </ModalFooter>
+                </Modal>
             </TopBar>
             <Editor {...{ editor, contents, markers, setMarkers }} />
-            <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers }} />
+            <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast }} />
             { showConsole && <Console {...{ logs, setLogs }} /> }
+            <FadeToast
+                show={toast.show}
+                content={toast.content || ''}
+                leftIcon={toast.icon || 'check'}
+                placement={{ horizontal: 'center', vertical: 'bottom' }}
+            />
         </Root>
     );
 }

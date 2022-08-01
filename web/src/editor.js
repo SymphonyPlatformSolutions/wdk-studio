@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 import styled from "styled-components";
-import {Button} from "@symphony-ui/uitoolkit-components/components";
-import {editor} from "monaco-editor";
 
 window.MonacoEnvironment = {
     getWorker(moduleId, label) {
@@ -38,7 +36,7 @@ const EditorRoot = styled.div`
 `;
 
 const ProblemsRoot = styled.div`
-    background-color: pink;
+    background-color: var(--tk-color-yellow-20);
     border-radius: 0 0 .4rem .4rem;
     overflow-x: auto;
     height: 20%;
@@ -49,13 +47,14 @@ const ProblemEntry = styled.div`
     font-size: .9rem;
     padding: .2rem;
     :hover {
-        background-color: lightskyblue;
+        background-color: var(--tk-color-electricity-30);
         cursor: pointer;
     }
 `;
 
 const Editor = ({ editor, contents, markers, setMarkers }) => {
     const ref = useRef(null);
+    const [ thisEditor, setThisEditor ] = useState();
 
     useEffect(() => {
         if (!contents) {
@@ -64,24 +63,31 @@ const Editor = ({ editor, contents, markers, setMarkers }) => {
         if (editor.getModels().length > 0) {
             editor.getModels()[0].dispose();
         }
-        editor.create(ref.current, {
+        setThisEditor(editor.create(ref.current, {
             automaticLayout: true,
             value: contents,
             language: 'yaml',
             theme: 'vs-light',
-            scrollbar: {
-                vertical: 'hidden',
-            },
-        });
-    }, [ contents ]);
+            scrollbar: { vertical: 'hidden' },
+        }));
+    }, [ contents, editor ]);
 
     editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
+
+    const goto = (lineNumber, column) => {
+        thisEditor.revealLineInCenter(lineNumber);
+        thisEditor.setPosition({ lineNumber, column });
+        thisEditor.focus();
+    }
 
     const Problems = ({ markers }) => (
         <ProblemsRoot>
             {
                 markers.map(({ startLineNumber, startColumn, endLineNumber, endColumn, message }) => (
-                    <ProblemEntry key={startLineNumber + startColumn + endLineNumber + endColumn}>
+                    <ProblemEntry
+                        key={startLineNumber + startColumn + endLineNumber + endColumn}
+                        onClick={() => goto(startLineNumber, startColumn) }
+                    >
                         {startLineNumber}: {message}
                     </ProblemEntry>
                 ))
