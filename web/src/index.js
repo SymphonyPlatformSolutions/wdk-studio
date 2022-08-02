@@ -36,7 +36,7 @@ const App = () => {
 
     return (
         <Root>
-            <WorkflowSelector {...{ currentWorkflow, setCurrentWorkflow }} />
+            <WorkflowSelector {...{ currentWorkflow, setCurrentWorkflow, setToast }} />
             <Editor {...{ editor, contents, markers, setMarkers }} />
             <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast }} />
             { showConsole && <Console {...{ logs, setLogs }} /> }

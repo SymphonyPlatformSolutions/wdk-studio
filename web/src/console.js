@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import styled from "styled-components";
-import { Checkbox } from "@symphony-ui/uitoolkit-components/components";
+import { Switch } from "@symphony-ui/uitoolkit-components/components";
 
 const ConsoleRoot = styled.div`
     border: grey 1px solid;
@@ -26,7 +26,7 @@ const Console = ({ logs, setLogs }) => {
         eventSource.onmessage = (event) => {
             setLogs((old) => `${old}${event.data}\n`);
         };
-    }, []);
+    }, [ apiRoot, setLogs ]);
 
     useEffect(() => {
         (tail === 'checked') && (logsRef.current.scrollTop = logsRef.current.scrollHeight);
@@ -37,7 +37,7 @@ const Console = ({ logs, setLogs }) => {
             <LogsRoot ref={logsRef}>
                 {logs}
             </LogsRoot>
-            <Checkbox
+            <Switch
                 name="tail"
                 value="tail"
                 label="Tail Logs"

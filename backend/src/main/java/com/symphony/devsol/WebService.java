@@ -1,7 +1,9 @@
 package com.symphony.devsol;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,6 +22,16 @@ import java.util.stream.Stream;
 public class WebService {
     private final String workflowRoot = "workflows/";
     private final BotService botService;
+    private final String template = """
+        id: abc
+        activities:
+            - send-message:
+                id: abcInit
+                on:
+                    message-received:
+                        content: /hello
+                content: hello
+        """;
 
     @GetMapping("logs")
     public SseEmitter stream() {
@@ -47,6 +59,26 @@ public class WebService {
         writer.write(workflow.contents);
         writer.close();
         return new Workflow(workflow.workflow, workflow.contents);
+    }
+
+    @PostMapping("add-workflow")
+    public Workflow addWorkflow(@RequestBody Workflow workflow) throws Exception {
+        String fileName = workflow.workflow + ".swadl.yaml";
+        if ((new File(workflowRoot + fileName)).exists()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        String workflowContents = template.replaceAll("abc", workflow.workflow);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(workflowRoot + fileName));
+        writer.write(workflowContents);
+        writer.close();
+        return new Workflow(fileName, workflowContents);
+    }
+
+    @PostMapping("delete-workflow")
+    public void deleteWorkflow(@RequestBody Workflow workflow) {
+        if (!(new File(workflowRoot + workflow.workflow)).delete()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 
     record Workflow(String workflow, String contents) {}

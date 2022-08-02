@@ -1,6 +1,6 @@
 const apiRoot = window.location.hostname === 'localhost' ? 'https://localhost:10443/' : '';
 
-const api = (uri, body, callback) => {
+const api = (uri, body, callback, errorCallback) => {
     const config = body && {
         method: "post",
         headers: { 'Content-Type': 'application/json' },
@@ -16,9 +16,7 @@ const api = (uri, body, callback) => {
             }
         })
         .then(callback)
-        .catch((response) => {
-            console.log(response);
-        });
+        .catch(errorCallback || ((response) => console.log(response)));
 }
 
 export default api;
