@@ -14,7 +14,7 @@ import java.util.List;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable();
+        http.cors().and().csrf().disable().headers().frameOptions().disable();
     }
 
     @Profile("dev")

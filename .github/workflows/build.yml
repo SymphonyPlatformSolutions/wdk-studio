@@ -14,6 +14,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+        cache-dependency-path: web/package-lock.json
+
+    - run: cd web && npm ci && npm run build && cp -r build ../backend/src/main/resources/static/
+
     - uses: actions/setup-java@v1
       with:
         java-version: 17
