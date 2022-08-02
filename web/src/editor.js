@@ -60,17 +60,21 @@ const Editor = ({ editor, contents, markers, setMarkers }) => {
         if (!contents) {
             return;
         }
-        if (editor.getModels().length > 0) {
-            editor.getModels()[0].dispose();
+        if (thisEditor) {
+            thisEditor.setValue(contents);
+        } else {
+            if (editor.getModels().length > 0) {
+                editor.getModels()[0].dispose()
+            }
+            setThisEditor(editor.create(ref.current, {
+                automaticLayout: true,
+                value: contents,
+                language: 'yaml',
+                theme: 'vs-light',
+                scrollbar: { vertical: 'hidden' },
+            }));
         }
-        setThisEditor(editor.create(ref.current, {
-            automaticLayout: true,
-            value: contents,
-            language: 'yaml',
-            theme: 'vs-light',
-            scrollbar: { vertical: 'hidden' },
-        }));
-    }, [ contents, editor ]);
+    }, [ contents, editor, thisEditor ]);
 
     editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
 
@@ -80,25 +84,21 @@ const Editor = ({ editor, contents, markers, setMarkers }) => {
         thisEditor.focus();
     }
 
-    const Problems = ({ markers }) => (
-        <ProblemsRoot>
-            {
-                markers.map(({ startLineNumber, startColumn, endLineNumber, endColumn, message }) => (
-                    <ProblemEntry
-                        key={startLineNumber + startColumn + endLineNumber + endColumn}
-                        onClick={() => goto(startLineNumber, startColumn) }
-                    >
-                        {startLineNumber}: {message}
-                    </ProblemEntry>
-                ))
-            }
-        </ProblemsRoot>
-    );
+    const Problems = ({ markers }) => markers.map(({
+        startLineNumber, startColumn, endLineNumber, endColumn, message
+    }) => (
+        <ProblemEntry
+            key={startLineNumber + startColumn + endLineNumber + endColumn}
+            onClick={() => goto(startLineNumber, startColumn) }
+        >
+            {startLineNumber}: {message}
+        </ProblemEntry>
+    ));
 
     return (
         <Root>
             <EditorRoot ref={ref} large={markers.length === 0} />
-            { markers.length > 0 && <Problems {...{markers}} /> }
+            { markers.length > 0 && <ProblemsRoot><Problems {...{markers}} /></ProblemsRoot> }
         </Root>
     );
 };
