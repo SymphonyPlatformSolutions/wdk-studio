@@ -84,7 +84,7 @@ const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows, setC
     );
 };
 
-const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, setToast }) => {
+const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, setToast, refreshDate }) => {
     const [ workflows, setWorkflows ] = useState([]);
     const [ createModal, setCreateModal ] = useState({ show: false });
 
@@ -95,11 +95,14 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, setToast }) => 
                 ...values,
                 { label: 'Create New Workflow', value: 'create' }
             ]);
-            if (values.length > 1) {
-                setCurrentWorkflow(values[0]);
-            }
         });
-    }, [ setCurrentWorkflow ]);
+    }, [ setCurrentWorkflow, refreshDate ]);
+
+    useEffect(() => {
+        if (workflows.length > 1) {
+            setCurrentWorkflow(workflows[0]);
+        }
+    }, [ workflows, setCurrentWorkflow ]);
 
     const handleChange = ({ target }) => {
         if (target.value.value === 'create') {
@@ -123,9 +126,24 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, setToast }) => 
     );
 };
 
-const ConfirmDeleteModal = ({ deleteModal, setDeleteModal }) => {
+const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, currentWorkflow, setToast, setRefreshDate }) => {
+    const showToast = (msg, error = 'false') => {
+        setToast({ show: true, content: msg, error });
+        setTimeout(() => {
+            setToast({ show: false });
+        }, 2000);
+    };
+
     const deleteWorkflow = () => {
         setDeleteModal({ show: true, loading: true });
+        Api('delete-workflow', { workflow: currentWorkflow.value }, () => {
+            setDeleteModal({ show: false });
+            showToast('Workflow deleted');
+            setRefreshDate(new Date());
+        }, () => {
+            setDeleteModal({ show: false });
+            showToast('Error deleting workflow', 'true');
+        });
     };
 
     return (
@@ -154,17 +172,18 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal }) => {
 
 const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setToast }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
+    const [ refreshDate, setRefreshDate ] = useState(new Date());
 
     return (
         <Root>
-            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast }} />
+            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, refreshDate }} />
             <Button
                 variant="secondary-destructive"
                 onClick={() => setDeleteModal({ show: true })}
             >
                 Delete Workflow
             </Button>
-            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, currentWorkflow }} />
+            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setRefreshDate }} />
         </Root>
     );
 };

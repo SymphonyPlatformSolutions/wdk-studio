@@ -75,10 +75,11 @@ public class WebService {
     }
 
     @PostMapping("delete-workflow")
-    public void deleteWorkflow(@RequestBody Workflow workflow) {
+    public String deleteWorkflow(@RequestBody Workflow workflow) {
         if (!(new File(workflowRoot + workflow.workflow)).delete()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+        return "ok";
     }
 
     record Workflow(String workflow, String contents) {}
