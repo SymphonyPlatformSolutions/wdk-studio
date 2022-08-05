@@ -16,6 +16,7 @@ const Root = styled.div`
     font-family: SymphonyLato, serif;
     font-size: 1rem;
     flex-direction: column;
+    height: 100%;
 `;
 
 const App = () => {
@@ -37,8 +38,8 @@ const App = () => {
     return (
         <Root>
             <WorkflowSelector {...{ currentWorkflow, setCurrentWorkflow, setToast }} />
-            <Editor {...{ editor, contents, markers, setMarkers }} />
             <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast }} />
+            <Editor {...{ editor, contents, markers, setMarkers }} />
             { showConsole && <Console {...{ logs, setLogs }} /> }
             <FadeToast {...{ toast }} />
         </Root>

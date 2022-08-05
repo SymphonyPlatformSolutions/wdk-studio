@@ -19,9 +19,9 @@ setDiagnosticsOptions({
 });
 
 const Root = styled.div`
-    border: grey 1px solid;
-    border-radius: .4rem;
-    height: 20rem;
+    border: #8f959e 1px solid;
+    height: 100%;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -32,14 +32,13 @@ const EditorRoot = styled.div`
     & .monaco-editor,
     & .monaco-editor .margin,
     & .monaco-editor-background { background: transparent }
-    & .decorationsOverviewRuler { border-radius: .4rem; }
 `;
 
 const ProblemsRoot = styled.div`
-    background-color: var(--tk-color-yellow-20);
-    border-radius: 0 0 .4rem .4rem;
+    background-color: var(--tk-color-red-20);
+    border-top: 1px #8f959e solid;
     overflow-x: auto;
-    height: 20%;
+    height: 100px;
     justify-self: flex-end;
 `;
 
@@ -47,7 +46,7 @@ const ProblemEntry = styled.div`
     font-size: .9rem;
     padding: .2rem;
     :hover {
-        background-color: var(--tk-color-electricity-30);
+        background-color: var(--tk-color-red-30);
         cursor: pointer;
     }
 `;
