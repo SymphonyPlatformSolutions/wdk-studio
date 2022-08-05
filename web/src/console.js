@@ -3,8 +3,7 @@ import styled from "styled-components";
 import { Switch } from "@symphony-ui/uitoolkit-components/components";
 
 const ConsoleRoot = styled.div`
-    border: grey 1px solid;
-    border-radius: .4rem;
+    border: #8f959e 1px solid;
     padding: .5rem;
 `;
 
