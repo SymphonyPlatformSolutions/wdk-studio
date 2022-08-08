@@ -26,6 +26,7 @@ const App = () => {
     const [ logs, setLogs ] = useState('');
     const [ markers, setMarkers ] = useState([]);
     const [ toast, setToast ] = useState({ show: false });
+    const [ refreshDate, setRefreshDate ] = useState(new Date());
 
     useEffect(() => {
         if (!currentWorkflow) {
@@ -37,8 +38,8 @@ const App = () => {
 
     return (
         <Root>
-            <WorkflowSelector {...{ currentWorkflow, setCurrentWorkflow, setToast }} />
-            <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast }} />
+            <WorkflowSelector {...{ currentWorkflow, setCurrentWorkflow, setToast, refreshDate }} />
+            <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast, setRefreshDate }} />
             <Editor {...{ editor, contents, markers, setMarkers }} />
             { showConsole && <Console {...{ logs, setLogs }} /> }
             <FadeToast {...{ toast }} />

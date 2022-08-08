@@ -1,4 +1,4 @@
-const appId = (window.location.hostname === 'localhost') ? 'http://localhost-8080' : 'workflower';
+const appId = (window.location.hostname === 'localhost') ? 'localhost-10443' : 'workflower';
 const appUri = (window.location.hostname === 'localhost') ? 'http://localhost:3000' : window.location.origin;
 
 const auth = () => fetch('/bdk/v1/app/auth', { method: 'POST' });

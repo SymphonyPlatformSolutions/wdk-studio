@@ -83,17 +83,13 @@ const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows, setC
     );
 };
 
-const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, setToast, refreshDate }) => {
-    const [ workflows, setWorkflows ] = useState([]);
-
+const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, refreshDate, workflows, setWorkflows }) => {
     useEffect(() => {
         Api('list-workflows', null, (res) => {
             const values = res.map(workflow => ({ label: workflow, value: workflow }));
-            setWorkflows([
-                ...values
-            ]);
+            setWorkflows(values);
         });
-    }, [ setCurrentWorkflow, refreshDate ]);
+    }, [ setCurrentWorkflow, refreshDate, setWorkflows ]);
 
     useEffect(() => {
         if (workflows.length > 1) {
@@ -118,14 +114,13 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, setToast, refre
     );
 };
 
-const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setToast }) => {
-    const [ refreshDate, setRefreshDate ] = useState(new Date());
+const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setToast, refreshDate }) => {
     const [ workflows, setWorkflows ] = useState([]);
     const [ createModal, setCreateModal ] = useState({ show: false });
 
     return (
         <Root>
-            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, refreshDate }} />
+            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, refreshDate, workflows, setWorkflows }} />
             <Button
                 variant="primary"
                 onClick={() => setCreateModal({ show: true })}

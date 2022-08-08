@@ -54,9 +54,8 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, currentWorkflow, setT
 };
 
 
-const ActionBar = ({ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast }) => {
+const ActionBar = ({ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast, setRefreshDate }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
-    const [ refreshDate, setRefreshDate ] = useState(new Date());
 
     const saveWorkflow = (workflow, contents) => {
         Api('write-workflow', { workflow, contents }, () => {
