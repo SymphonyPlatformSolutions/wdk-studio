@@ -1,4 +1,6 @@
-import {Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle} from "@symphony-ui/uitoolkit-components/components";
+import {
+    Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle, Icon,
+} from "@symphony-ui/uitoolkit-components/components";
 import styled from "styled-components";
 import Api from './api';
 import {useState} from "react";
@@ -75,50 +77,57 @@ const ActionBar = ({
     return (
         <Root>
             <Button
+                iconLeft={<Icon iconName="enter" />}
                 variant="secondary"
                 disabled={markers.length > 0}
                 onClick={() => saveWorkflow(currentWorkflow.value, editor.getModels()[0].getValue())}
             >
-                <i className="fa-regular fa-floppy-disk"></i> Save
+                Save
             </Button>
             <Button
+                iconLeft={<Icon iconName="share" />}
                 variant="secondary"
                 disabled={markers.length > 0}
                 onClick={() => alert('coming soon!')}
             >
-                <i className="fa-solid fa-upload"></i> Publish
+                Publish
             </Button>
             <Button
+                iconLeft={<Icon iconName="voice" />}
                 variant="secondary"
                 disabled={markers.length > 0}
                 onClick={() => alert('coming soon!')}
             >
-                <i className="fa-solid fa-wand-sparkles"></i> Wizard
+                Wizard
             </Button>
             <Button
+                iconLeft={<Icon iconName={showConsole ? 'pop-in' : 'pop-out'} />}
                 variant="secondary"
                 onClick={() => setShowConsole((old) => !old)}
             >
-                { showConsole ? <i className="fa-solid fa-eye-slash"></i> : <i className="fa-solid fa-eye"></i> } Console
+                Console
             </Button>
             <Button
+                iconLeft={<Icon iconName="message" />}
                 variant="secondary"
                 onClick={() => alert('coming soon!')}
             >
-                <i className="fa-solid fa-comment-dots"></i> Chat
+                Chat
             </Button>
             <Button
+                iconLeft={<Icon iconName="delete" />}
                 variant="secondary-destructive"
                 disabled={markers.length > 0}
                 onClick={() => setDeleteModal({ show: true })}
             >
-                <i className="fa-solid fa-trash"></i> Delete
+                Delete
             </Button>
             <Button
+                iconLeft={<Icon iconName="info-round" />}
                 variant="secondary"
                 onClick={() => openHelp()}
             >
-                <i className="fa-solid fa-info"></i> Help
+                Help
             </Button>
             <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }} />
         </Root>

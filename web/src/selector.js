@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import {
-    Button, Dropdown, Loader, TextField,
+    Button, Dropdown, Loader, TextField, Icon,
     Modal, ModalTitle, ModalBody, ModalFooter,
 } from "@symphony-ui/uitoolkit-components/components";
 import styled from "styled-components";
@@ -128,8 +128,9 @@ const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrent
             <Button
                 variant="primary"
                 onClick={() => setCreateModal({ show: true })}
+                iconLeft={<Icon iconName="plus" />}
             >
-                <i className="fa-solid fa-plus"></i> Workflow
+                Workflow
             </Button>
             <CreateModal {...{ createModal, setCreateModal, setToast, setWorkflows }} />
         </Root>
