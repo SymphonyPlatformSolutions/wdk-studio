@@ -1,6 +1,9 @@
 package com.symphony.devsol;
 
+import java.nio.file.Path;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,16 +25,6 @@ import java.util.stream.Stream;
 public class WebService {
     private final String workflowRoot = "workflows/";
     private final BotService botService;
-    private final String template = """
-        id: abc
-        activities:
-          - send-message:
-            id: abcInit
-            on:
-              message-received:
-                content: /hello
-            content: hello
-    """;
 
     @GetMapping("logs")
     public SseEmitter stream() {
@@ -68,6 +61,8 @@ public class WebService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         String cleanName = workflow.workflow.replaceAll("-", "");
+        Path path = Paths.get(new ClassPathResource("template.yaml").getURI());
+        String template = String.join("\n", Files.readAllLines(path, StandardCharsets.UTF_8));
         String workflowContents = template.replaceAll("abc", cleanName);
         BufferedWriter writer = new BufferedWriter(new FileWriter(workflowRoot + fileName));
         writer.write(workflowContents);

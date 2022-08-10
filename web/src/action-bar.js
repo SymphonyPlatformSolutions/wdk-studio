@@ -9,7 +9,7 @@ const Root = styled.div`
     justify-content: start;
 `;
 
-const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, currentWorkflow, setToast, setRefreshDate }) => {
+const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }) => {
     const showToast = (msg, error = 'false') => {
         setToast({ show: true, content: msg, error });
         setTimeout(() => {
@@ -22,7 +22,7 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, currentWorkflow, setT
         Api('delete-workflow', { workflow: currentWorkflow.value }, () => {
             setDeleteModal({ show: false });
             showToast('Workflow deleted');
-            setRefreshDate(new Date());
+            setWorkflows((old) => old.filter((w) => w.value !== currentWorkflow.value));
         }, () => {
             setDeleteModal({ show: false });
             showToast('Error deleting workflow', 'true');
@@ -54,7 +54,9 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, currentWorkflow, setT
 };
 
 
-const ActionBar = ({ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast, setRefreshDate }) => {
+const ActionBar = ({
+    editor, currentWorkflow, showConsole, setShowConsole, markers, setToast, setWorkflows
+}) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
 
     const saveWorkflow = (workflow, contents) => {
@@ -118,7 +120,7 @@ const ActionBar = ({ editor, currentWorkflow, showConsole, setShowConsole, marke
             >
                 <i className="fa-solid fa-info"></i> Help
             </Button>
-            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setRefreshDate }} />
+            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }} />
         </Root>
     );
 };

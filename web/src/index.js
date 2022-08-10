@@ -20,13 +20,13 @@ const Root = styled.div`
 `;
 
 const App = () => {
+    const [ workflows, setWorkflows ] = useState([]);
     const [ currentWorkflow, setCurrentWorkflow ] = useState();
     const [ showConsole, setShowConsole ] = useState(true);
     const [ contents, setContents ] = useState();
     const [ logs, setLogs ] = useState('');
     const [ markers, setMarkers ] = useState([]);
     const [ toast, setToast ] = useState({ show: false });
-    const [ refreshDate, setRefreshDate ] = useState(new Date());
 
     useEffect(() => {
         if (!currentWorkflow) {
@@ -38,8 +38,8 @@ const App = () => {
 
     return (
         <Root>
-            <WorkflowSelector {...{ currentWorkflow, setCurrentWorkflow, setToast, refreshDate }} />
-            <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast, setRefreshDate }} />
+            <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast }} />
+            <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast, setWorkflows }} />
             <Editor {...{ editor, contents, markers, setMarkers }} />
             { showConsole && <Console {...{ logs, setLogs }} /> }
             <FadeToast {...{ toast }} />

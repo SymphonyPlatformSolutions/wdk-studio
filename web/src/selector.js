@@ -13,7 +13,7 @@ const Root = styled.div`
     gap: .5rem;
 `;
 
-const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows, setCurrentWorkflow }) => {
+const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows }) => {
     const [ newName, setNewName ] = useState('');
 
     const showToast = (msg, error = 'false') => {
@@ -34,8 +34,7 @@ const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows, setC
             showToast('New workflow added', 'false');
             setCreateModal({ show: false });
             const newWorkflow = { label: res.workflow, value: res.workflow };
-            setWorkflows((old) => ([ ...old, newWorkflow ]));
-            setCurrentWorkflow(newWorkflow);
+            setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : ((b.value > a.value) ? -1 : 0))));
         }, () => {
             showToast(`Workflow named ${newName} already exists`, 'true');
         });
@@ -88,32 +87,40 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setW
         });
     }, [ setCurrentWorkflow, setWorkflows ]);
 
-    useEffect(() => {
-        if (workflows.length > 1) {
-            setCurrentWorkflow(workflows[0]);
-        }
-    }, [ workflows, setCurrentWorkflow ]);
-
-    const handleChange = ({ target }) => {
-        setCurrentWorkflow(target.value);
-    };
-
     return (
-        <>
-            <Dropdown
-                blurInputOnSelect
-                label="Select Workflow"
-                options={workflows}
-                onChange={handleChange}
-                value={currentWorkflow}
-            />
-        </>
+        <Dropdown
+            blurInputOnSelect
+            label="Select Workflow"
+            options={workflows}
+            onChange={({ target }) => setCurrentWorkflow(target.value)}
+            value={currentWorkflow}
+        />
     );
 };
 
-const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setToast }) => {
-    const [ workflows, setWorkflows ] = useState([]);
+const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast }) => {
     const [ createModal, setCreateModal ] = useState({ show: false });
+
+    const usePrevious = (value) => {
+        const ref = useRef();
+        useEffect(() => {
+            ref.current = value;
+        });
+        return ref.current;
+    };
+    const prevWorkflows = usePrevious(workflows);
+
+    useEffect(() => {
+        if (!prevWorkflows || prevWorkflows?.length === workflows.length) {
+            return;
+        } else if ((prevWorkflows?.length === 0 && workflows?.length > 0) || (workflows.length < prevWorkflows?.length)) {
+            setCurrentWorkflow(workflows[0]);
+        } else {
+            const prev = prevWorkflows?.map((w) => w.value);
+            const delta = workflows.map((w) => w.value).filter((i) => prev.indexOf(i) === -1)[0];
+            setCurrentWorkflow(workflows.filter((w) => w.value === delta)[0]);
+        }
+    }, [ prevWorkflows, workflows, setCurrentWorkflow ]);
 
     return (
         <Root>
@@ -124,7 +131,7 @@ const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setToast }) => 
             >
                 <i className="fa-solid fa-plus"></i> Workflow
             </Button>
-            <CreateModal {...{ createModal, setCreateModal, setToast, setWorkflows, setCurrentWorkflow }} />
+            <CreateModal {...{ createModal, setCreateModal, setToast, setWorkflows }} />
         </Root>
     );
 };
