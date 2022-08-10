@@ -34,10 +34,7 @@ const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows, setC
             showToast('New workflow added', 'false');
             setCreateModal({ show: false });
             const newWorkflow = { label: res.workflow, value: res.workflow };
-            setWorkflows((old) => ([
-                ...old.slice(0, -1),
-                newWorkflow
-            ]));
+            setWorkflows((old) => ([ ...old, newWorkflow ]));
             setCurrentWorkflow(newWorkflow);
         }, () => {
             showToast(`Workflow named ${newName} already exists`, 'true');
@@ -83,13 +80,13 @@ const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows, setC
     );
 };
 
-const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, refreshDate, workflows, setWorkflows }) => {
+const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows }) => {
     useEffect(() => {
         Api('list-workflows', null, (res) => {
             const values = res.map(workflow => ({ label: workflow, value: workflow }));
             setWorkflows(values);
         });
-    }, [ setCurrentWorkflow, refreshDate, setWorkflows ]);
+    }, [ setCurrentWorkflow, setWorkflows ]);
 
     useEffect(() => {
         if (workflows.length > 1) {
@@ -114,13 +111,13 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, refreshDate, wo
     );
 };
 
-const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setToast, refreshDate }) => {
+const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, setToast }) => {
     const [ workflows, setWorkflows ] = useState([]);
     const [ createModal, setCreateModal ] = useState({ show: false });
 
     return (
         <Root>
-            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, refreshDate, workflows, setWorkflows }} />
+            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, workflows, setWorkflows }} />
             <Button
                 variant="primary"
                 onClick={() => setCreateModal({ show: true })}

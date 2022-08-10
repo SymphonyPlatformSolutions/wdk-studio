@@ -25,13 +25,13 @@ public class WebService {
     private final String template = """
         id: abc
         activities:
-            - send-message:
-                id: abcInit
-                on:
-                    message-received:
-                        content: /hello
-                content: hello
-        """;
+          - send-message:
+            id: abcInit
+            on:
+              message-received:
+                content: /hello
+            content: hello
+    """;
 
     @GetMapping("logs")
     public SseEmitter stream() {
@@ -67,7 +67,8 @@ public class WebService {
         if ((new File(workflowRoot + fileName)).exists()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        String workflowContents = template.replaceAll("abc", workflow.workflow);
+        String cleanName = workflow.workflow.replaceAll("-", "");
+        String workflowContents = template.replaceAll("abc", cleanName);
         BufferedWriter writer = new BufferedWriter(new FileWriter(workflowRoot + fileName));
         writer.write(workflowContents);
         writer.close();
