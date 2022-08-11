@@ -1,11 +1,11 @@
-name: Build
+name: Release
 
 on:
-  push:
-    branches: [ main ]
+  release:
+    types: [ published ]
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -43,5 +43,5 @@ jobs:
     - uses: docker/build-push-action@v3
       with:
         context: .
-        push: false
+        push: true
         tags: ${{ steps.meta.outputs.tags }}
