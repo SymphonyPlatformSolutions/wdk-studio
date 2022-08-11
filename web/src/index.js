@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@symphony-ui/uitoolkit-styles/dist/css/uitoolkit.css';
 import styled from "styled-components";
 import { editor } from 'monaco-editor';
-import Editor from './editor';
-import Console from './console';
 import Api from './api';
-import WorkflowSelector from './selector';
-import ActionBar from './action-bar';
-import FadeToast from './fade-toast';
+
+const Editor = lazy(() => import('./editor'));
+const Console = lazy(() => import('./console'));
+const WorkflowSelector = lazy(() => import('./selector'));
+const ActionBar = lazy(() => import('./action-bar'));
+const FadeToast = lazy(() => import('./fade-toast'));
 
 const Root = styled.div`
     display: flex;
