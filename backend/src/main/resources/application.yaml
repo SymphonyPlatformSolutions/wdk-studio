@@ -25,5 +25,5 @@ logging:
   level:
     com.symphony: error
 
-spring:
-  main.banner-mode: off
+spring.main.banner-mode: off
+management.endpoints.web.base-path: /
