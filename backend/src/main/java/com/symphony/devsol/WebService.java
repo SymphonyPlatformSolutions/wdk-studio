@@ -1,21 +1,20 @@
 package com.symphony.devsol;
 
-import java.nio.file.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,8 +60,8 @@ public class WebService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         String cleanName = workflow.workflow.replaceAll("-", "");
-        Path path = Paths.get(new ClassPathResource("template.yaml").getURI());
-        String template = String.join("\n", Files.readAllLines(path, StandardCharsets.UTF_8));
+        InputStream inputStream = new ClassPathResource("template.yaml").getInputStream();
+        String template = new Scanner(inputStream).useDelimiter("\\A").next();
         String workflowContents = template.replaceAll("abc", cleanName);
         BufferedWriter writer = new BufferedWriter(new FileWriter(workflowRoot + fileName));
         writer.write(workflowContents);
