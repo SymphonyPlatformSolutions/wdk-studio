@@ -33,7 +33,7 @@ const Console = ({ logs, setLogs }) => {
 
     return (
         <ConsoleRoot>
-            <LogsRoot ref={logsRef}>
+            <LogsRoot ref={logsRef} className="tk-text-color">
                 {logs}
             </LogsRoot>
             <Switch

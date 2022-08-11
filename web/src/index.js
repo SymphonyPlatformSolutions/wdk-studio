@@ -27,6 +27,23 @@ const App = () => {
     const [ logs, setLogs ] = useState('');
     const [ markers, setMarkers ] = useState([]);
     const [ toast, setToast ] = useState({ show: false });
+    const [ theme, setTheme ] = useState('light');
+
+    useEffect(() => {
+        if (window.SYMPHONY) {
+            window.SYMPHONY.remote.hello().then((data) => {
+                const bodyClasses = []
+                if (data.themeV2.name === 'dark') {
+                    bodyClasses.push('tk-dark');
+                }
+                if (data.themeV2.isCondensedMode) {
+                    bodyClasses.push('tk-condensed');
+                }
+                document.querySelector('body').className = bodyClasses.join(' ');
+                setTheme(data.themeV2.name);
+            });
+        }
+    }, []);
 
     useEffect(() => {
         if (!currentWorkflow) {
@@ -40,7 +57,7 @@ const App = () => {
         <Root>
             <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast }} />
             <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast, setWorkflows }} />
-            <Editor {...{ editor, contents, markers, setMarkers }} />
+            <Editor {...{ editor, contents, markers, setMarkers, theme }} />
             { showConsole && <Console {...{ logs, setLogs }} /> }
             <FadeToast {...{ toast }} />
         </Root>
