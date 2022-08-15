@@ -38,6 +38,7 @@ jobs:
       id: meta
       with:
         images: ghcr.io/${{ github.repository }}
+        flavor: latest=false
         tags: type=semver,pattern={{version}}
 
     - uses: docker/build-push-action@v3
@@ -45,3 +46,18 @@ jobs:
         context: .
         push: true
         tags: ${{ steps.meta.outputs.tags }}
+
+    - uses: google-github-actions/auth@v0.8.0
+      with:
+        credentials_json: ${{ secrets.UAT_GKE_AUTH }}
+
+    - uses: google-github-actions/get-gke-credentials@v0.8.0
+      with:
+        cluster_name: ${{ secrets.UAT_GKE_CLUSTER }}
+        location: ${{ secrets.UAT_GKE_ZONE }}
+
+    - env:
+        DEPLOYMENT: ${{ github.event.repository.name }}
+      run: |
+        kubectl set image deployments/${DEPLOYMENT} ${DEPLOYMENT}=${{ steps.meta.outputs.tags }}
+        kubectl rollout status deployment/${{ SECRETS.GKE_DEPLOYMENT }}
