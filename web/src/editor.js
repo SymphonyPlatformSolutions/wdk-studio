@@ -56,9 +56,22 @@ const ProblemEntry = styled.div`
     }
 `;
 
-const Editor = ({ editor, contents, markers, setMarkers, theme }) => {
+const Editor = ({ editor, snippet, contents, markers, setMarkers, theme }) => {
     const ref = useRef(null);
     const [ thisEditor, setThisEditor ] = useState();
+
+    useEffect(() => {
+        if (!snippet.content) {
+            return;
+        }
+        if (thisEditor) {
+            let id = { major: 1, minor: 1 };
+            let range = thisEditor.getSelection();
+            let op = { identifier: id, range: range, text: snippet.content, forceMoveMarkers: true };
+            thisEditor.executeEdits("wizard", [op]);
+            thisEditor.focus();
+        }
+    }, [snippet]);
 
     useEffect(() => {
         if (!contents) {

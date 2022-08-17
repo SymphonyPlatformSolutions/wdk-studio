@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy } from 'react';
+import React, {useState, useEffect, lazy} from 'react';
 import ReactDOM from 'react-dom/client';
 import '@symphony-ui/uitoolkit-styles/dist/css/uitoolkit.css';
 import styled from "styled-components";
@@ -46,6 +46,8 @@ const App = () => {
         }
     }, []);
 
+    const [snippet, setSnippet] = useState({});
+
     useEffect(() => {
         if (!currentWorkflow) {
             return;
@@ -57,8 +59,8 @@ const App = () => {
     return (
         <Root>
             <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast }} />
-            <ActionBar {...{ editor, currentWorkflow, showConsole, setShowConsole, markers, setToast, setWorkflows }} />
-            <Editor {...{ editor, contents, markers, setMarkers, theme }} />
+            <ActionBar {...{ editor, setSnippet, currentWorkflow, showConsole, setShowConsole, markers, setToast, setWorkflows }} />
+            <Editor {...{ editor, snippet, contents, markers, setMarkers, theme }} />
             { showConsole && <Console {...{ logs, setLogs }} /> }
             <FadeToast {...{ toast }} />
         </Root>
