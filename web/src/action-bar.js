@@ -1,6 +1,5 @@
-import {
-    Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle, Icon,
-} from "@symphony-ui/uitoolkit-components/components";
+import {Button, Icon, Loader, Modal, ModalBody, ModalFooter, ModalTitle} from "@symphony-ui/uitoolkit-components/components";
+import Wizard from './wizard'
 import styled from "styled-components";
 import Api from './api';
 import {useState} from "react";
@@ -12,6 +11,7 @@ const Root = styled.div`
 `;
 
 const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }) => {
+
     const showToast = (msg, error = 'false') => {
         setToast({ show: true, content: msg, error });
         setTimeout(() => {
@@ -55,11 +55,77 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWork
     );
 };
 
+const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents, setToast, setRefreshDate }) => {
+    const [codeSnippet, setCodeSnippet] = useState(null)
+    const [eventCodeSnippet, setEventCodeSnippet] = useState(null)
+    const [activeStep, setActiveStep] = useState(1)
 
-const ActionBar = ({
-    editor, currentWorkflow, showConsole, setShowConsole, markers, setToast, setWorkflows
-}) => {
+    const showToast = (msg, error = 'false') => {
+        setToast({ show: true, content: msg, error });
+        setTimeout(() => {
+            setToast({ show: false });
+        }, 2000);
+    };
+
+    const addCodeSnippet = () => {
+        setSnippet({ content: codeSnippet, ts: Date.now() });
+    }
+
+    return (
+        <Modal size="large" show={wizardModal.show}>
+            <ModalTitle>Code generation wizard</ModalTitle>
+            <ModalBody>
+                <Wizard setCodeSnippet={setCodeSnippet} eventCodeSnippet={eventCodeSnippet} setEventCodeSnippet={setEventCodeSnippet} activeStep={activeStep} workflowEditor={editor} contents={contents} />
+            </ModalBody>
+            <ModalFooter style={{ gap: '.5rem' }}>
+                <Button
+                    variant="secondary"
+                    onClick={() => setActiveStep(activeStep-1 )}
+                    disabled={activeStep<2}
+                >
+                    Back
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => setActiveStep(activeStep+1 )}
+                    disabled={!codeSnippet && activeStep<3}
+                >
+                    Next
+                </Button>
+                <Button
+                    variant="primary"
+                    onClick={() => {
+                        addCodeSnippet();
+                        setWizardModal({ show: false })
+                        setCodeSnippet(null);
+                        setEventCodeSnippet(null);
+                        setActiveStep(1);
+                    }}
+                    disabled={!codeSnippet}
+                >
+                    Get Code
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => {
+                        setWizardModal({ show: false })
+                        setCodeSnippet(null);
+                        setEventCodeSnippet(null);
+                        setActiveStep(1);
+                    }}
+                    disabled={wizardModal.loading}
+                >
+                    Cancel
+                </Button>
+            </ModalFooter>
+        </Modal>
+    );
+};
+
+const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole, setShowConsole, markers, setToast }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
+    const [ wizardModal, setWizardModal ] = useState({ show: false });
+    const [ refreshDate, setRefreshDate ] = useState(new Date());
 
     const saveWorkflow = (workflow, contents) => {
         Api('write-workflow', { workflow, contents }, () => {
@@ -87,10 +153,10 @@ const ActionBar = ({
             <Button
                 iconLeft={<Icon iconName="share" />}
                 variant="secondary"
-                disabled={markers.length > 0}
-                onClick={() => alert('coming soon!')}
+                disabled={false}
+                onClick={() => setWizardModal({ show: true })}
             >
-                Publish
+                <i className="fa-solid fa-wand-sparkles"></i> Wizard
             </Button>
             <Button
                 iconLeft={<Icon iconName="voice" />}
@@ -98,7 +164,7 @@ const ActionBar = ({
                 disabled={markers.length > 0}
                 onClick={() => alert('coming soon!')}
             >
-                Wizard
+                <i className="fa-solid fa-chart-line"></i> Monitor
             </Button>
             <Button
                 iconLeft={<Icon iconName={showConsole ? 'pop-in' : 'pop-out'} />}
@@ -108,16 +174,8 @@ const ActionBar = ({
                 Console
             </Button>
             <Button
-                iconLeft={<Icon iconName="message" />}
-                variant="secondary"
-                onClick={() => alert('coming soon!')}
-            >
-                Chat
-            </Button>
-            <Button
-                iconLeft={<Icon iconName="delete" />}
                 variant="secondary-destructive"
-                disabled={markers.length > 0}
+                disabled={false}
                 onClick={() => setDeleteModal({ show: true })}
             >
                 Delete
@@ -129,7 +187,8 @@ const ActionBar = ({
             >
                 Help
             </Button>
-            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }} />
+            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setRefreshDate }} />
+            <WizardModal {...{ wizardModal, setSnippet, setWizardModal, setToast, editor, contents, setRefreshDate }} />
         </Root>
     );
 };
