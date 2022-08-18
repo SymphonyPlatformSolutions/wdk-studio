@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import {
-    Button, Dropdown, Loader, TextField, Icon,
+    Button, Dropdown, Loader, TextField,
     Modal, ModalTitle, ModalBody, ModalFooter,
 } from "@symphony-ui/uitoolkit-components/components";
+import { FaPlus } from 'react-icons/fa';
 import styled from "styled-components";
 import Api from './api';
 
@@ -11,6 +12,8 @@ const Root = styled.div`
     grid-template-columns: 4fr 0.5fr;
     align-items: flex-end;
     gap: .5rem;
+    & svg { width: 1rem; height: 1rem; }
+    & button.tk-button { display: inline-flex; gap: .3rem }
 `;
 
 const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows }) => {
@@ -128,7 +131,7 @@ const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrent
             <Button
                 variant="primary"
                 onClick={() => setCreateModal({ show: true })}
-                iconLeft={<Icon iconName="plus" />}
+                iconLeft={<FaPlus />}
             >
                 Workflow
             </Button>

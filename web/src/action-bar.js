@@ -1,13 +1,16 @@
-import {Button, Icon, Loader, Modal, ModalBody, ModalFooter, ModalTitle} from "@symphony-ui/uitoolkit-components/components";
+import {Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle} from "@symphony-ui/uitoolkit-components/components";
 import Wizard from './wizard'
 import styled from "styled-components";
 import Api from './api';
 import {useState} from "react";
+import { FaSave, FaHatWizard, FaChartBar, FaEye, FaEyeSlash, FaRegQuestionCircle, FaRegTrashAlt } from 'react-icons/fa';
 
 const Root = styled.div`
     display: flex;
     gap: .5rem;
     justify-content: start;
+    & svg { width: 1rem; height: 1rem; }
+    & button.tk-button { display: inline-flex; gap: .3rem }
 `;
 
 const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }) => {
@@ -55,7 +58,7 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWork
     );
 };
 
-const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents, setToast, setRefreshDate }) => {
+const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents, setToast }) => {
     const [codeSnippet, setCodeSnippet] = useState(null)
     const [eventCodeSnippet, setEventCodeSnippet] = useState(null)
     const [activeStep, setActiveStep] = useState(1)
@@ -143,7 +146,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole,
     return (
         <Root>
             <Button
-                iconLeft={<Icon iconName="enter" />}
+                iconLeft={<FaSave />}
                 variant="secondary"
                 disabled={markers.length > 0}
                 onClick={() => saveWorkflow(currentWorkflow.value, editor.getModels()[0].getValue())}
@@ -151,29 +154,30 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole,
                 Save
             </Button>
             <Button
-                iconLeft={<Icon iconName="share" />}
+                iconLeft={<FaHatWizard />}
                 variant="secondary"
                 disabled={false}
                 onClick={() => setWizardModal({ show: true })}
             >
-                <i className="fa-solid fa-wand-sparkles"></i> Wizard
+                Wizard
             </Button>
             <Button
-                iconLeft={<Icon iconName="voice" />}
+                iconLeft={<FaChartBar />}
                 variant="secondary"
                 disabled={markers.length > 0}
                 onClick={() => alert('coming soon!')}
             >
-                <i className="fa-solid fa-chart-line"></i> Monitor
+                Monitor
             </Button>
             <Button
-                iconLeft={<Icon iconName={showConsole ? 'pop-in' : 'pop-out'} />}
+                iconLeft={showConsole ? <FaEyeSlash /> : <FaEye />}
                 variant="secondary"
                 onClick={() => setShowConsole((old) => !old)}
             >
                 Console
             </Button>
             <Button
+                iconLeft={<FaRegTrashAlt />}
                 variant="secondary-destructive"
                 disabled={false}
                 onClick={() => setDeleteModal({ show: true })}
@@ -181,7 +185,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole,
                 Delete
             </Button>
             <Button
-                iconLeft={<Icon iconName="info-round" />}
+                iconLeft={<FaRegQuestionCircle />}
                 variant="secondary"
                 onClick={() => openHelp()}
             >
