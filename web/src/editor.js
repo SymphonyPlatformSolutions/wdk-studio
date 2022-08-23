@@ -56,7 +56,7 @@ const ProblemEntry = styled.div`
     }
 `;
 
-const Editor = ({ editor, snippet, contents, markers, setMarkers, theme }) => {
+const Editor = ({ editor, snippet, contents, markers, setMarkers, theme, isContentChanged, setIsContentChanged }) => {
     const ref = useRef(null);
     const [ thisEditor, setThisEditor ] = useState();
 
@@ -79,6 +79,14 @@ const Editor = ({ editor, snippet, contents, markers, setMarkers, theme }) => {
         }
         if (thisEditor) {
             thisEditor.setValue(contents);
+            thisEditor.onDidChangeModelContent( (e) => {
+                const modifiedContents = editor.getModels()[0].getValue();
+                if ( modifiedContents != contents && !e.isFlush ) {
+                    setIsContentChanged( 'modified' );
+                } else {
+                    setIsContentChanged( 'pristine' );
+                }
+            } );
         } else {
             if (editor.getModels().length > 0) {
                 editor.getModels()[0].dispose()

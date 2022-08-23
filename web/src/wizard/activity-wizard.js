@@ -64,7 +64,7 @@ const ActivityWizard = ({setCodeSnippet, eventCodeSnippet}) => {
                 <Title>Select a type of activity to execute:</Title>
                 <ItemsBody>
                     <ItemsBodyContent onClick={() => setSelectedType(1)}>
-                        <span>Send, update, delete Messages</span>
+                        <span>Send, update, Pin, delete Messages</span>
                         <Chevron className="fa fa-angle-right"></Chevron>
                     </ItemsBodyContent>
                     <ItemsBodyContent>
@@ -96,6 +96,10 @@ const ActivityWizard = ({setCodeSnippet, eventCodeSnippet}) => {
                         </ItemsBodyContent>
                         <ItemsBodyContent onClick={() => setSelectedActivityForm({name: 'UpdateMessageForm'} )}>
                             <span>Update a message</span>
+                            <Chevron className="fa fa-angle-right"></Chevron>
+                        </ItemsBodyContent>
+                        <ItemsBodyContent>
+                            <span>Pin a message</span>
                             <Chevron className="fa fa-angle-right"></Chevron>
                         </ItemsBodyContent>
                         <ItemsBodyContent>

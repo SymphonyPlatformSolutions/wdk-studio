@@ -7,7 +7,19 @@ import {useState} from "react";
 const Root = styled.div`
     display: flex;
     gap: .5rem;
+    justify-content: space-between;
+`;
+
+const SectionLeft = styled.div`
+    display: flex;
+    gap: .5rem;
     justify-content: start;
+`;
+
+const SectionRight = styled.div`
+    display: flex;
+    gap: .5rem;
+    justify-content: end;
 `;
 
 const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }) => {
@@ -32,7 +44,7 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWork
     };
 
     return (
-        <Modal size="small" show={deleteModal.show}>
+        <Modal size="medium" show={deleteModal.show}>
             <ModalTitle>Confirm Delete</ModalTitle>
             <ModalBody>This will delete the workflow permanently. Are you sure?</ModalBody>
             <ModalFooter style={{ gap: '.5rem' }}>
@@ -55,9 +67,41 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWork
     );
 };
 
+const ConfirmDiscardModal = ({ discardModal, setDiscardModal, editor, contents }) => {
+
+    const discardWorkflow = () => {
+        editor.getModels()[0].setValue( contents );
+        setDiscardModal( { show: false } );
+    }
+
+    return (
+        <Modal size="medium" show={discardModal.show}>
+            <ModalTitle>Discard your changes</ModalTitle>
+            <ModalBody>All changes will be lost. Are you sure?</ModalBody>
+            <ModalFooter style={{ gap: '.5rem' }}>
+                <Button
+                    variant="primary-destructive"
+                    onClick={discardWorkflow}
+                    disabled={discardModal.loading}
+                >
+                    { discardModal.loading ? <Loader /> : 'Discard' }
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => setDiscardModal({ show: false })}
+                    disabled={discardModal.loading}
+                >
+                    Cancel
+                </Button>
+            </ModalFooter>
+        </Modal>
+    );
+};
+
 const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents, setToast, setRefreshDate }) => {
     const [codeSnippet, setCodeSnippet] = useState(null)
     const [eventCodeSnippet, setEventCodeSnippet] = useState(null)
+    const [conditionCodeSnippet, setConditionCodeSnippet] = useState(null)
     const [activeStep, setActiveStep] = useState(1)
 
     const showToast = (msg, error = 'false') => {
@@ -73,9 +117,9 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
 
     return (
         <Modal size="large" show={wizardModal.show}>
-            <ModalTitle>Code generation wizard</ModalTitle>
+            <ModalTitle>SWADL Code generation wizard</ModalTitle>
             <ModalBody>
-                <Wizard setCodeSnippet={setCodeSnippet} eventCodeSnippet={eventCodeSnippet} setEventCodeSnippet={setEventCodeSnippet} activeStep={activeStep} workflowEditor={editor} contents={contents} />
+                <Wizard setCodeSnippet={setCodeSnippet} eventCodeSnippet={eventCodeSnippet} setEventCodeSnippet={setEventCodeSnippet} conditionCodeSnippet={conditionCodeSnippet} setConditionCodeSnippet={setConditionCodeSnippet} activeStep={activeStep} workflowEditor={editor} contents={contents} />
             </ModalBody>
             <ModalFooter style={{ gap: '.5rem' }}>
                 <Button
@@ -122,8 +166,9 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
     );
 };
 
-const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole, setShowConsole, markers, setToast }) => {
+const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole, setShowConsole, markers, setToast, isContentChanged }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
+    const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });
     const [ refreshDate, setRefreshDate ] = useState(new Date());
 
@@ -142,52 +187,59 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole,
 
     return (
         <Root>
-            <Button
-                iconLeft={<Icon iconName="enter" />}
-                variant="secondary"
-                disabled={markers.length > 0}
-                onClick={() => saveWorkflow(currentWorkflow.value, editor.getModels()[0].getValue())}
-            >
-                Save
-            </Button>
-            <Button
-                iconLeft={<Icon iconName="share" />}
-                variant="secondary"
-                disabled={false}
-                onClick={() => setWizardModal({ show: true })}
-            >
-                <i className="fa-solid fa-wand-sparkles"></i> Wizard
-            </Button>
-            <Button
-                iconLeft={<Icon iconName="voice" />}
-                variant="secondary"
-                disabled={markers.length > 0}
-                onClick={() => alert('coming soon!')}
-            >
-                <i className="fa-solid fa-chart-line"></i> Monitor
-            </Button>
-            <Button
-                iconLeft={<Icon iconName={showConsole ? 'pop-in' : 'pop-out'} />}
-                variant="secondary"
-                onClick={() => setShowConsole((old) => !old)}
-            >
-                Console
-            </Button>
-            <Button
-                variant="secondary-destructive"
-                disabled={false}
-                onClick={() => setDeleteModal({ show: true })}
-            >
-                Delete
-            </Button>
-            <Button
-                iconLeft={<Icon iconName="info-round" />}
-                variant="secondary"
-                onClick={() => openHelp()}
-            >
-                Help
-            </Button>
+            <SectionLeft>
+                <Button
+                    variant="primary"
+                    disabled={markers.length > 0 || isContentChanged!='modified'}
+                    onClick={() => saveWorkflow(currentWorkflow.value, editor.getModels()[0].getValue())}
+                >
+                    Save
+                </Button>
+                <Button
+                    variant="secondary-destructive"
+                    disabled={isContentChanged!='modified'}
+                    onClick={() => setDiscardModal({ show: true })}
+                >
+                    Cancel
+                </Button>
+            </SectionLeft>
+            <SectionRight>
+                <Button
+                    variant="secondary"
+                    disabled={false}
+                    onClick={() => setWizardModal({ show: true })}
+                >
+                    Wizard
+                </Button>
+                <Button
+                    variant="secondary"
+                    disabled={markers.length > 0}
+                    onClick={() => alert('coming soon!')}
+                >
+                    Monitor
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => setShowConsole((old) => !old)}
+                >
+                    {showConsole ? 'Hide Console' : 'Show Console'}
+                </Button>
+                <Button
+                    variant="primary-destructive"
+                    disabled={false}
+                    onClick={() => setDeleteModal({ show: true })}
+                >
+                    Delete
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => openHelp()}
+                >
+                    Help
+                </Button>
+            </SectionRight>
             <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setRefreshDate }} />
+            <ConfirmDiscardModal {...{ discardModal, setDiscardModal, editor, contents }} />
             <WizardModal {...{ wizardModal, setSnippet, setWizardModal, setToast, editor, contents, setRefreshDate }} />
         </Root>
     );

@@ -79,7 +79,7 @@ const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows }) =>
     );
 };
 
-const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows }) => {
+const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows, isContentChanged, setIsContentChanged }) => {
     useEffect(() => {
         Api('list-workflows', null, (res) => {
             const values = res.map(workflow => ({ label: workflow, value: workflow }));
@@ -92,13 +92,17 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setW
             blurInputOnSelect
             label="Select Workflow"
             options={workflows}
-            onChange={({ target }) => setCurrentWorkflow(target.value)}
+            isDisabled={isContentChanged=='modified'}
+            onChange={({ target }) => {
+                setCurrentWorkflow(target.value);
+                setIsContentChanged( 'original' );
+            }}
             value={currentWorkflow}
         />
     );
 };
 
-const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast }) => {
+const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, isContentChanged, setIsContentChanged }) => {
     const [ createModal, setCreateModal ] = useState({ show: false });
 
     const usePrevious = (value) => {
@@ -124,9 +128,10 @@ const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrent
 
     return (
         <Root>
-            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, workflows, setWorkflows }} />
+            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, workflows, setWorkflows, isContentChanged, setIsContentChanged }} />
             <Button
                 variant="primary"
+                disabled={isContentChanged=='modified'}
                 onClick={() => setCreateModal({ show: true })}
                 iconLeft={<Icon iconName="plus" />}
             >

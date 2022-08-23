@@ -41,7 +41,7 @@ const SendMessageForm = ({ setCodeSnippet, eventCodeSnippet }) => {
 `- send-message:
         id: ${identifier}${streamId!=='' ? '\n    to:\n      stream-id: ' + streamId : ''}${eventCodeSnippet!==null ? '\n        ' + eventCodeSnippet : ''}
         content: \\
-      ${content}`);
+           ${content}`);
         } else {
             setCodeSnippet(null);
         }
