@@ -29,6 +29,8 @@ const App = () => {
     const [ markers, setMarkers ] = useState([]);
     const [ toast, setToast ] = useState({ show: false });
     const [ theme, setTheme ] = useState('light');
+    const [snippet, setSnippet] = useState({});
+    const [ isContentChanged, setIsContentChanged ] = useState('original');
 
     useEffect(() => {
         if (window.SYMPHONY) {
@@ -46,21 +48,22 @@ const App = () => {
         }
     }, []);
 
-    const [snippet, setSnippet] = useState({});
-
     useEffect(() => {
         if (!currentWorkflow) {
             return;
         }
         const request = { workflow: currentWorkflow?.value };
-        Api('read-workflow', request, ({ contents }) => setContents(contents));
+        Api('read-workflow', request, ({ contents }) => {
+            setIsContentChanged('original');
+            setContents(contents);
+        });
     }, [ currentWorkflow, setContents ]);
 
     return (
         <Root>
-            <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast }} />
-            <ActionBar {...{ editor, setSnippet, currentWorkflow, showConsole, setShowConsole, markers, setToast, setWorkflows }} />
-            <Editor {...{ editor, snippet, contents, markers, setMarkers, theme }} />
+            <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, isContentChanged, setIsContentChanged }} />
+            <ActionBar {...{ editor, setSnippet, currentWorkflow, contents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged }} />
+            <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, isContentChanged, setIsContentChanged }} />
             { showConsole && <Console {...{ logs, setLogs }} /> }
             <FadeToast {...{ toast }} />
         </Root>

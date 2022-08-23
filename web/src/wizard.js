@@ -34,7 +34,6 @@ const StepCircle = styled.div`
     font-size: 16px;
     font-weight: 600;
     color:#ffffff;
-    cursor: pointer;
 `;
 
 const StepTitle = styled.div`
@@ -80,7 +79,7 @@ const StepThree = styled.div`
     
 `;
 
-const Wizard = ({setCodeSnippet, eventCodeSnippet, setEventCodeSnippet, activeStep, workflowEditor, contents}) => {
+const Wizard = ({setCodeSnippet, eventCodeSnippet, setEventCodeSnippet, conditionCodeSnippet, setConditionCodeSnippet, activeStep, workflowEditor, contents}) => {
     return (
         <WizardRoot>
             <Stepper>
@@ -107,10 +106,10 @@ const Wizard = ({setCodeSnippet, eventCodeSnippet, setEventCodeSnippet, activeSt
                 <ActivityWizard setCodeSnippet={setCodeSnippet} eventCodeSnippet={eventCodeSnippet} workflowEditor={workflowEditor} contents={contents} />
             </StepOne>
             <StepTwo style={{display: (activeStep===2) ? 'block' : 'none'}}>
-                <EventWizard setEventCodeSnippet={setEventCodeSnippet} />
+                <EventWizard setEventCodeSnippet={setEventCodeSnippet} conditionCodeSnippet={conditionCodeSnippet} />
             </StepTwo>
             <StepThree style={{display: (activeStep===3) ? 'block' : 'none'}}>
-                <ConditionWizard />
+                <ConditionWizard setConditionCodeSnippet={setConditionCodeSnippet} />
             </StepThree>
         </WizardRoot>
     );
