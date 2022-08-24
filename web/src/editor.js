@@ -34,9 +34,6 @@ const EditorRoot = styled.div`
     & .monaco-editor-background {
         background: transparent
     }
-    & .monaco-editor .suggest-widget > .tree {
-        background: #ddfcfc
-    }
 `;
 
 const ProblemsRoot = styled.div`
