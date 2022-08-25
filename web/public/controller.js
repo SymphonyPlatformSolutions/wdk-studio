@@ -1,4 +1,4 @@
-const appId = (window.location.hostname === 'localhost') ? 'localhost-10443' : 'workflower';
+const appId = (window.location.hostname === 'localhost') ? 'localhost-10443' : 'wdk-studio';
 const appUri = (window.location.hostname === 'localhost') ? 'http://localhost:3000' : window.location.origin;
 
 const auth = () => fetch('/bdk/v1/app/auth', { method: 'POST' });
@@ -12,11 +12,11 @@ const register = ({ appToken }) => SYMPHONY.application.register(
 const bootstrap = () => {
     let modulesService = SYMPHONY.services.subscribe("modules")
     let navService = SYMPHONY.services.subscribe("applications-nav")
-    navService.add('app', 'Workflower', 'app:controller')
+    navService.add('app', 'WDK Studio', 'app:controller')
     controller.implement({
         select: id => {
             if (id === 'app') {
-                modulesService.show("test-app", { title: "Workflower" }, "app:controller", appUri)
+                modulesService.show("test-app", { title: "WDK Studio" }, "app:controller", appUri)
             }
         }
     })

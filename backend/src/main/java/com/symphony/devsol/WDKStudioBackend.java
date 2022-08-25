@@ -6,8 +6,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableAsync
-public class WorkflowerExtApp {
+public class WDKStudioBackend {
     public static void main(String[] args) {
-        SpringApplication.run(WorkflowerExtApp.class, args);
+        SpringApplication.run(WDKStudioBackend.class, args);
     }
 }

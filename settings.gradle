@@ -1,4 +1,4 @@
-rootProject.name = 'workflower'
+rootProject.name = 'wdk-studio'
 
 include 'backend'
 include 'wdk-bot'

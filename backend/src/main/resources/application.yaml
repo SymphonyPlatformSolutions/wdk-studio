@@ -1,7 +1,7 @@
 bdk:
   host: develop2.symphony.com
   app:
-    appId: workflower
+    appId: wdk-studio
     privateKey.path: rsa/app-privatekey.pem
 
 bdk-app:

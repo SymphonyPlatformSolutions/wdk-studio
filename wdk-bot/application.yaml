@@ -1,7 +1,7 @@
 bdk:
   host: develop2.symphony.com
   bot:
-    username: workflower-bot
+    username: wdk-studio-bot
     privateKey:
       path: rsa/bot-privatekey.pem
 workflows.folder: ../workflows
