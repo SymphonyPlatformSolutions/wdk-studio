@@ -98,7 +98,7 @@ const ConfirmDiscardModal = ({ discardModal, setDiscardModal, editor, contents }
     );
 };
 
-const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents, setToast, setRefreshDate }) => {
+const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents, setToast }) => {
     const [codeSnippet, setCodeSnippet] = useState(null)
     const [eventCodeSnippet, setEventCodeSnippet] = useState(null)
     const [conditionCodeSnippet, setConditionCodeSnippet] = useState(null)
@@ -166,14 +166,15 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
     );
 };
 
-const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole, setShowConsole, markers, setToast, isContentChanged }) => {
+const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents, showConsole, setShowConsole, markers, setToast, isContentChanged, setIsContentChanged }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
     const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });
-    const [ refreshDate, setRefreshDate ] = useState(new Date());
 
     const saveWorkflow = (workflow, contents) => {
         Api('write-workflow', { workflow, contents }, () => {
+            setIsContentChanged('original');
+            setContents(contents);
             setToast({ show: true, content: 'Saved!'});
             setTimeout(() => {
                 setToast({ show: false });
@@ -190,14 +191,14 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole,
             <SectionLeft>
                 <Button
                     variant="primary"
-                    disabled={markers.length > 0 || isContentChanged!='modified'}
+                    disabled={markers.length > 0 || isContentChanged != 'modified'}
                     onClick={() => saveWorkflow(currentWorkflow.value, editor.getModels()[0].getValue())}
                 >
                     Save
                 </Button>
                 <Button
                     variant="secondary-destructive"
-                    disabled={isContentChanged!='modified'}
+                    disabled={isContentChanged != 'modified'}
                     onClick={() => setDiscardModal({ show: true })}
                 >
                     Cancel
@@ -238,9 +239,9 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, showConsole,
                     Help
                 </Button>
             </SectionRight>
-            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setRefreshDate }} />
+            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow }} />
             <ConfirmDiscardModal {...{ discardModal, setDiscardModal, editor, contents }} />
-            <WizardModal {...{ wizardModal, setSnippet, setWizardModal, setToast, editor, contents, setRefreshDate }} />
+            <WizardModal {...{ wizardModal, setSnippet, setWizardModal, setToast, editor, contents }} />
         </Root>
     );
 };

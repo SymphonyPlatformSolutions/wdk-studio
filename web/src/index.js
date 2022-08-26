@@ -62,8 +62,8 @@ const App = () => {
     return (
         <Root>
             <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, isContentChanged, setIsContentChanged }} />
-            <ActionBar {...{ editor, setSnippet, currentWorkflow, contents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged }} />
-            <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, isContentChanged, setIsContentChanged }} />
+            <ActionBar {...{ editor, setSnippet, currentWorkflow, contents, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }} />
+            <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }} />
             { showConsole && <Console {...{ logs, setLogs }} /> }
             <FadeToast {...{ toast }} />
         </Root>

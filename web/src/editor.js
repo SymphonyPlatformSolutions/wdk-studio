@@ -53,7 +53,7 @@ const ProblemEntry = styled.div`
     }
 `;
 
-const Editor = ({ editor, snippet, contents, markers, setMarkers, theme, isContentChanged, setIsContentChanged }) => {
+const Editor = ({ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }) => {
     const ref = useRef(null);
     const [ thisEditor, setThisEditor ] = useState();
 
