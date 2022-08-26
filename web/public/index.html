@@ -11,6 +11,10 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="text/javascript" src="//cdn.symphony.com/resources/api/v1.0/symphony-api.js" charset="utf-8"></script>
+    <script>
+      if (window.location !== window.parent.location) {
+        document.write('<script type="text/javascript" src="https://cdn.symphony.com/resources/api/v1.0/symphony-api.js" charset="utf-8"></sc'+'ript>');
+      }
+    </script>
   </body>
 </html>
