@@ -37,7 +37,7 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWork
             setDeleteModal({ show: false });
             showToast('Workflow deleted');
             setWorkflows((old) => old.filter((w) => w.value !== currentWorkflow.value));
-        }, () => {
+        }, (e) => {
             setDeleteModal({ show: false });
             showToast('Error deleting workflow', 'true');
         });
@@ -166,7 +166,7 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
     );
 };
 
-const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents, showConsole, setShowConsole, markers, setToast, isContentChanged, setIsContentChanged }) => {
+const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
     const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });
@@ -239,7 +239,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
                     Help
                 </Button>
             </SectionRight>
-            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow }} />
+            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }} />
             <ConfirmDiscardModal {...{ discardModal, setDiscardModal, editor, contents }} />
             <WizardModal {...{ wizardModal, setSnippet, setWizardModal, setToast, editor, contents }} />
         </Root>
