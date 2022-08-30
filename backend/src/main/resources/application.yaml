@@ -3,7 +3,8 @@ bdk:
   app:
     appId: wdk-studio
     privateKey.path: rsa/app-privatekey.pem
-
+  studio:
+    github-token: abc
 bdk-app:
   auth:
     enabled: true
