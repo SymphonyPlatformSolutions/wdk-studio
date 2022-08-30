@@ -119,12 +119,12 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
         <Modal size="large" show={wizardModal.show}>
             <ModalTitle>SWADL Code generation wizard</ModalTitle>
             <ModalBody style={{overflowY: 'hidden'}}>
-                <Wizard setCodeSnippet={setCodeSnippet} eventCodeSnippet={eventCodeSnippet} setEventCodeSnippet={setEventCodeSnippet} conditionCodeSnippet={conditionCodeSnippet} setConditionCodeSnippet={setConditionCodeSnippet} activeStep={activeStep} workflowEditor={editor} contents={contents} />
+                <Wizard {...{setCodeSnippet, eventCodeSnippet, setEventCodeSnippet, conditionCodeSnippet, setConditionCodeSnippet, activeStep, editor, contents}} />
             </ModalBody>
             <ModalFooter style={{ gap: '.5rem' }}>
                 <Button
                     variant="secondary"
-                    onClick={() => setActiveStep(activeStep-1 )}
+                    onClick={() => setActiveStep(activeStep-1)}
                     disabled={activeStep<2}
                 >
                     Back

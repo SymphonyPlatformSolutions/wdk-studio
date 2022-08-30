@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import styled from "styled-components";
 import SendMessageForm from "./activities/send-message-form";
 import UpdateMessageForm from "./activities/update-message-form";
@@ -35,7 +35,7 @@ const ItemsBodyContent = styled.div`
         border-radius: 15px;
         border: 1px solid #dddddd;
     }
-    &: > i {
+    & > i {
         line-height: 24px;
     }
 `;
@@ -113,14 +113,9 @@ const ActivityWizard = ({setCodeSnippet, eventCodeSnippet}) => {
                     </ItemsBody>
                 </>
             }
-            {selectedActivityForm.name &&
-                <>
-                    {addForm(selectedActivityForm.name)}
-                </>
-            }
+            { selectedActivityForm.name && addForm(selectedActivityForm.name) }
         </Root>
     );
 };
-
 
 export default ActivityWizard;
