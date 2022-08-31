@@ -18,6 +18,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,9 +56,13 @@ public class WebService {
 
     @PostMapping("add-workflow")
     public Workflow addWorkflow(@RequestBody Workflow workflow) throws Exception {
-        String fileName = workflow.workflow + ".swadl.yaml";
+        String workflowName = workflow.workflow.trim();
+        if (workflowName.isEmpty()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Workflow name cannot be empty");
+        }
+        String fileName = workflowName + ".swadl.yaml";
         if ((new File(workflowRoot + fileName)).exists()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(BAD_REQUEST, "Workflow named " + workflowName + " already exists");
         }
         String cleanName = workflow.workflow.replaceAll("-", "");
         InputStream inputStream = new ClassPathResource("template.yaml").getInputStream();
@@ -72,7 +77,7 @@ public class WebService {
     @PostMapping("delete-workflow")
     public String deleteWorkflow(@RequestBody Workflow workflow) {
         if (!(new File(workflowRoot + workflow.workflow)).delete()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(BAD_REQUEST);
         }
         return "ok";
     }

@@ -12,15 +12,13 @@ const Root = styled(Toast)`
     z-index: 100;
 `;
 
-const FadeToast = ({ toast }) => {
-    return (
-        <Root
-            show={toast.show}
-            content={toast.content || ''}
-            leftIcon={toast.icon || 'check'}
-            error={toast.error || 'false'}
-            placement={{ horizontal: 'center', vertical: 'bottom' }}
-        />
-    );
-};
+const FadeToast = ({ toast }) => (
+    <Root
+        show={toast.show}
+        content={toast.content || ''}
+        leftIcon={toast.error === 'true' ? 'cross' : 'check'}
+        error={toast.error || 'false'}
+        placement={{ horizontal: 'center', vertical: 'bottom' }}
+    />
+);
 export default FadeToast;

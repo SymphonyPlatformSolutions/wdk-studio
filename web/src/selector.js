@@ -35,8 +35,8 @@ const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows }) =>
             setCreateModal({ show: false });
             const newWorkflow = { label: res.workflow, value: res.workflow };
             setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : ((b.value > a.value) ? -1 : 0))));
-        }, () => {
-            showToast(`Workflow named ${newName} already exists`, 'true');
+        }, ({ message }) => {
+            showToast(message, 'true');
         });
     };
 

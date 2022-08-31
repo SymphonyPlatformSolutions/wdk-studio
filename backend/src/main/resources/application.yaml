@@ -26,5 +26,6 @@ logging:
   level:
     com.symphony: error
 
+server.error.include-message: always
 spring.main.banner-mode: off
 management.endpoints.web.base-path: /
