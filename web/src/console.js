@@ -23,7 +23,7 @@ const Console = ({ logs, setLogs, theme }) => {
 
     useEffect(
         () => initLogs((event) => {
-            setLogs((old) => `${old}${event.data}\n`);
+            event && setLogs((old) => `${old}${event.data}\n`);
         }), [ setLogs ]
     );
 
