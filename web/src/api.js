@@ -25,6 +25,9 @@ export const api = {
     addWorkflow: (request, callback, errorCallback) => apiCall('add-workflow', request, callback, errorCallback),
     writeWorkflow: (request, callback, errorCallback) => apiCall('write-workflow', request, callback, errorCallback),
     deleteWorkflow: (request, callback, errorCallback) => apiCall('delete-workflow', request, callback, errorCallback),
+    listGalleryCategories: (callback, errorCallback) => apiCall('gallery/categories', null, callback, errorCallback),
+    listGalleryWorkflows: (category, callback, errorCallback) => apiCall(`gallery/${category}/workflows`, null, callback, errorCallback),
+    readGalleryWorkflow: (category, workflow, callback, errorCallback) => apiCall(`gallery/${category}/workflows/${workflow}`, null, callback, errorCallback),
 };
 
 export const initLogs = (callback) => (new EventSource(apiRoot + "logs")).onmessage = callback;

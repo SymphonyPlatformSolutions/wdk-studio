@@ -64,14 +64,10 @@ public class WebService {
         if ((new File(workflowRoot + fileName)).exists()) {
             throw new ResponseStatusException(BAD_REQUEST, "Workflow named " + workflowName + " already exists");
         }
-        String cleanName = workflow.workflow.replaceAll("-", "");
-        InputStream inputStream = new ClassPathResource("template.yaml").getInputStream();
-        String template = new Scanner(inputStream).useDelimiter("\\A").next();
-        String workflowContents = template.replaceAll("abc", cleanName);
         BufferedWriter writer = new BufferedWriter(new FileWriter(workflowRoot + fileName));
-        writer.write(workflowContents);
+        writer.write(workflow.contents);
         writer.close();
-        return new Workflow(fileName, workflowContents);
+        return new Workflow(fileName, workflow.contents);
     }
 
     @PostMapping("delete-workflow")
