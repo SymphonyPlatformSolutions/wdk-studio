@@ -1,8 +1,10 @@
-import {Button, Icon, Loader, Modal, ModalBody, ModalFooter, ModalTitle} from "@symphony-ui/uitoolkit-components/components";
+import {
+    Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle
+} from "@symphony-ui/uitoolkit-components/components";
 import Wizard from './wizard'
 import styled from "styled-components";
-import Api from './api';
-import {useState} from "react";
+import { api } from './api';
+import { useState } from "react";
 
 const Root = styled.div`
     display: flex;
@@ -23,7 +25,6 @@ const SectionRight = styled.div`
 `;
 
 const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }) => {
-
     const showToast = (msg, error = 'false') => {
         setToast({ show: true, content: msg, error });
         setTimeout(() => {
@@ -33,7 +34,7 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWork
 
     const deleteWorkflow = () => {
         setDeleteModal({ show: true, loading: true });
-        Api('delete-workflow', { workflow: currentWorkflow.value }, () => {
+        api.deleteWorkflow({ workflow: currentWorkflow.value }, () => {
             setDeleteModal({ show: false });
             showToast('Workflow deleted');
             setWorkflows((old) => old.filter((w) => w.value !== currentWorkflow.value));
@@ -104,13 +105,6 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
     const [conditionCodeSnippet, setConditionCodeSnippet] = useState(null)
     const [activeStep, setActiveStep] = useState(1)
 
-    const showToast = (msg, error = 'false') => {
-        setToast({ show: true, content: msg, error });
-        setTimeout(() => {
-            setToast({ show: false });
-        }, 2000);
-    };
-
     const addCodeSnippet = () => {
         setSnippet({ content: codeSnippet, ts: Date.now() });
     }
@@ -172,7 +166,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
     const [ wizardModal, setWizardModal ] = useState({ show: false });
 
     const saveWorkflow = (workflow, contents) => {
-        Api('write-workflow', { workflow, contents }, () => {
+        api.writeWorkflow({ workflow, contents }, () => {
             setIsContentChanged('original');
             setContents(contents);
             setToast({ show: true, content: 'Saved!'});
@@ -180,7 +174,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
                 setToast({ show: false });
             }, 2000);
         });
-    }
+    };
 
     const openHelp = () => {
         window.open( 'https://github.com/finos/symphony-wdk/blob/master/docs/reference.md', '_blank', false);

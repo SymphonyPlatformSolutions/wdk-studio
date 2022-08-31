@@ -1,6 +1,6 @@
 const apiRoot = window.location.hostname === 'localhost' ? 'https://localhost:10443/' : '';
 
-const api = (uri, body, callback, errorCallback) => {
+const apiCall = (uri, body, callback, errorCallback) => {
     const config = body && {
         method: "post",
         headers: { 'Content-Type': 'application/json' },
@@ -17,6 +17,14 @@ const api = (uri, body, callback, errorCallback) => {
         })
         .then(callback)
         .catch(errorCallback || ((response) => console.log(response)));
-}
+};
 
-export default api;
+export const api = {
+    listWorkflows: (callback, errorCallback) => apiCall('list-workflows', null, callback, errorCallback),
+    readWorkflow: (request, callback, errorCallback) => apiCall('read-workflow', request, callback, errorCallback),
+    addWorkflow: (request, callback, errorCallback) => apiCall('add-workflow', request, callback, errorCallback),
+    writeWorkflow: (request, callback, errorCallback) => apiCall('write-workflow', request, callback, errorCallback),
+    deleteWorkflow: (request, callback, errorCallback) => apiCall('delete-workflow', request, callback, errorCallback),
+};
+
+export const initLogs = (callback) => (new EventSource(apiRoot + "logs")).onmessage = callback;

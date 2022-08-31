@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import '@symphony-ui/uitoolkit-styles/dist/css/uitoolkit.css';
 import styled from "styled-components";
 import { editor } from 'monaco-editor';
-import Api from './api';
+import { api } from './api';
 
 const Editor = lazy(() => import('./editor'));
 const Console = lazy(() => import('./console'));
@@ -53,7 +53,7 @@ const App = () => {
             return;
         }
         const request = { workflow: currentWorkflow?.value };
-        Api('read-workflow', request, ({ contents }) => {
+        api.readWorkflow(request, ({ contents }) => {
             setIsContentChanged('original');
             setContents(contents);
         });

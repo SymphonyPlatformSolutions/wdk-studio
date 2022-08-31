@@ -4,7 +4,7 @@ import {
     Modal, ModalTitle, ModalBody, ModalFooter,
 } from "@symphony-ui/uitoolkit-components/components";
 import styled from "styled-components";
-import Api from './api';
+import { api } from './api';
 
 const Root = styled.div`
     display: grid;
@@ -30,7 +30,7 @@ const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows }) =>
             return;
         }
         setCreateModal({ show: true, loading: true });
-        Api('add-workflow', { workflow: newName }, (res) => {
+        api.addWorkflow({ workflow: newName }, (res) => {
             showToast('New workflow added', 'false');
             setCreateModal({ show: false });
             const newWorkflow = { label: res.workflow, value: res.workflow };
@@ -81,7 +81,7 @@ const CreateModal = ({ createModal, setCreateModal, setToast, setWorkflows }) =>
 
 const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows, isContentChanged, setIsContentChanged }) => {
     useEffect(() => {
-        Api('list-workflows', null, (res) => {
+        api.listWorkflows((res) => {
             const values = res.map(workflow => ({ label: workflow, value: workflow }));
             setWorkflows(values);
         });

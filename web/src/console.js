@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import styled from "styled-components";
 import { Switch } from "@symphony-ui/uitoolkit-components/components";
+import { initLogs } from './api';
 
 const ConsoleRoot = styled.div`
     border: #8f959e 1px solid;
@@ -19,14 +20,12 @@ const LogsRoot = styled.div`
 const Console = ({ logs, setLogs, theme }) => {
     const logsRef = useRef();
     const [ tail, setTail ] = useState('checked');
-    const apiRoot = window.location.hostname === 'localhost' ? 'https://localhost:10443/' : '';
 
-    useEffect(() => {
-        let eventSource = new EventSource(apiRoot + "logs");
-        eventSource.onmessage = (event) => {
+    useEffect(
+        () => initLogs((event) => {
             setLogs((old) => `${old}${event.data}\n`);
-        };
-    }, [ apiRoot, setLogs ]);
+        }), [ setLogs ]
+    );
 
     useEffect(() => {
         (tail === 'checked') && (logsRef.current.scrollTop = logsRef.current.scrollHeight);
