@@ -29,11 +29,6 @@ const Root = styled.div`
 
 const EditorRoot = styled.div`
     height: ${props => (props.large ? '100%' : '80%')};
-    & .monaco-editor,
-    & .monaco-editor .margin,
-    & .monaco-editor-background {
-        background: transparent
-    }
 `;
 
 const ProblemsRoot = styled.div`

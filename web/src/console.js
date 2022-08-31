@@ -5,6 +5,7 @@ import { Switch } from "@symphony-ui/uitoolkit-components/components";
 const ConsoleRoot = styled.div`
     border: #8f959e 1px solid;
     padding: .5rem;
+    background: ${props => props.theme === 'dark' ? '#1e1e1e' : '#fff'};
 `;
 
 const LogsRoot = styled.div`
@@ -15,7 +16,7 @@ const LogsRoot = styled.div`
     white-space: pre;
 `;
 
-const Console = ({ logs, setLogs }) => {
+const Console = ({ logs, setLogs, theme }) => {
     const logsRef = useRef();
     const [ tail, setTail ] = useState('checked');
     const apiRoot = window.location.hostname === 'localhost' ? 'https://localhost:10443/' : '';
@@ -32,7 +33,7 @@ const Console = ({ logs, setLogs }) => {
     }, [ logs, tail ]);
 
     return (
-        <ConsoleRoot>
+        <ConsoleRoot {...{ theme }}>
             <LogsRoot ref={logsRef} className="tk-text-color">
                 {logs}
             </LogsRoot>
