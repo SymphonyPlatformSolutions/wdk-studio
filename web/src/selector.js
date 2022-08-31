@@ -11,7 +11,7 @@ const Root = styled.div`
     gap: .5rem;
 `;
 
-const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows, isContentChanged, setIsContentChanged }) => {
+const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows, editMode, isContentChanged, setIsContentChanged }) => {
     useEffect(() => {
         api.listWorkflows((res) => {
             const values = res.map(workflow => ({ label: workflow, value: workflow }));
@@ -24,7 +24,7 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setW
             blurInputOnSelect
             label="Select Workflow"
             options={workflows}
-            isDisabled={isContentChanged=='modified'}
+            isDisabled={!editMode || isContentChanged=='modified'}
             onChange={({ target }) => {
                 setCurrentWorkflow(target.value);
                 setIsContentChanged( 'original' );
@@ -34,7 +34,7 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setW
     );
 };
 
-const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, isContentChanged, setIsContentChanged }) => {
+const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, editMode, isContentChanged, setIsContentChanged }) => {
     const [ createModal, setCreateModal ] = useState({ show: false });
 
     const usePrevious = (value) => {
@@ -60,10 +60,10 @@ const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrent
 
     return (
         <Root>
-            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, workflows, setWorkflows, isContentChanged, setIsContentChanged }} />
+            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, workflows, setWorkflows, editMode, isContentChanged, setIsContentChanged }} />
             <Button
                 variant="primary"
-                disabled={isContentChanged=='modified'}
+                disabled={!editMode || isContentChanged=='modified'}
                 onClick={() => setCreateModal({ show: true })}
                 iconLeft={<Icon iconName="plus" />}
             >

@@ -160,7 +160,7 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
     );
 };
 
-const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }) => {
+const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
     const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });
@@ -201,7 +201,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
             <SectionRight>
                 <Button
                     variant="secondary"
-                    disabled={false}
+                    disabled={!editMode}
                     onClick={() => setWizardModal({ show: true })}
                 >
                     Wizard
@@ -209,9 +209,9 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
                 <Button
                     variant="secondary"
                     disabled={markers.length > 0}
-                    onClick={() => alert('coming soon!')}
+                    onClick={() => setEditMode(!editMode)}
                 >
-                    Monitor
+                    {editMode ? 'Monitor' : 'Edit'}
                 </Button>
                 <Button
                     variant="secondary"
@@ -221,7 +221,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
                 </Button>
                 <Button
                     variant="primary-destructive"
-                    disabled={false}
+                    disabled={!editMode}
                     onClick={() => setDeleteModal({ show: true })}
                 >
                     Delete

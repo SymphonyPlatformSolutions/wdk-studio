@@ -4,6 +4,7 @@ import '@symphony-ui/uitoolkit-styles/dist/css/uitoolkit.css';
 import styled from "styled-components";
 import { editor } from 'monaco-editor';
 import { api } from './api';
+import Monitor from './monitor';
 
 const Editor = lazy(() => import('./editor'));
 const Console = lazy(() => import('./console'));
@@ -24,6 +25,7 @@ const App = () => {
     const [ workflows, setWorkflows ] = useState([]);
     const [ currentWorkflow, setCurrentWorkflow ] = useState();
     const [ showConsole, setShowConsole ] = useState(true);
+    const [ editMode, setEditMode ] = useState(true);
     const [ contents, setContents ] = useState();
     const [ logs, setLogs ] = useState('');
     const [ markers, setMarkers ] = useState([]);
@@ -61,9 +63,10 @@ const App = () => {
 
     return (
         <Root>
-            <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, isContentChanged, setIsContentChanged }} />
-            <ActionBar {...{ editor, setSnippet, currentWorkflow, contents, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }} />
-            <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }} />
+            <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, editMode, isContentChanged, setIsContentChanged }} />
+            <ActionBar {...{ editor, setSnippet, currentWorkflow, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }} />
+            { editMode && <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
+            { !editMode && <Monitor /> }
             { showConsole && <Console {...{ logs, setLogs, theme }} /> }
             <FadeToast {...{ toast }} />
         </Root>
