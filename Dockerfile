@@ -22,7 +22,7 @@ RUN cd /bot && jar -xf bot.jar && \
     --class-path="BOOT-INF/lib/*" \
     --module-path="BOOT-INF/lib/*" \
     bot.jar > /deps2
-RUN echo $(cat /deps1),$(cat /deps2) > /deps
+RUN echo $(cat /deps1),$(cat /deps2),jdk.crypto.ec > /deps
 
 FROM openjdk:17-slim-bullseye
 COPY --from=0 /deps /deps
