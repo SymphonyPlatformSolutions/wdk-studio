@@ -101,13 +101,10 @@ const Editor = ({ editor, snippet, contents, markers, setMarkers, theme, setIsCo
         thisEditor.focus();
     }
 
-    const Problems = ({ markers }) => markers.map(({
-        startLineNumber, startColumn, endLineNumber, endColumn, message
-    }) => (
-        <ProblemEntry
-            key={startLineNumber + startColumn + endLineNumber + endColumn}
-            onClick={() => goto(startLineNumber, startColumn) }
-        >
+    const Problems = ({ markers }) => markers.map((
+        { startLineNumber, startColumn, message }, index
+    ) => (
+        <ProblemEntry key={index} onClick={() => goto(startLineNumber, startColumn)}>
             {startLineNumber}: {message}
         </ProblemEntry>
     ));

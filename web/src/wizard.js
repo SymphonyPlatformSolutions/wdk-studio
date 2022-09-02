@@ -53,28 +53,29 @@ const Spacer = styled.hr`
 
 const Wizard = ({
     setCodeSnippet, eventCodeSnippet, setEventCodeSnippet, conditionCodeSnippet, setConditionCodeSnippet, activeStep
-}) => (
-    <WizardRoot>
-        <Stepper>
-            { [ 'Activity', 'Event', 'Condition' ].map((step, index, steps) => (
-                <Fragment key={index}>
-                    <Step>
-                        <StepCircle step={index + 1} activeStep={activeStep} />
-                        <StepTitle>{step}</StepTitle>
-                        <StepSubtitle>{index > 0 && 'Optional'}</StepSubtitle>
-                    </Step>
-                    { (index < steps.length - 1) && <Spacer /> }
-                </Fragment>
-            )) }
-        </Stepper>
-        {(() => {
-            switch (activeStep) {
-                case 1: return <ActivityWizard {...{setCodeSnippet, eventCodeSnippet}} />;
-                case 2: return <EventWizard {...{setEventCodeSnippet, conditionCodeSnippet}} />;
-                case 3: return <ConditionWizard {...{setConditionCodeSnippet}} />;
-            };
-        })()}
-    </WizardRoot>
-);
+}) => {
+    const WizardViews = [
+        <ActivityWizard {...{setCodeSnippet, eventCodeSnippet}} />,
+        <EventWizard {...{setEventCodeSnippet, conditionCodeSnippet}} />,
+        <ConditionWizard {...{setConditionCodeSnippet}} />
+    ];
+    return (
+        <WizardRoot>
+            <Stepper>
+                { [ 'Activity', 'Event', 'Condition' ].map((step, index, steps) => (
+                    <Fragment key={index}>
+                        <Step>
+                            <StepCircle step={index + 1} activeStep={activeStep} />
+                            <StepTitle>{step}</StepTitle>
+                            <StepSubtitle>{index > 0 && 'Optional'}</StepSubtitle>
+                        </Step>
+                        { (index < steps.length - 1) && <Spacer /> }
+                    </Fragment>
+                )) }
+            </Stepper>
+            { WizardViews[activeStep-1] }
+        </WizardRoot>
+    );
+};
 
 export default Wizard;
