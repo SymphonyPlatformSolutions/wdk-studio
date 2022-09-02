@@ -12,16 +12,9 @@ const Root = styled.div`
     justify-content: space-between;
 `;
 
-const SectionLeft = styled.div`
+const Section = styled.div`
     display: flex;
     gap: .5rem;
-    justify-content: start;
-`;
-
-const SectionRight = styled.div`
-    display: flex;
-    gap: .5rem;
-    justify-content: end;
 `;
 
 const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }) => {
@@ -182,7 +175,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
 
     return (
         <Root>
-            <SectionLeft>
+            <Section>
                 <Button
                     variant="primary"
                     disabled={markers.length > 0 || isContentChanged != 'modified'}
@@ -197,8 +190,6 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
                 >
                     Cancel
                 </Button>
-            </SectionLeft>
-            <SectionRight>
                 <Button
                     variant="secondary"
                     disabled={!editMode}
@@ -206,6 +197,8 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
                 >
                     Wizard
                 </Button>
+            </Section>
+            <Section>
                 <Button
                     variant="secondary"
                     disabled={markers.length > 0}
@@ -232,7 +225,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
                 >
                     Help
                 </Button>
-            </SectionRight>
+            </Section>
             <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }} />
             <ConfirmDiscardModal {...{ discardModal, setDiscardModal, editor, contents }} />
             <WizardModal {...{ wizardModal, setSnippet, setWizardModal, setToast, editor, contents }} />
