@@ -8,6 +8,8 @@ import { api } from './api';
 const CreateWorkflowModal = ({ createModal, setCreateModal, setToast, setWorkflows }) => {
     const [ newName, setNewName ] = useState('');
     const [ swadlTemplate, setSwadlTemplate ] = useState();
+    const [ pageLoading, setPageLoading ] = useState(false);
+    const [ templateLoading, setTemplateLoading ] = useState(false);
 
     const showToast = (msg, error = 'false') => {
         setToast({ show: true, content: msg, error });
@@ -47,10 +49,10 @@ const CreateWorkflowModal = ({ createModal, setCreateModal, setToast, setWorkflo
     }, [ createModal?.show ]);
 
     return (
-        <Modal size="small" show={createModal.show}>
+        <Modal size="medium" show={createModal.show}>
             <ModalTitle>Create Workflow</ModalTitle>
             <ModalBody>
-                <TemplateSelector {...{ setSwadlTemplate }} />
+                <TemplateSelector {...{ setSwadlTemplate, pageLoading, setPageLoading, templateLoading, setTemplateLoading }} />
                 <TextField
                     ref={nameRef}
                     label="Name"
@@ -63,14 +65,14 @@ const CreateWorkflowModal = ({ createModal, setCreateModal, setToast, setWorkflo
             <ModalFooter style={{ gap: '.5rem' }}>
                 <Button
                     onClick={createWorkflow}
-                    disabled={createModal.loading}
+                    disabled={createModal.loading || pageLoading || templateLoading}
                 >
                     { createModal.loading ? <Loader /> : 'Create' }
                 </Button>
                 <Button
                     variant="secondary"
                     onClick={() => setCreateModal({ show: false })}
-                    disabled={createModal.loading}
+                    disabled={createModal.loading || pageLoading || templateLoading}
                 >
                     Cancel
                 </Button>

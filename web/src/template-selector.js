@@ -3,11 +3,21 @@ import { useState, useEffect } from "react";
 import { Loader } from "@symphony-ui/uitoolkit-components";
 import { api } from "./api";
 
+const Root = styled.div`
+    min-height: 18rem;
+    display: flex;
+`;
+
 const TemplatesRoot = styled.div`
+    flex-grow: 1;
+`;
+
+const TemplatesGrid = styled.div`
     display: grid;
     grid-template-columns: 50% 50%;
     gap: .5rem;
     margin-bottom: 1rem;
+    flex-grow: 1;
 `;
 
 const Template = styled.div`
@@ -20,6 +30,7 @@ const Template = styled.div`
     border-radius: .3rem;
     display: flex;
     align-items: center;
+    gap: .5rem;
     cursor: pointer;
     &:hover {
         background: var(--tk-color-electricity-10);
@@ -28,9 +39,12 @@ const Template = styled.div`
 
 const LoadingRoot = styled.div`
     padding: 1rem;
-    display: flex;
-    justify-content: center;
     font-size: 2rem;
+    height: 100%;
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-self: center;
 `;
 
 const getLoader = () => (
@@ -50,7 +64,9 @@ activities:
     content: hello
 `;
 
-const Templates = ({ items, setItems, stage, setStage, setLoading, category, setCategory, setSwadlTemplate, }) => {
+const Templates = ({
+    items, setItems, stage, setStage, setPageLoading, category, setCategory, setSwadlTemplate, templateLoading, setTemplateLoading,
+}) => {
     const [ selectedIndex, setSelectedIndex ] = useState(0);
 
     useEffect(() => {
@@ -60,38 +76,52 @@ const Templates = ({ items, setItems, stage, setStage, setLoading, category, set
             return;
         }
         if (stage === 0 && selection === gallery) {
-            setLoading(true);
+            setPageLoading(true);
             api.listGalleryCategories((categories) => {
                 setItems([ empty, ...categories]);
                 setStage(1);
-                setLoading(false);
+                setPageLoading(false);
             });
         } else if (stage === 1) {
-            setLoading(true);
+            setPageLoading(true);
             api.listGalleryWorkflows(selection, (workflows) => {
                 setItems([ empty, ...workflows]);
                 setStage(2);
                 setCategory(selection);
-                setLoading(false);
+                setPageLoading(false);
             });
         } else if (stage === 2) {
             api.readGalleryWorkflow(category, selection, (contents) => {
                 setSwadlTemplate(contents);
+                setTemplateLoading(false);
             });
         }
     }, [ selectedIndex ]);
 
+    const select = (index) => {
+        setSelectedIndex(index);
+        if (index > 0 && stage === 2) {
+            setTemplateLoading(true);
+        }
+    };
+
     return (
         <TemplatesRoot>
-            {items.map((item, index) => (
-                <Template
-                    key={index}
-                    isSelected={index === selectedIndex}
-                    onClick={() => setSelectedIndex(index)}
-                >
-                    {item.replace(/_/g, " ").replace(/-/g, " ").replace(/\.swadl\.yaml/g, "")}
-                </Template>
-            ))}
+            <TemplatesGrid>
+                {items.map((item, index) => {
+                    const label = item.replace(/_/g, " ").replace(/-/g, " ").replace(/\.swadl\.yaml/g, "");
+                    return (
+                        <Template
+                            key={index}
+                            isSelected={index === selectedIndex}
+                            onClick={() => select(index)}
+                        >
+                            { label }
+                            { templateLoading && index === selectedIndex && <Loader /> }
+                        </Template>
+                    );
+                })}
+            </TemplatesGrid>
         </TemplatesRoot>
     );
 };
@@ -99,12 +129,13 @@ const Templates = ({ items, setItems, stage, setStage, setLoading, category, set
 const empty = "Empty Workflow";
 const gallery = "Select from WDK Gallery";
 
-const TemplateSelector = ({ setSwadlTemplate }) => {
+const TemplateSelector = ({ setSwadlTemplate, pageLoading, setPageLoading, templateLoading, setTemplateLoading }) => {
     const [ stage, setStage ] = useState(0);
-    const [ loading, setLoading ] = useState(false);
     const [ items, setItems ] = useState([ empty, gallery ]);
     const [ category, setCategory ] = useState();
 
-    return loading ? getLoader() : <Templates {...{ items, setItems, stage, setStage, setLoading, category, setCategory, setSwadlTemplate }} />;
+    const content = pageLoading ? getLoader() :
+        <Templates {...{ items, setItems, stage, setStage, setPageLoading, category, setCategory, setSwadlTemplate, templateLoading, setTemplateLoading }} />;
+    return <Root>{content}</Root>;
 };
 export default TemplateSelector;
