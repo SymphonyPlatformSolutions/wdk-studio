@@ -11,6 +11,11 @@ const Root = styled.div`
     gap: .5rem;
 `;
 
+const StyledDropdown = styled(Dropdown)`
+    & .tk-select .tk-select__container.tk-select__control .tk-select__value-container:hover { cursor: pointer; }
+    input { user-select: none; pointer-events: none }
+`;
+
 const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows, editMode, isContentChanged, setIsContentChanged }) => {
     useEffect(() => {
         api.listWorkflows((res) => {
@@ -20,7 +25,7 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setW
     }, [ setCurrentWorkflow, setWorkflows ]);
 
     return (
-        <Dropdown
+        <StyledDropdown
             blurInputOnSelect
             label="Select Workflow"
             options={workflows}
