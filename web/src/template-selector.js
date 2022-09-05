@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useState, useEffect } from "react";
-import { Loader } from "@symphony-ui/uitoolkit-components";
+import { Loader, Icon, Button } from "@symphony-ui/uitoolkit-components";
 import { api } from "./api";
 
 const Root = styled.div`
@@ -31,6 +31,7 @@ const Template = styled.div`
     display: flex;
     align-items: center;
     gap: .5rem;
+    user-select: none;
     cursor: pointer;
     &:hover {
         background: var(--tk-color-electricity-10);
@@ -69,6 +70,15 @@ const Templates = ({
 }) => {
     const [ selectedIndex, setSelectedIndex ] = useState(0);
 
+    const loadCategories = () => {
+        setPageLoading(true);
+        api.listGalleryCategories((c) => {
+            setItems([ empty, ...c]);
+            setStage(1);
+            setPageLoading(false);
+        });
+    };
+
     useEffect(() => {
         const selection = items[selectedIndex];
         if (selection === empty) {
@@ -76,12 +86,7 @@ const Templates = ({
             return;
         }
         if (stage === 0 && selection === gallery) {
-            setPageLoading(true);
-            api.listGalleryCategories((categories) => {
-                setItems([ empty, ...categories]);
-                setStage(1);
-                setPageLoading(false);
-            });
+            loadCategories();
         } else if (stage === 1) {
             setPageLoading(true);
             api.listGalleryWorkflows(selection, (workflows) => {
@@ -105,8 +110,20 @@ const Templates = ({
         }
     };
 
+    const BackButton = () => (
+        <Button
+            variant="tertiary-accent"
+            iconLeft={<Icon iconName="reply" />}
+            className="tk-mb-2"
+            onClick={loadCategories}
+        >
+            Back
+        </Button>
+    );
+
     return (
         <TemplatesRoot>
+            { stage > 1 && <BackButton /> }
             <TemplatesGrid>
                 {items.map((item, index) => {
                     const label = item.replace(/_/g, " ").replace(/-/g, " ").replace(/\.swadl\.yaml/g, "");
