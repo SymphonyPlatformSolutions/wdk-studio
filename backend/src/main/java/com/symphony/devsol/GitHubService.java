@@ -5,6 +5,7 @@ import com.symphony.devsol.model.github.GitHubTree;
 import com.symphony.devsol.model.github.GitHubTreeNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,7 @@ public class GitHubService {
             .build();
     }
 
+    @Cacheable("gallery-categories")
     @GetMapping("/gallery/categories")
     public List<String> listGalleryCategories() {
         return restTemplate.getForObject(baseUri + "/git/trees/main?recursive=1", GitHubTree.class)
@@ -39,6 +41,7 @@ public class GitHubService {
             .toList();
     }
 
+    @Cacheable("gallery-workflows")
     @GetMapping("/gallery/{category}/workflows")
     public List<String> listGalleryWorkflows(@PathVariable String category) {
         String subPath = "categories/" + category + "/";
@@ -51,6 +54,7 @@ public class GitHubService {
             .toList();
     }
 
+    @Cacheable("gallery-workflow-content")
     @GetMapping("/gallery/{category}/workflows/{workflow}")
     public String getWorkflow(@PathVariable String category, @PathVariable String workflow) {
         String uri = baseUri + "/contents/categories/" + category + "/" + workflow;
