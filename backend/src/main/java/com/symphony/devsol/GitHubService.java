@@ -20,7 +20,7 @@ public class GitHubService {
     private final RestTemplate restTemplate;
 
     public GitHubService(
-        @Value("${bdk.studio.github-token}") String token,
+        @Value("${wdk.studio.github-token}") String token,
         RestTemplateBuilder restTemplateBuilder
     ) {
         this.restTemplate = restTemplateBuilder
@@ -30,7 +30,7 @@ public class GitHubService {
     }
 
     @Cacheable("gallery-categories")
-    @GetMapping("/gallery/categories")
+    @GetMapping("/api/gallery/categories")
     public List<String> listGalleryCategories() {
         return restTemplate.getForObject(baseUri + "/git/trees/main?recursive=1", GitHubTree.class)
             .getTree().stream()
@@ -42,7 +42,7 @@ public class GitHubService {
     }
 
     @Cacheable("gallery-workflows")
-    @GetMapping("/gallery/{category}/workflows")
+    @GetMapping("/api/gallery/{category}/workflows")
     public List<String> listGalleryWorkflows(@PathVariable String category) {
         String subPath = "categories/" + category + "/";
         return restTemplate.getForObject(baseUri + "/git/trees/main?recursive=1", GitHubTree.class)
@@ -55,7 +55,7 @@ public class GitHubService {
     }
 
     @Cacheable("gallery-workflow-content")
-    @GetMapping("/gallery/{category}/workflows/{workflow}")
+    @GetMapping("/api/gallery/{category}/workflows/{workflow}")
     public String getWorkflow(@PathVariable String category, @PathVariable String workflow) {
         String uri = baseUri + "/contents/categories/" + category + "/" + workflow;
         String base64Contents = restTemplate.getForObject(uri, GitHubContent.class).getContent().replaceAll("\\n", "");

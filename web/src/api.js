@@ -20,14 +20,16 @@ const apiCall = (uri, body, callback, errorCallback) => {
 };
 
 export const api = {
-    listWorkflows: (callback, errorCallback) => apiCall('list-workflows', null, callback, errorCallback),
-    readWorkflow: (request, callback, errorCallback) => apiCall('read-workflow', request, callback, errorCallback),
-    addWorkflow: (request, callback, errorCallback) => apiCall('add-workflow', request, callback, errorCallback),
-    writeWorkflow: (request, callback, errorCallback) => apiCall('write-workflow', request, callback, errorCallback),
-    deleteWorkflow: (request, callback, errorCallback) => apiCall('delete-workflow', request, callback, errorCallback),
-    listGalleryCategories: (callback, errorCallback) => apiCall('gallery/categories', null, callback, errorCallback),
-    listGalleryWorkflows: (category, callback, errorCallback) => apiCall(`gallery/${category}/workflows`, null, callback, errorCallback),
-    readGalleryWorkflow: (category, workflow, callback, errorCallback) => apiCall(`gallery/${category}/workflows/${workflow}`, null, callback, errorCallback),
+    listWorkflows: (callback, errorCallback) => apiCall('api/list-workflows', null, callback, errorCallback),
+    readWorkflow: (request, callback, errorCallback) => apiCall('api/read-workflow', request, callback, errorCallback),
+    addWorkflow: (request, callback, errorCallback) => apiCall('api/add-workflow', request, callback, errorCallback),
+    writeWorkflow: (request, callback, errorCallback) => apiCall('api/write-workflow', request, callback, errorCallback),
+    deleteWorkflow: (request, callback, errorCallback) => apiCall('api/delete-workflow', request, callback, errorCallback),
+    listGalleryCategories: (callback, errorCallback) => apiCall('api/gallery/categories', null, callback, errorCallback),
+    listGalleryWorkflows: (category, callback, errorCallback) => apiCall(`api/gallery/${category}/workflows`, null, callback, errorCallback),
+    readGalleryWorkflow: (category, workflow, callback, errorCallback) => apiCall(`api/gallery/${category}/workflows/${workflow}`, null, callback, errorCallback),
+    listWorkflowInstances: (workflowId, callback, errorCallback) => apiCall(`api/monitoring/${workflowId}/instances`, null, callback, errorCallback),
+    listInstanceActivities: (workflowId, instanceId, callback, errorCallback) => apiCall(`api/monitoring/${workflowId}/instances/${instanceId}/activities`, null, callback, errorCallback),
 };
 
-export const initLogs = (callback) => (new EventSource(apiRoot + "logs")).onmessage = callback;
+export const initLogs = (callback) => (new EventSource(apiRoot + "api/logs")).onmessage = callback;

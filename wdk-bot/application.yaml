@@ -12,5 +12,5 @@ logging.level:
   com.zaxxer: error
   com.symphony: info
   # com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: debug
-spring.main.web-application-type: none
 management.endpoints.web.exposure.exclude: "*"
+spring.datasource.url: jdbc:h2:file:../workflows/data;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE

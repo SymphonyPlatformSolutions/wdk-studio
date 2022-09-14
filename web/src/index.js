@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { editor } from 'monaco-editor';
 import { api } from './api';
 import Monitor from './monitor';
+import MonitorX from './monitor-x';
 
 const Editor = lazy(() => import('./editor'));
 const Console = lazy(() => import('./console'));
@@ -66,7 +67,7 @@ const App = () => {
             <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, editMode, isContentChanged, setIsContentChanged }} />
             <ActionBar {...{ editor, setSnippet, currentWorkflow, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }} />
             { editMode && <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
-            { !editMode && <Monitor /> }
+            { !editMode && <MonitorX /> }
             { showConsole && <Console {...{ logs, setLogs, theme }} /> }
             <FadeToast {...{ toast }} />
         </Root>

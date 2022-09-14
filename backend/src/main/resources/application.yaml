@@ -3,8 +3,7 @@ bdk:
   app:
     appId: wdk-studio
     privateKey.path: rsa/app-privatekey.pem
-  studio:
-    github-token: abc
+
 bdk-app:
   auth:
     enabled: true
@@ -19,6 +18,10 @@ bdk-app:
     enabled: true
     url-patterns:
       - /api/*
+
+wdk.studio:
+  base-uri: http://localhost:8080/wdk/v1
+  github-token: abc
 
 logging:
   pattern:
