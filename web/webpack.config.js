@@ -28,15 +28,14 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'main.[chunkhash].css'
     }),
+    new CopyPlugin({
+      patterns: [
+        { context: "public", from: "controller.*", to: "." },
+        { context: "public", from: "*ico*", to: "." },
+      ],
+    }),
     new HtmlWebpackPlugin({
       template: "./public/index.html",
-    }),
-    new CopyPlugin({
-      patterns: [{
-        context: "public",
-        from: "controller.*",
-        to: "."
-      }],
     }),
   ],
   optimization: {

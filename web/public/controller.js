@@ -10,16 +10,20 @@ const register = ({ appToken }) => SYMPHONY.application.register(
 );
 
 const bootstrap = () => {
-    let modulesService = SYMPHONY.services.subscribe("modules")
-    let navService = SYMPHONY.services.subscribe("applications-nav")
-    navService.add('app', 'WDK Studio', 'app:controller')
+    let modulesService = SYMPHONY.services.subscribe("modules");
+    let navService = SYMPHONY.services.subscribe("applications-nav");
+
+    const title = 'WDK Studio';
+    const meta = { title, icon: appUri + '/icon-16.png' };
+
+    navService.add('app', meta, 'app:controller');
     controller.implement({
         select: id => {
             if (id === 'app') {
-                modulesService.show("test-app", { title: "WDK Studio" }, "app:controller", appUri)
+                modulesService.show("test-app", meta, "app:controller", appUri)
             }
         }
-    })
+    });
 };
 
 let controller = SYMPHONY.services.register("app:controller");
