@@ -12,6 +12,7 @@
     "@symphony-ui/uitoolkit-components": "^3.4.5",
     "monaco-editor": "^0.34.0",
     "monaco-yaml": "^4.0.0",
+    "prismjs": "^1.29.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-gauge-chart": "^0.4.0",
