@@ -25,6 +25,7 @@ const Root = styled.div`
 const App = () => {
     const [ workflows, setWorkflows ] = useState([]);
     const [ currentWorkflow, setCurrentWorkflow ] = useState();
+    const [ currentWorkflowId, setCurrentWorkflowId ] = useState();
     const [ showConsole, setShowConsole ] = useState(true);
     const [ editMode, setEditMode ] = useState(true);
     const [ contents, setContents ] = useState();
@@ -55,10 +56,10 @@ const App = () => {
         if (!currentWorkflow) {
             return;
         }
-        const request = { workflow: currentWorkflow?.value };
-        api.readWorkflow(request, ({ contents }) => {
+        api.readWorkflow({ workflow: currentWorkflow?.value }, (response) => {
             setIsContentChanged('original');
-            setContents(contents);
+            setContents(response.contents);
+            setCurrentWorkflowId(response.contents.match(/id: ([\w\-]+)/)[1]);
         });
     }, [ currentWorkflow, setContents ]);
 
@@ -67,7 +68,7 @@ const App = () => {
             <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, editMode, isContentChanged, setIsContentChanged }} />
             <ActionBar {...{ editor, setSnippet, currentWorkflow, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }} />
             { editMode && <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
-            { !editMode && <MonitorX {...{ currentWorkflow }} /> }
+            { !editMode && <MonitorX {...{ currentWorkflowId }} /> }
             { showConsole && <Console {...{ logs, setLogs, theme }} /> }
             <FadeToast {...{ toast }} />
         </Root>

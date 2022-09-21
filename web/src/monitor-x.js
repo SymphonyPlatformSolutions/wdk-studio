@@ -17,7 +17,7 @@ const Row = styled.div`
     &:not(:first-child):hover { cursor: pointer; background: var(--tk-color-electricity-20) }
 `;
 
-    const DataGrid = ({ headers, data, callback }) => (
+const DataGrid = ({ headers, data, callback }) => (
     <Grid>
         <Row>
             {headers.map((header, i) => <div key={i}>{header.substring(0, 1).toUpperCase() + header.substring(1)}</div>)}
@@ -61,12 +61,12 @@ const Activities = ({ activities }) => {
     );
 };
 
-const MonitorX = ({ currentWorkflow }) => {
+const MonitorX = ({ currentWorkflowId }) => {
     const [ instances, setInstances ] = useState();
     const [ activities, setActivities ] = useState();
 
     useEffect(() => {
-        api.listWorkflowInstances(currentWorkflow.value.replace('.swadl.yaml', ''), (r) => setInstances(r));
+        api.listWorkflowInstances(currentWorkflowId, (r) => setInstances(r));
     }, []);
 
     return (
