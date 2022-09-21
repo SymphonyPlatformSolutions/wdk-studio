@@ -46,7 +46,7 @@ const Activities = ({ activities }) => {
 
     return (
         <>
-            <DataGrid {...{ headers, data: activities.activities, callback: (row) => setVariables(row.variables.outputs) }} />
+            <DataGrid {...{ headers, data: activities.activities, callback: (row) => setVariables(row.outputs) }} />
             { variables && (
                 <>
                     <b>Variables:</b>

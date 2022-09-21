@@ -4,13 +4,20 @@ bdk:
     username: wdk-studio-bot
     privateKey:
       path: rsa/bot-privatekey.pem
-workflows.folder: ../workflows
+wdk:
+  workflows.path: ../workflows
+  properties.monitoring-token: abc
 logging.level:
-  org.reflections: error
-  org.springframework: error
-  org.apache: error
-  com.zaxxer: error
-  com.symphony: info
+  org:
+    reflections: error
+    springframework: error
+    apache: error
+  com:
+    zaxxer: error
+    symphony: info
+    symphony.bdk.workflow.swadl: error
+    symphony.bdk.spring.config: error
+  springfox: error
   # com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: debug
 management.endpoints.web.exposure.exclude: "*"
 spring.datasource.url: jdbc:h2:file:../workflows/data;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE

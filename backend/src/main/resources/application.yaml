@@ -22,12 +22,22 @@ bdk-app:
 wdk.studio:
   base-uri: http://localhost:8080/wdk/v1
   github-token: abc
+  monitoring-token: abc
 
 logging:
   pattern:
     console: '%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(%X{X-Trace-Id}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx'
   level:
-    com.symphony: error
+    org:
+      apache: error
+      springframework:
+        security: error
+        web.servlet: error
+        boot:
+          web.servlet: error
+          autoconfigure.web: error
+          actuate: error
+    com.symphony.bdk.app.spring.config: error
 
 server.error.include-message: always
 spring.main.banner-mode: off

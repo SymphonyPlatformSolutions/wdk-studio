@@ -13,10 +13,16 @@ import org.springframework.web.client.RestTemplate;
 public class BotMonitoringService {
     @Value("${wdk.studio.base-uri}")
     private String baseUri;
+    @Value("${wdk.studio.monitoring-token}")
+    private String token;
     private final RestTemplate restTemplate;
 
     public BotMonitoringService(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder
+            .additionalInterceptors((request, body, execution) -> {
+                request.getHeaders().add("X-Monitoring-Token", token);
+                return execution.execute(request, body);
+            })
             .defaultHeader("Accept", MediaType.APPLICATION_JSON.toString())
             .build();
     }

@@ -91,3 +91,4 @@ nb-configuration.xml
 rsa/
 workflow-bot-app.jar
 *.mv.db
+application-private.yaml

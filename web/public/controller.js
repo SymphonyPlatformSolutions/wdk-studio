@@ -1,5 +1,6 @@
-const appId = (window.location.hostname === 'localhost') ? 'localhost-10443' : 'wdk-studio';
-const appUri = (window.location.hostname === 'localhost') ? 'http://localhost:3000' : window.location.origin;
+const isDev = window.location.hostname === 'localhost';
+const appId = isDev ? 'localhost-10443' : 'wdk-studio';
+const appUri = isDev ? 'http://localhost:3000' : window.location.origin;
 
 const auth = () => fetch('/bdk/v1/app/auth', { method: 'POST' });
 
@@ -13,7 +14,7 @@ const bootstrap = () => {
     let modulesService = SYMPHONY.services.subscribe("modules");
     let navService = SYMPHONY.services.subscribe("applications-nav");
 
-    const title = 'WDK Studio';
+    const title = (isDev ? '[DEV] ' : '') + 'WDK Studio';
     const meta = { title, icon: appUri + '/icon-16.png' };
 
     navService.add('app', meta, 'app:controller');
