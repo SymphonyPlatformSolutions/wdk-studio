@@ -10,13 +10,13 @@ const Root = styled.div`
 
 const TemplatesRoot = styled.div`
     flex-grow: 1;
+    margin-top: 1rem;
 `;
 
 const TemplatesGrid = styled.div`
     display: grid;
     grid-template-columns: 50% 50%;
     gap: .5rem;
-    margin-bottom: 1rem;
     flex-grow: 1;
 `;
 

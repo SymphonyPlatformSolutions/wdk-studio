@@ -52,20 +52,20 @@ const CreateWorkflowModal = ({ createModal, setCreateModal, setToast, setWorkflo
         <Modal size="medium" show={createModal.show}>
             <ModalTitle>Create Workflow</ModalTitle>
             <ModalBody>
-                <TemplateSelector {...{ setSwadlTemplate, pageLoading, setPageLoading, templateLoading, setTemplateLoading }} />
                 <TextField
                     ref={nameRef}
                     label="Name"
-                    placeholder="some-process-abc"
+                    showRequired={true}
                     value={newName}
                     disabled={createModal.loading}
                     onChange={({ target }) => setNewName(target.value)}
                 />
+                <TemplateSelector {...{ setSwadlTemplate, pageLoading, setPageLoading, templateLoading, setTemplateLoading }} />
             </ModalBody>
             <ModalFooter style={{ gap: '.5rem' }}>
                 <Button
                     onClick={createWorkflow}
-                    disabled={createModal.loading || pageLoading || templateLoading}
+                    disabled={newName==='' || createModal.loading || pageLoading || templateLoading}
                 >
                     { createModal.loading ? <Loader /> : 'Create' }
                 </Button>
