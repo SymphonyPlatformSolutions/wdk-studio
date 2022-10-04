@@ -35,7 +35,7 @@ const EventWizard = ({setEventCodeSnippet, conditionCodeSnippet}) => {
             setEventCodeSnippet(
                 `on:
           ${selectedEvent.label}:
-            ${content !== '' ? 'content: ' + content : ''}${formId!=='' ? 'form-id: ' + formId : ''}${activityId!=='' ? 'activity-id: ' + activityId : ''}${conditionCodeSnippet !== '' ? '\n          if: ' + conditionCodeSnippet : ''}`)
+            ${content !== '' ? 'content: ' + content : ''}${formId!=='' ? 'form-id: ' + formId : ''}${activityId!=='' ? 'activity-id: ' + activityId : ''}${conditionCodeSnippet !== '' ? '\n        if: ' + conditionCodeSnippet : ''}`)
         } else {
             setEventCodeSnippet(null);
         }
