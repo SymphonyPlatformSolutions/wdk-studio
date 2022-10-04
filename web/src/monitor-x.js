@@ -23,8 +23,8 @@ const InstanceMetricItem = styled.div`
     margin: 2px;
     text-align: center;
     &:last-child {
-        border: 1px var(--tk-label-required-color) solid;
-        color: var(--tk-label-required-color);
+        border: 1px var(--tk-color-error) solid;
+        color: var(--tk-color-error);
     }
 `;
 
@@ -52,7 +52,7 @@ const TableTitle = styled.div`
 const Table = styled.table`
     width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     table-layout: fixed;
     border-collapse: collapse;
     & > thead > tr {
@@ -60,18 +60,17 @@ const Table = styled.table`
     };
     & > thead > tr > th {
         text-align: left;
-        color: #ffffff;
         font-weight: 400;
     };
     & > tbody {
         display:block;
         overflow:auto;
-        height: calc((100vh/3) - 145px);
+        height: calc((100vh/3) - 140px);
         width:100%;
         border-bottom: 1px solid var(--tk-table-hover-color);
     };
     & > tbody > tr:hover {
-        background: #41c3ff !important;
+        background: var(--tk-color-electricity-60) !important;
         cursor: pointer;
     };
     & > tbody > tr > td {
@@ -145,7 +144,7 @@ const InstanceList = ({data, loadInstances, selectedInstanceId, callback}) => {
                 </thead>
                 <tbody>
                     {data.map((row, i) => (
-                        <tr style={{background: row.instanceId===selectedInstanceId ? '#808080' : '', color: row.status==='PENDING' ? 'var(--tk-color-green-30)' : '#ffffff'}} onClick={() => callback(row)}>
+                        <tr style={{background: row.instanceId===selectedInstanceId ? 'var(--tk-color-electricity-60)' : '', color: row.status==='PENDING' ? 'var(--tk-color-green-30)' : 'var(tk-text-color)'}} onClick={() => callback(row)}>
                             <td style={{width: '20px', textAlign: 'center'}}>{row.instanceId===selectedInstanceId ? '>' : ''}</td>
                             <td style={{width: '200px'}}>{(new Date(row.startDate)).toLocaleString()}</td>
                             <td style={{width: '200px'}}>{row.endDate? (new Date(row.endDate)).toLocaleString() : 'running...'}</td>
@@ -179,7 +178,7 @@ const ActivityList = ({ activities, setExpandActivityModal, setActivityDetails }
                     </tr>
                 </thead>
                 <tbody>
-                {activities.activities.map((row, i) => (
+                {activities?.activities?.map((row, i) => (
                     <tr>
                         <td style={{width: '110px', maxWidth: '110px'}}>{row.activityId}</td>
                         <td style={{width: '200px'}}>{row.type?.substr(0, row.type.length-9)}</td>
@@ -190,27 +189,25 @@ const ActivityList = ({ activities, setExpandActivityModal, setActivityDetails }
                 ))}
                 </tbody>
             </Table>
-            { activities.globalVariables && (
-                <>
-                    <TableTitle>Variables</TableTitle>
-                    <Table>
-                        <thead>
+            <>
+                <TableTitle>Variables</TableTitle>
+                <Table>
+                    <thead>
+                    <tr>
+                        <th style={{width: '200px'}}>Name</th>
+                        <th style={{width: '200px'}}>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {activities?.globalVariables?.outputs && Object.keys(activities?.globalVariables?.outputs).map((key, i) => (
                         <tr>
-                            <th style={{width: '200px'}}>Name</th>
-                            <th style={{width: '200px'}}>Value</th>
+                            <td style={{width: '200px', maxWidth: '200px'}}>{key}</td>
+                            <td style={{width: '200px', maxWidth: '200px'}}>{activities.globalVariables.outputs[key]}</td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        {Object.keys(activities.globalVariables.outputs).map((key, i) => (
-                            <tr>
-                                <td style={{width: '200px', maxWidth: '200px'}}>{key}</td>
-                                <td style={{width: '200px', maxWidth: '200px'}}>{activities.globalVariables.outputs[key]}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </Table>
-                </>
-            ) }
+                    ))}
+                    </tbody>
+                </Table>
+            </>
         </>
     );
 };
@@ -253,7 +250,7 @@ const ExpandActivityModal = ({ expandActivityModal, setExpandActivityModal, acti
 const MonitorX = ({ currentWorkflowId }) => {
     const [ instances, setInstances ] = useState([]);
     const [ selectedInstanceId, setSelectedInstanceId ] = useState();
-    const [ activities, setActivities ] = useState();
+    const [ activities, setActivities ] = useState([]);
     const [ activityDetails, setActivityDetails ] = useState();
     const [ expandActivityModal, setExpandActivityModal ] = useState({ show: false });
 
@@ -272,7 +269,7 @@ const MonitorX = ({ currentWorkflowId }) => {
         <div className="tk-text-color">
             <InstanceMetrics {...{ instances }} />
             <Instances {...{ instances, loadInstances, selectedInstanceId, setSelectedInstanceId, setActivities }} />
-            { activities && <ActivityList {...{ activities, setExpandActivityModal, setActivityDetails }} /> }
+            <ActivityList {...{ activities, setExpandActivityModal, setActivityDetails }} />
             <ExpandActivityModal {...{ expandActivityModal, setExpandActivityModal, activityDetails }} />
         </div>
     )

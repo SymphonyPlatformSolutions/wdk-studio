@@ -28,10 +28,10 @@ const UpdateMessageForm = ({ setCodeSnippet, eventCodeSnippet }) => {
     useEffect(() => {
         setCodeSnippet(
 `- update-message:
-        id: ${identifier}${eventCodeSnippet!==null ? '\n    ' + eventCodeSnippet : ''}
-        message-id: ${messageId}
-        content: \\
-      ${content}`);
+      id: ${identifier}${eventCodeSnippet!==null ? '\n    ' + eventCodeSnippet : ''}
+      message-id: ${messageId}
+      content: |
+        ${content}`);
     }, [identifier, messageId, content, eventCodeSnippet]);
 
     const handleChangeIdentifier = ({ target }) => {

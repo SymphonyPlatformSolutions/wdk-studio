@@ -1,6 +1,6 @@
 const MessageMLTemplates = {
-    simple: '    <div>Hello <b>World!</b></div>',
-    table: `    <table>
+    simple: '<div>Hello <b>World!</b></div>',
+    table: `<table>
               <thead>
                 <tr>
                   <td>Header 1</td>        
@@ -36,7 +36,7 @@ const MessageMLTemplates = {
                 </tr>
               </tfoot>
             </table>`,
-    form: `    <form id="AddressForm">
+    form: `<form id="AddressForm">
             <text-field name="address" placeholder="type your address..." required="true"/>
             <select name="city">              
               <option selected="true" value="ny">New York</option>
@@ -46,7 +46,7 @@ const MessageMLTemplates = {
             <button name="submit" type="action">Submit</button>
             <button type="reset">Reset</button>
           </form>`,
-    card: `    <card accent="tempo-bg-color--blue" iconSrc="./images/favicon.png">
+    card: `<card accent="tempo-bg-color--blue" iconSrc="./images/favicon.png">
             <header>Card Header. Always visible.</header>
             <body>Card Body. User must click to view it.</body>
           </card>`

@@ -64,23 +64,23 @@ const ActivityWizard = ({setCodeSnippet, eventCodeSnippet}) => {
                 <Title>Select a type of activity to execute:</Title>
                 <ItemsBody>
                     <ItemsBodyContent onClick={() => setSelectedType(1)}>
-                        <span>Send, update, Pin, delete Messages</span>
+                        <span>Send or update a message</span>
                         <Chevron className="fa fa-angle-right"></Chevron>
                     </ItemsBodyContent>
                     <ItemsBodyContent>
-                        <span>Create et configure Rooms</span>
+                        <span>Create and configure rooms</span>
                         <Chevron className="fa fa-angle-right"></Chevron>
                     </ItemsBodyContent>
                     <ItemsBodyContent>
-                        <span>Search and manage Users</span>
+                        <span>Search and manage users</span>
                         <Chevron className="fa fa-angle-right"></Chevron>
                     </ItemsBodyContent>
                     <ItemsBodyContent>
-                        <span>Call APIs</span>
+                        <span>Call an API</span>
                         <Chevron className="fa fa-angle-right"></Chevron>
                     </ItemsBodyContent>
                     <ItemsBodyContent>
-                        <span>Add scripts</span>
+                        <span>Execute a script</span>
                         <Chevron className="fa fa-angle-right"></Chevron>
                     </ItemsBodyContent>
                 </ItemsBody>
@@ -96,14 +96,6 @@ const ActivityWizard = ({setCodeSnippet, eventCodeSnippet}) => {
                         </ItemsBodyContent>
                         <ItemsBodyContent onClick={() => setSelectedActivityForm({name: 'UpdateMessageForm'} )}>
                             <span>Update a message</span>
-                            <Chevron className="fa fa-angle-right"></Chevron>
-                        </ItemsBodyContent>
-                        <ItemsBodyContent>
-                            <span>Pin a message</span>
-                            <Chevron className="fa fa-angle-right"></Chevron>
-                        </ItemsBodyContent>
-                        <ItemsBodyContent>
-                            <span>Delete a message</span>
                             <Chevron className="fa fa-angle-right"></Chevron>
                         </ItemsBodyContent>
                         <ItemsBodyContent onClick={() => setSelectedType(0)}>

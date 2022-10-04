@@ -39,9 +39,9 @@ const SendMessageForm = ({ setCodeSnippet, eventCodeSnippet }) => {
         if (identifier!=='' && content!=='') {
             setCodeSnippet(
 `- send-message:
-        id: ${identifier}${streamId!=='' ? '\n    to:\n      stream-id: ' + streamId : ''}${eventCodeSnippet!==null ? '\n        ' + eventCodeSnippet : ''}
-        content: \\
-           ${content}`);
+      id: ${identifier}${streamId!=='' ? '\n    to:\n      stream-id: ' + streamId : ''}${eventCodeSnippet!==null ? '\n        ' + eventCodeSnippet : ''}
+      content: |
+        ${content}`);
         } else {
             setCodeSnippet(null);
         }
