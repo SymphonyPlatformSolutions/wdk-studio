@@ -49,33 +49,43 @@ const TableTitle = styled.div`
     }
 `;
 
-const Table = styled.table`
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    table-layout: fixed;
-    border-collapse: collapse;
-    & > thead > tr {
-        display:block;
-    };
-    & > thead > tr > th {
-        text-align: left;
-        font-weight: 400;
-    };
-    & > tbody {
-        display:block;
-        overflow:auto;
-        height: calc((100vh/3) - 140px);
-        width:100%;
-        border-bottom: 1px solid var(--tk-table-hover-color);
-    };
-    & > tbody > tr:hover {
-        background: var(--tk-color-electricity-60) !important;
-        cursor: pointer;
-    };
-    & > tbody > tr > td {
-        font-weight: 300;
-    };
+const Table = styled.div`
+    height: calc((100vh - 24em) / 3);
+    padding: .4rem;
+    margin-bottom: .4rem;
+
+    table {
+        border-collapse: collapse;
+        display: flex;
+        flex-flow: column;
+        height: 100%;
+        width: 100%;
+
+        thead {
+            flex: 0 0 auto;
+            width: calc(100% - 0.9em);
+            th { text-align: left; font-weight: 400 }
+        }
+        tbody {
+            flex: 1 1 auto;
+            display: block;
+            overflow-y: scroll;
+            td { font-weight: 300 }
+        }
+        tbody tr {
+            width: 100%;
+            &:hover { background: var(--tk-color-electricity-60) }
+        }
+        thead, tbody tr {
+            display: table;
+            table-layout: fixed;
+            th:last-child, td:last-child { padding-right: 1rem }
+        }
+        .icon { width: 1rem; text-align: center }
+        .date { width: 12rem }
+        .selectable:hover { cursor: pointer }
+    }
+
 `;
 
 const ActivityDetail = styled.div`
@@ -118,105 +128,125 @@ const InstanceMetrics = ({instances}) => {
 }
 
 const InstanceList = ({data, loadInstances, selectedInstanceId, callback}) => {
-
-    const formatDuration = (duration) => {
-        return duration?.toString()
-            .substring(2)
-            .replaceAll("(\\d[HMS])(?!$)", "$1 ")
-            .toLowerCase();
-    };
+    const formatDuration = (duration) => duration?.toString()
+        .substring(2)
+        .replaceAll(/([\d\.]+)(\w)/g, "$1$2 ")
+        .replaceAll(/([\d]+)\.(\d)([\d]+)/g, "$1.$2")
+        .toLowerCase();
 
     return (
         <>
             <TableTitle>
                 <div>Instances</div>
-                <div onClick={() => loadInstances()}>&#8634;</div>
+                <div onClick={loadInstances}>&#8634;</div>
             </TableTitle>
             <Table>
-                <thead>
-                    <tr>
-                        <th style={{width: '20px'}}></th>
-                        <th style={{width: '200px'}}>Start</th>
-                        <th style={{width: '200px'}}>End</th>
-                        <th style={{width: '100px'}}>Duration</th>
-                        <th style={{width: '150px'}}>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((row, i) => (
-                        <tr style={{background: row.instanceId===selectedInstanceId ? 'var(--tk-color-electricity-60)' : '', color: row.status==='PENDING' ? 'var(--tk-color-green-30)' : 'var(tk-text-color)'}} onClick={() => callback(row)}>
-                            <td style={{width: '20px', textAlign: 'center'}}>{row.instanceId===selectedInstanceId ? '>' : ''}</td>
-                            <td style={{width: '200px'}}>{(new Date(row.startDate)).toLocaleString()}</td>
-                            <td style={{width: '200px'}}>{row.endDate? (new Date(row.endDate)).toLocaleString() : 'running...'}</td>
-                            <td style={{width: '100px'}}>{formatDuration(row.duration)}</td>
-                            <td style={{width: '150px'}}>{row.status}</td>
+                <table>
+                    <thead>
+                        <tr>
+                            <th className="icon"></th>
+                            <th className="date">Start</th>
+                            <th className="date">End</th>
+                            <th>Duration</th>
+                            <th>Status</th>
                         </tr>
-                    ))}
-                </tbody>
+                    </thead>
+                    <tbody>
+                        {data.map((row, i) => (
+                            <tr key={i} className="selectable" style={{background: row.instanceId===selectedInstanceId ? 'var(--tk-color-electricity-60)' : '', color: row.status==='PENDING' ? 'var(--tk-color-green-30)' : 'var(tk-text-color)'}} onClick={() => callback(row)}>
+                                <td className="icon">{row.instanceId===selectedInstanceId ? '>' : ''}</td>
+                                <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
+                                <td className="date">{row.endDate? (new Date(row.endDate)).toLocaleString() : 'Running...'}</td>
+                                <td>{formatDuration(row.duration)}</td>
+                                <td>{row.status}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </Table>
         </>
     )
 };
 
-const ActivityList = ({ activities, setExpandActivityModal, setActivityDetails }) => {
+const ActivityList = ({ activityData, setExpandActivityModal, setActivityDetails }) => {
+    const [ currentVariables, setCurrentVariables ] = useState();
+
+    useEffect(() => {
+        setCurrentVariables(activityData?.variables[activityData.variables.length - 1]);
+    }, [ activityData ]);
+
     const showActivityDetails = (outputs) => {
         setActivityDetails(outputs);
         setExpandActivityModal({show: true});
+    };
+
+    const isNear = (targetDate, endDate) => {
+        const diff = new Date(targetDate).getTime() - new Date(endDate).getTime();
+        return diff > 0 && diff < 20;
+    };
+
+    const loadVariables = (endDate) => {
+        const filtered = activityData?.variables.filter(v => isNear(v.updateTime, endDate));
+        setCurrentVariables(filtered[0] || activityData?.variables[0]);
     };
 
     return (
         <>
             <TableTitle>Activities</TableTitle>
             <Table>
-                <thead>
-                    <tr>
-                        <th style={{width: '110px'}}>Id</th>
-                        <th style={{width: '200px'}}>Type</th>
-                        <th style={{width: '200px'}}>Start</th>
-                        <th style={{width: '200px'}}>End</th>
-                        <th style={{width: '50px'}}></th>
-                    </tr>
-                </thead>
-                <tbody>
-                {activities?.activities?.map((row, i) => (
-                    <tr>
-                        <td style={{width: '110px', maxWidth: '110px'}}>{row.activityId}</td>
-                        <td style={{width: '200px'}}>{row.type?.substr(0, row.type.length-9)}</td>
-                        <td style={{width: '200px'}}>{(new Date(row.startDate)).toLocaleString()}</td>
-                        <td style={{width: '200px'}}>{(new Date(row.endDate)).toLocaleString()}</td>
-                        <td style={{width: '50px'}} onClick={() => showActivityDetails(row.outputs) }>...</td>
-                    </tr>
-                ))}
-                </tbody>
-            </Table>
-            <>
-                <TableTitle>Variables</TableTitle>
-                <Table>
+                <table>
                     <thead>
-                    <tr>
-                        <th style={{width: '200px'}}>Name</th>
-                        <th style={{width: '200px'}}>Value</th>
-                    </tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th className="date">Start</th>
+                            <th className="date">End</th>
+                            <th className="icon"></th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {activities?.globalVariables?.outputs && Object.keys(activities?.globalVariables?.outputs).map((key, i) => (
-                        <tr>
-                            <td style={{width: '200px', maxWidth: '200px'}}>{key}</td>
-                            <td style={{width: '200px', maxWidth: '200px'}}>{activities.globalVariables.outputs[key]}</td>
+                    {activityData?.activities?.activities?.map((row, i) => (
+                        <tr key={i} className="selectable" onClick={() => loadVariables(row.endDate)}>
+                            <td>{row.activityId}</td>
+                            <td>{row.type?.substring(0, row.type.length-9)}</td>
+                            <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
+                            <td className="date">{(new Date(row.endDate)).toLocaleString()}</td>
+                            <td className="icon" onClick={() => showActivityDetails(row.outputs) }>...</td>
                         </tr>
                     ))}
                     </tbody>
-                </Table>
-            </>
+                </table>
+            </Table>
+
+            <TableTitle>
+                Variables
+            </TableTitle>
+            <Table>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                        <th className="date">Updated</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {currentVariables && Object.keys(currentVariables.outputs).map((key, i) => (
+                        <tr key={i}>
+                            <td>{key}</td>
+                            <td>{currentVariables.outputs[key]}</td>
+                            <td className="date">{(new Date(currentVariables.updateTime)).toLocaleString()}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </Table>
         </>
     );
 };
 
-const Instances = ({ instances, loadInstances, selectedInstanceId, setSelectedInstanceId, setActivities }) => {
-    const getInstanceActivities = ({ id, instanceId }) => {
-        setSelectedInstanceId( instanceId );
-        api.listInstanceActivities(id, instanceId, (r) => setActivities(r));
-    };
+const Instances = ({ instances, loadInstances, selectedInstanceId, setSelectedInstanceId }) => {
+    const getInstanceActivities = ({ instanceId }) => setSelectedInstanceId(instanceId);
     return (!instances || instances.length === 0) ? 'No instances yet' : (<InstanceList {...{ data: instances, loadInstances, selectedInstanceId, callback: getInstanceActivities }} />);
 };
 
@@ -250,7 +280,7 @@ const ExpandActivityModal = ({ expandActivityModal, setExpandActivityModal, acti
 const MonitorX = ({ currentWorkflowId }) => {
     const [ instances, setInstances ] = useState([]);
     const [ selectedInstanceId, setSelectedInstanceId ] = useState();
-    const [ activities, setActivities ] = useState([]);
+    const [ activityData, setActivityData ] = useState();
     const [ activityDetails, setActivityDetails ] = useState();
     const [ expandActivityModal, setExpandActivityModal ] = useState({ show: false });
 
@@ -258,18 +288,19 @@ const MonitorX = ({ currentWorkflowId }) => {
         loadInstances();
     }, []);
 
-    const loadInstances = () => {
-        api.listWorkflowInstances(currentWorkflowId, (r) => setInstances(r.reverse()));
+    useEffect(() => {
         if (selectedInstanceId) {
-            api.listInstanceActivities(currentWorkflowId, selectedInstanceId, (r) => setActivities(r));
+            api.getInstanceData(currentWorkflowId, selectedInstanceId, (r) => setActivityData(r));
         }
-    }
+    }, [ selectedInstanceId ]);
+
+    const loadInstances = () => api.listWorkflowInstances(currentWorkflowId, (r) => setInstances(r.reverse()));
 
     return (
         <div className="tk-text-color">
             <InstanceMetrics {...{ instances }} />
-            <Instances {...{ instances, loadInstances, selectedInstanceId, setSelectedInstanceId, setActivities }} />
-            <ActivityList {...{ activities, setExpandActivityModal, setActivityDetails }} />
+            <Instances {...{ instances, loadInstances, selectedInstanceId, setSelectedInstanceId }} />
+            <ActivityList {...{ activityData, setExpandActivityModal, setActivityDetails }} />
             <ExpandActivityModal {...{ expandActivityModal, setExpandActivityModal, activityDetails }} />
         </div>
     )
