@@ -27,6 +27,11 @@ public class BotMonitoringService {
             .build();
     }
 
+    @GetMapping("/api/monitoring/{workflowId}/definitions")
+    public JsonNode getWorkflowDefinition(@PathVariable String workflowId) {
+        return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/definitions", JsonNode.class);
+    }
+
     @GetMapping("/api/monitoring/{workflowId}/instances")
     public JsonNode listWorkflowInstances(@PathVariable String workflowId) {
         return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/instances", JsonNode.class);
@@ -35,5 +40,10 @@ public class BotMonitoringService {
     @GetMapping("/api/monitoring/{workflowId}/instances/{instanceId}/activities")
     public JsonNode listInstanceActivities(@PathVariable String workflowId, @PathVariable String instanceId) {
         return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/instances/" + instanceId + "/activities", JsonNode.class);
+    }
+
+    @GetMapping("/api/monitoring/{workflowId}/instances/{instanceId}/variables")
+    public JsonNode listInstanceVariables(@PathVariable String workflowId, @PathVariable String instanceId) {
+        return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/instances/" + instanceId + "/variables", JsonNode.class);
     }
 }
