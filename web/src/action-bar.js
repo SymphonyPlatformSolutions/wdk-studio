@@ -2,6 +2,7 @@ import {
     Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle
 } from "@symphony-ui/uitoolkit-components/components";
 import Wizard from './wizard'
+import Diagram from "./diagram";
 import styled from "styled-components";
 import { api } from './api';
 import { useState } from "react";
@@ -92,6 +93,27 @@ const ConfirmDiscardModal = ({ discardModal, setDiscardModal, editor, contents }
     );
 };
 
+const DiagramModal = ({ diagramModal, setDiagramModal, contents, currentWorkflowId }) => {
+
+    return (
+        <Modal size="large" show={diagramModal.show}>
+            <ModalTitle>Diagram</ModalTitle>
+            <ModalBody>
+                <Diagram {...{currentWorkflowId}} />
+            </ModalBody>
+            <ModalFooter style={{ gap: '.5rem' }}>
+                <Button
+                    variant="secondary"
+                    onClick={() => setDiagramModal({ show: false })}
+                    disabled={diagramModal.loading}
+                >
+                    Close
+                </Button>
+            </ModalFooter>
+        </Modal>
+    );
+};
+
 const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents, setToast }) => {
     const [codeSnippet, setCodeSnippet] = useState(null)
     const [eventCodeSnippet, setEventCodeSnippet] = useState(null)
@@ -153,10 +175,11 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
     );
 };
 
-const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }) => {
+const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
     const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });
+    const [ diagramModal, setDiagramModal ] = useState({ show: false });
 
     const saveWorkflow = (workflow, contents) => {
         api.writeWorkflow({ workflow, contents }, () => {
@@ -208,6 +231,13 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
                 </Button>
                 <Button
                     variant="secondary"
+                    disabled={markers.length > 0}
+                    onClick={() => setDiagramModal({ show: true })}
+                >
+                    Diagram
+                </Button>
+                <Button
+                    variant="secondary"
                     onClick={() => setShowConsole((old) => !old)}
                 >
                     {showConsole ? 'Hide Console' : 'Show Console'}
@@ -229,6 +259,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, contents, setContents,
             <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }} />
             <ConfirmDiscardModal {...{ discardModal, setDiscardModal, editor, contents }} />
             <WizardModal {...{ wizardModal, setSnippet, setWizardModal, setToast, editor, contents }} />
+            <DiagramModal {...{ diagramModal, setDiagramModal, contents, currentWorkflowId }} />
         </Root>
     );
 };

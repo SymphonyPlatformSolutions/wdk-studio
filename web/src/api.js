@@ -40,7 +40,7 @@ export const api = {
     listGalleryCategories: (callback, errorCallback) => apiCall('api/gallery/categories', null, callback, errorCallback),
     listGalleryWorkflows: (category, callback, errorCallback) => apiCall(`api/gallery/${category}/workflows`, null, callback, errorCallback),
     readGalleryWorkflow: (category, workflow, callback, errorCallback) => apiCall(`api/gallery/${category}/workflows/${workflow}`, null, callback, errorCallback),
-    getWorkflowDefinition: (workflowId, callback, errorCallback) => apiCall(`api/monitoring/${workflowId}/definition`, null, callback, errorCallback),
+    getWorkflowDefinition: (workflowId, callback, errorCallback) => apiCall(`api/monitoring/${workflowId}/definitions`, null, callback, errorCallback),
     listWorkflowInstances: (workflowId, callback, errorCallback) => apiCall(`api/monitoring/${workflowId}/instances`, null, callback, errorCallback),
     getInstanceData,
 };
