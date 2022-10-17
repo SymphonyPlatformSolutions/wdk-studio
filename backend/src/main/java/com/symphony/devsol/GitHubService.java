@@ -55,10 +55,11 @@ public class GitHubService {
     }
 
     @Cacheable("gallery-workflow-content")
-    @GetMapping("/api/gallery/{category}/workflows/{workflow}")
-    public String getWorkflow(@PathVariable String category, @PathVariable String workflow) {
-        String uri = baseUri + "/contents/categories/" + category + "/" + workflow;
-        String base64Contents = restTemplate.getForObject(uri, GitHubContent.class).getContent().replaceAll("\\n", "");
+    @GetMapping("/api/gallery/{category}/workflows/{workflow}/{file}")
+    public String getWorkflow(@PathVariable String category, @PathVariable String workflow, @PathVariable String file) {
+        String uri = baseUri + "/contents/categories/" + category + "/" + workflow + "/" + file;
+        String base64Contents = restTemplate.getForObject(uri, GitHubContent.class).getContent()
+            .replaceAll("\\n", "");
         return new String(Base64.getDecoder().decode(base64Contents));
     }
 }

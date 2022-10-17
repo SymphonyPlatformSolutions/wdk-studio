@@ -126,7 +126,11 @@ const Templates = ({
             { stage > 1 && <BackButton /> }
             <TemplatesGrid>
                 {items.map((item, index) => {
-                    const label = item.replace(/_/g, " ").replace(/-/g, " ").replace(/\.swadl\.yaml/g, "");
+                    const label = item
+                        .replaceAll(/\/.*/g, '')
+                        .replaceAll(/_/g, " ")
+                        .replaceAll(/-/g, " ")
+                        .replaceAll(/\.swadl\.yaml/g, "");
                     return (
                         <Template
                             key={index}
