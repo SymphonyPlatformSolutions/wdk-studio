@@ -62,4 +62,22 @@ public class GitHubService {
             .replaceAll("\\n", "");
         return new String(Base64.getDecoder().decode(base64Contents));
     }
+
+    @Cacheable("gallery-readme-content")
+    @GetMapping("/api/gallery/readme/{category}")
+    public String getReadme(@PathVariable String category) {
+        String uri = baseUri + "/contents/categories/" + category + "/README.md";
+        String base64Contents = restTemplate.getForObject(uri, GitHubContent.class).getContent()
+            .replaceAll("\\n", "");
+        return new String(Base64.getDecoder().decode(base64Contents));
+    }
+
+    @Cacheable("gallery-readme-content")
+    @GetMapping("/api/gallery/readme/{category}/{workflow}")
+    public String getReadme(@PathVariable String category, @PathVariable String workflow) {
+        String uri = baseUri + "/contents/categories/" + category + "/" + workflow + "/README.md";
+        String base64Contents = restTemplate.getForObject(uri, GitHubContent.class).getContent()
+            .replaceAll("\\n", "");
+        return new String(Base64.getDecoder().decode(base64Contents));
+    }
 }

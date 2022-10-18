@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { Loader, Icon, Button } from "@symphony-ui/uitoolkit-components";
 import { api } from "./api";
+import ReactMarkdown from 'react-markdown'
 
 const Root = styled.div`
     min-height: 18rem;
@@ -66,7 +67,18 @@ activities:
 `;
 
 const Templates = ({
-    items, setItems, stage, setStage, setPageLoading, category, setCategory, setSwadlTemplate, templateLoading, setTemplateLoading,
+    items,
+    setItems,
+    stage,
+    setStage,
+    setPageLoading,
+    category,
+    setCategory,
+    setSwadlTemplate,
+    templateLoading,
+    setTemplateLoading,
+    description,
+    setDescription,
 }) => {
     const [ selectedIndex, setSelectedIndex ] = useState(0);
 
@@ -83,6 +95,7 @@ const Templates = ({
         const selection = items[selectedIndex];
         if (selection === empty) {
             setSwadlTemplate(defaultTemplate);
+            setDescription('');
             return;
         }
         if (stage === 0 && selection === gallery) {
@@ -95,11 +108,13 @@ const Templates = ({
                 setCategory(selection);
                 setPageLoading(false);
             });
+            api.getReadme(selection, (contents) => setDescription(contents));
         } else if (stage === 2) {
             api.readGalleryWorkflow(category, selection, (contents) => {
                 setSwadlTemplate(contents);
                 setTemplateLoading(false);
             });
+            api.getReadme(category + '/' + selection.replace(/\/.*/g, ''), (contents) => setDescription(contents));
         }
     }, [ selectedIndex ]);
 
@@ -143,6 +158,9 @@ const Templates = ({
                     );
                 })}
             </TemplatesGrid>
+            <ReactMarkdown>
+                { description }
+            </ReactMarkdown>
         </TemplatesRoot>
     );
 };
@@ -154,9 +172,23 @@ const TemplateSelector = ({ setSwadlTemplate, pageLoading, setPageLoading, templ
     const [ stage, setStage ] = useState(0);
     const [ items, setItems ] = useState([ empty, gallery ]);
     const [ category, setCategory ] = useState();
+    const [ description, setDescription ] = useState();
 
     const content = pageLoading ? getLoader() :
-        <Templates {...{ items, setItems, stage, setStage, setPageLoading, category, setCategory, setSwadlTemplate, templateLoading, setTemplateLoading }} />;
+        <Templates {...{
+            items,
+            setItems,
+            stage,
+            setStage,
+            setPageLoading,
+            category,
+            setCategory,
+            setSwadlTemplate,
+            templateLoading,
+            setTemplateLoading,
+            description,
+            setDescription,
+        }} />;
     return <Root>{content}</Root>;
 };
 export default TemplateSelector;
