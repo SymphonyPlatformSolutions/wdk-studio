@@ -93,13 +93,13 @@ const ConfirmDiscardModal = ({ discardModal, setDiscardModal, editor, contents }
     );
 };
 
-const DiagramModal = ({ diagramModal, setDiagramModal, contents, currentWorkflowId }) => {
+const DiagramModal = ({ diagramModal, setDiagramModal, contents, currentWorkflowId, selectedInstance, setSelectedInstance }) => {
 
     return (
-        <Modal size="large" show={diagramModal.show}>
+        <Modal size="full-width" show={diagramModal.show}>
             <ModalTitle>Diagram</ModalTitle>
             <ModalBody>
-                <Diagram {...{currentWorkflowId}} />
+                <Diagram {...{currentWorkflowId, selectedInstance}} />
             </ModalBody>
             <ModalFooter style={{ gap: '.5rem' }}>
                 <Button
@@ -175,7 +175,7 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
     );
 };
 
-const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }) => {
+const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
     const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });
@@ -225,7 +225,10 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, con
                 <Button
                     variant="secondary"
                     disabled={markers.length > 0}
-                    onClick={() => setEditMode(!editMode)}
+                    onClick={() => {
+                        setEditMode(!editMode);
+                        setSelectedInstance(null);
+                    }}
                 >
                     {editMode ? 'Monitor' : 'Edit'}
                 </Button>
@@ -259,7 +262,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, con
             <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }} />
             <ConfirmDiscardModal {...{ discardModal, setDiscardModal, editor, contents }} />
             <WizardModal {...{ wizardModal, setSnippet, setWizardModal, setToast, editor, contents }} />
-            <DiagramModal {...{ diagramModal, setDiagramModal, contents, currentWorkflowId }} />
+            <DiagramModal {...{ diagramModal, setDiagramModal, contents, currentWorkflowId, selectedInstance, setSelectedInstance }} />
         </Root>
     );
 };

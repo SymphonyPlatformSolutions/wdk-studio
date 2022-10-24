@@ -84,6 +84,8 @@ const Table = styled.div`
         .icon { width: 1rem; text-align: center }
         .date { width: 12rem }
         .selectable:hover { cursor: pointer }
+        .autosizable { width: auto }
+        .identifier { width: 8rem }
     }
 
 `;
@@ -147,8 +149,8 @@ const InstanceList = ({data, loadInstances, selectedInstanceId, callback}) => {
                             <th className="icon"></th>
                             <th className="date">Start</th>
                             <th className="date">End</th>
-                            <th>Duration</th>
-                            <th>Status</th>
+                            <th className="date">Duration</th>
+                            <th className="autosizable">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -157,8 +159,8 @@ const InstanceList = ({data, loadInstances, selectedInstanceId, callback}) => {
                                 <td className="icon">{row.instanceId===selectedInstanceId ? '>' : ''}</td>
                                 <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
                                 <td className="date">{row.endDate? (new Date(row.endDate)).toLocaleString() : 'Running...'}</td>
-                                <td>{formatDuration(row.duration)}</td>
-                                <td>{row.status}</td>
+                                <td className="date">{formatDuration(row.duration)}</td>
+                                <td className="autosizable">{row.status}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -197,21 +199,21 @@ const ActivityList = ({ activityData, setExpandActivityModal, setActivityDetails
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Type</th>
+                            <th className="identifier">ID</th>
+                            <th className="date">Type</th>
                             <th className="date">Start</th>
                             <th className="date">End</th>
-                            <th className="icon"></th>
+                            <th className="autosizable"></th>
                         </tr>
                     </thead>
                     <tbody>
                     {activityData?.activities?.activities?.map((row, i) => (
                         <tr key={i} className="selectable" onClick={() => loadVariables(row.endDate)}>
-                            <td>{row.activityId}</td>
-                            <td>{row.type?.substring(0, row.type.length-9)}</td>
+                            <td className="identifier">{row.activityId}</td>
+                            <td className="date">{row.type?.substring(0, row.type.length-9)}</td>
                             <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
                             <td className="date">{(new Date(row.endDate)).toLocaleString()}</td>
-                            <td className="icon" onClick={() => showActivityDetails(row.outputs) }>...</td>
+                            <td className="autosizable" onClick={() => showActivityDetails(row.outputs) }>...</td>
                         </tr>
                     ))}
                     </tbody>
@@ -245,8 +247,11 @@ const ActivityList = ({ activityData, setExpandActivityModal, setActivityDetails
     );
 };
 
-const Instances = ({ instances, loadInstances, selectedInstanceId, setSelectedInstanceId }) => {
-    const getInstanceActivities = ({ instanceId }) => setSelectedInstanceId(instanceId);
+const Instances = ({ instances, loadInstances, selectedInstanceId, setSelectedInstanceId, setSelectedInstance }) => {
+    const getInstanceActivities = (row) => {
+        setSelectedInstanceId(row.instanceId);
+        setSelectedInstance(row);
+    }
     return (!instances || instances.length === 0) ? 'No instances yet' : (<InstanceList {...{ data: instances, loadInstances, selectedInstanceId, callback: getInstanceActivities }} />);
 };
 
@@ -277,7 +282,7 @@ const ExpandActivityModal = ({ expandActivityModal, setExpandActivityModal, acti
     );
 };
 
-const MonitorX = ({ currentWorkflowId }) => {
+const MonitorX = ({ currentWorkflowId, setSelectedInstance }) => {
     const [ instances, setInstances ] = useState([]);
     const [ selectedInstanceId, setSelectedInstanceId ] = useState();
     const [ activityData, setActivityData ] = useState();
@@ -299,7 +304,7 @@ const MonitorX = ({ currentWorkflowId }) => {
     return (
         <div className="tk-text-color">
             <InstanceMetrics {...{ instances }} />
-            <Instances {...{ instances, loadInstances, selectedInstanceId, setSelectedInstanceId }} />
+            <Instances {...{ instances, loadInstances, selectedInstanceId, setSelectedInstanceId, setSelectedInstance }} />
             <ActivityList {...{ activityData, setExpandActivityModal, setActivityDetails }} />
             <ExpandActivityModal {...{ expandActivityModal, setExpandActivityModal, activityDetails }} />
         </div>
