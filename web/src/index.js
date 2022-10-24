@@ -26,6 +26,7 @@ const App = () => {
     const [ workflows, setWorkflows ] = useState([]);
     const [ currentWorkflow, setCurrentWorkflow ] = useState();
     const [ currentWorkflowId, setCurrentWorkflowId ] = useState();
+    const [ selectedInstance, setSelectedInstance ] = useState();
     const [ showConsole, setShowConsole ] = useState(true);
     const [ editMode, setEditMode ] = useState(true);
     const [ contents, setContents ] = useState();
@@ -66,9 +67,9 @@ const App = () => {
     return (
         <Root>
             <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, editMode, isContentChanged, setIsContentChanged }} />
-            <ActionBar {...{ editor, setSnippet, currentWorkflow, currentWorkflowId, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }} />
+            <ActionBar {...{ editor, setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }} />
             { editMode && <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
-            { !editMode && <MonitorX {...{ currentWorkflowId }} /> }
+            { !editMode && <MonitorX {...{ currentWorkflowId, setSelectedInstance }} /> }
             { showConsole && <Console {...{ logs, setLogs, theme }} /> }
             <FadeToast {...{ toast }} />
         </Root>

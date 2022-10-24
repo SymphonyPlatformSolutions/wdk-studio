@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactFlow, {
-    ConnectionLineType, useNodesState, useEdgesState, Controls, Background, MarkerType
+    ConnectionLineType, useNodesState, useEdgesState, Controls, Background, MarkerType, applyEdgeChanges
 } from 'reactflow';
 import dagre from 'dagre';
 import styled from 'styled-components';
@@ -23,7 +23,7 @@ var dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 const nodeWidth = 172;
-const nodeHeight = 50;
+const nodeHeight = 60;
 const position = { x: 0, y: 0 };
 const edgeType = 'step';
 
@@ -50,11 +50,55 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
 const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([], []);
 
-const Diagram = ({ currentWorkflowId }) => {
+const Diagram = ({ currentWorkflowId, selectedInstance }) => {
     const [ nodes, setNodes, onNodesChange ] = useNodesState(layoutedNodes);
     const [ edges, setEdges, onEdgesChange ] = useEdgesState(layoutedEdges);
+    const [ activityData, setActivityData ] = useState();
 
-    useEffect(() => loadDefinition(), []);
+    useEffect(() => {
+        setNodes([]);
+        setEdges([]);
+        loadDefinition();
+    }, []);
+
+    useEffect(() => {
+        if (selectedInstance) {
+            api.getInstanceData(selectedInstance.id, selectedInstance.instanceId, (r) => setActivityData(r));
+        }
+    }, [ selectedInstance ]);
+
+    useEffect( () => {
+        setNodes((nds) => {
+            const edgeChanges = new Array();
+            nds.map((node) => {
+                const isNodeid = (currentNode) => {
+                    return currentNode.activityId == node.id;
+                };
+                const existingActivity = activityData.activities.activities.find(isNodeid);
+                if (existingActivity) {
+                    edges.map((edg) => {
+                        const isGateway = nodes.find(({ id, nodeType }) => id === edg.target && nodeType === 'GATEWAY');
+                        if (edg.target == node.id || (edg.source == node.id && isGateway)) {
+                            const endDate = new Date(existingActivity.endDate);
+                            edg.animated = true;
+                            edg.style = { stroke: '#03900b' };
+                            edg.label = endDate.getHours() + ':' + endDate.getMinutes() + ':' + endDate.getSeconds();
+                            edgeChanges.push({item: edg, type: 'reset'});
+                        }
+                    });
+                } else if (node.nodeType !== 'GATEWAY') {
+                    edges.map((edg) => {
+                        const isTargetGateway = nodes.find(({ id, nodeType }) => id === edg.target && nodeType === 'GATEWAY');
+                        if (edg.target == node.id || (edg.source == node.id && isTargetGateway )) {
+                            edgeChanges.push({item: edg, type: 'reset'});
+                        }
+                    });
+                }
+                return node;
+            })
+            setEdges((edgs) => applyEdgeChanges(edgeChanges, edgs));
+        });
+    }, [activityData, setNodes]);
 
     const loadDefinition = () => api.getWorkflowDefinition(currentWorkflowId, (data) => {
         const nodes = new Array();
@@ -63,18 +107,32 @@ const Diagram = ({ currentWorkflowId }) => {
 
         data?.flowNodes?.map((element) => {
             const isEvent = element.group === "EVENT";
+            const isGateway = element.group === "GATEWAY";
+
             nodes.push({
                 id: element.nodeId,
                 data: {
-                    label: (<>{element.type}<br/><b>{element.nodeId.replace(regexType, '')}</b></>)
+                    label: (
+                        <>
+                            {isGateway
+                                ? <div className={'react-flow__node-title-gateway'}>X</div>
+                                : <div className={'react-flow__node-title'}
+                                       style={{background: isEvent ? '#4bd19b' : '#0098ff'}}>{element.type}</div>
+                            }
+                            {!isGateway &&
+                                <div
+                                    className={'react-flow__node-content'}>{element.nodeId.replace(regexType, '')}
+                                </div>
+                            }
+                        </>
+                    )
                 },
                 position,
                 type: (element.parents?.length==0) ? 'input' : (element.children?.length==0) ? 'output' : 'default',
                 nodeType: element.group,
                 style: {
-                    borderRadius: isEvent ? '50%' : '4px',
-                    background: isEvent ? '#2ebf45' : '#ffffff',
-                    color: isEvent ? '#ffffff' : '#2a2a2a',
+                    border: isGateway ? '0px' : 'inherit',
+                    boxShadow: isGateway ? 'inherit' : '0px'
                 }
             });
             element.parents.map((edgeItem) => {
@@ -95,10 +153,14 @@ const Diagram = ({ currentWorkflowId }) => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 connectionLineType={ConnectionLineType.SmoothStep}
+                elementsSelectable={false}
+                nodesConnectable={false}
+                nodesDraggable={false}
+                panOnDrag={true}
+                minZoom={0.3}
                 fitView
             >
                 <Background variant={"lines"} gap={50} size={1} />
-                <Controls />
             </ReactFlow>
         </Root>
     );
