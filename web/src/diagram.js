@@ -72,9 +72,9 @@ const Diagram = ({ currentWorkflowId, selectedInstance }) => {
             const edgeChanges = new Array();
             nds.map((node) => {
                 const isNodeid = (currentNode) => {
-                    return currentNode.activityId == node.id;
+                    return currentNode.nodeId == node.id;
                 };
-                const existingActivity = activityData.activities.activities.find(isNodeid);
+                const existingActivity = activityData.activities.nodes.find(isNodeid);
                 if (existingActivity) {
                     edges.map((edg) => {
                         const isGateway = nodes.find(({ id, nodeType }) => id === edg.target && nodeType === 'GATEWAY');
@@ -115,13 +115,19 @@ const Diagram = ({ currentWorkflowId, selectedInstance }) => {
                     label: (
                         <>
                             {isGateway
-                                ? <div className={'react-flow__node-title-gateway'}>X</div>
-                                : <div className={'react-flow__node-title'}
-                                       style={{background: isEvent ? '#4bd19b' : '#0098ff'}}>{element.type}</div>
+                                ? <div className={'react-flow__node-title-gateway'}>
+                                    <img src={'./gateway_icon.png'} style={{width: '18px'}} />
+                                </div>
+                                : <span>
+                                    <div className={'react-flow__node-title'} style={{background: isEvent ? '#4bd19b' : '#0098ff'}}>
+                                        <img src={(element.group=='EVENT') ? './event_icon.png' : './activity_icon.png'} style={{float: 'left', marginLeft: '4px', marginTop: '-4px', width: '12px'}} />
+                                        <div style={{margin: '0 auto'}}>{element.type}</div>
+                                    </div>
+                                </span>
                             }
                             {!isGateway &&
-                                <div
-                                    className={'react-flow__node-content'}>{element.nodeId.replace(regexType, '')}
+                                <div className={'react-flow__node-content'}>
+                                    {element.nodeId.replace(regexType, '')}
                                 </div>
                             }
                         </>
@@ -155,7 +161,7 @@ const Diagram = ({ currentWorkflowId, selectedInstance }) => {
                 connectionLineType={ConnectionLineType.SmoothStep}
                 elementsSelectable={false}
                 nodesConnectable={false}
-                nodesDraggable={false}
+                nodesDraggable={true}
                 panOnDrag={true}
                 minZoom={0.3}
                 fitView
