@@ -7,11 +7,17 @@ import ReactMarkdown from 'react-markdown'
 const Root = styled.div`
     min-height: 18rem;
     display: flex;
+    height: 100vh;
+    justify-content: space-between;
 `;
 
 const TemplatesRoot = styled.div`
     flex-grow: 1;
     margin-top: 1rem;
+    border: 1px #cecece dashed;
+    padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
 `;
 
 const TemplatesGrid = styled.div`
@@ -19,6 +25,7 @@ const TemplatesGrid = styled.div`
     grid-template-columns: 50% 50%;
     gap: .5rem;
     flex-grow: 1;
+    width: 98%;
 `;
 
 const Template = styled.div`
@@ -37,6 +44,10 @@ const Template = styled.div`
     &:hover {
         background: var(--tk-color-electricity-10);
     }
+`;
+
+const TemplateDescription = styled.div`
+    height: auto;
 `;
 
 const LoadingRoot = styled.div`
@@ -158,9 +169,11 @@ const Templates = ({
                     );
                 })}
             </TemplatesGrid>
-            <ReactMarkdown>
-                { description }
-            </ReactMarkdown>
+            <TemplateDescription>
+                <ReactMarkdown>
+                    { description }
+                </ReactMarkdown>
+            </TemplateDescription>
         </TemplatesRoot>
     );
 };

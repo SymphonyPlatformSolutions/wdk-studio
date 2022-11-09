@@ -39,7 +39,7 @@ public class BotMonitoringService {
 
     @GetMapping("/api/monitoring/{workflowId}/instances/{instanceId}/activities")
     public JsonNode listInstanceActivities(@PathVariable String workflowId, @PathVariable String instanceId) {
-        return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/instances/" + instanceId + "/activities", JsonNode.class);
+        return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/instances/" + instanceId + "/states", JsonNode.class);
     }
 
     @GetMapping("/api/monitoring/{workflowId}/instances/{instanceId}/variables")

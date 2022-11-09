@@ -172,6 +172,7 @@ const InstanceList = ({data, loadInstances, selectedInstanceId, callback}) => {
 
 const ActivityList = ({ activityData, setExpandActivityModal, setActivityDetails }) => {
     const [ currentVariables, setCurrentVariables ] = useState();
+    const regexType = /(.*)(_)/gm;
 
     useEffect(() => {
         setCurrentVariables(activityData?.variables[activityData.variables.length - 1]);
@@ -207,10 +208,10 @@ const ActivityList = ({ activityData, setExpandActivityModal, setActivityDetails
                         </tr>
                     </thead>
                     <tbody>
-                    {activityData?.activities?.activities?.map((row, i) => (
+                    {activityData?.activities?.nodes?.map((row, i) => (
                         <tr key={i} className="selectable" onClick={() => loadVariables(row.endDate)}>
-                            <td className="identifier">{row.activityId}</td>
-                            <td className="date">{row.type?.substring(0, row.type.length-9)}</td>
+                            <td className="identifier">{row.nodeId.replace(regexType, '')}</td>
+                            <td className="date">{row.type}</td>
                             <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
                             <td className="date">{(new Date(row.endDate)).toLocaleString()}</td>
                             <td className="autosizable" onClick={() => showActivityDetails(row.outputs) }>...</td>

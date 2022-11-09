@@ -49,9 +49,9 @@ const CreateWorkflowModal = ({ createModal, setCreateModal, setToast, setWorkflo
     }, [ createModal?.show ]);
 
     return (
-        <Modal size="medium" show={createModal.show}>
+        <Modal size="large" show={createModal.show}>
             <ModalTitle>Create Workflow</ModalTitle>
-            <ModalBody>
+            <ModalBody style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <TextField
                     ref={nameRef}
                     label="Name"

@@ -116,11 +116,12 @@
     padding: 8px 0px;
     flex-grow: 1;
     border-radius: 60px;
-    width: 30px;
+    width: 40px;
+    height: 20px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-    margin-left: 60px;
-    background: #9debcd;
-    color: #000000;
+    margin-left: 55px;
+    background: #4bd19b;
+    color: #fff;
 }
 .react-flow__node-content {
     padding: 8px 0px;
