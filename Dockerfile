@@ -35,11 +35,10 @@ RUN jlink \
     --compress=2 \
     --output /jre
 
-FROM debian:bullseye-slim
+FROM gcr.io/distroless/java-base-debian11
 COPY --from=1 /jre /jre
-RUN ln -s /jre/bin/java /bin/java
 WORKDIR /data/symphony
 COPY ./backend/build/libs/*.jar app.jar
 COPY ./wdk-bot/workflow-bot-app.jar wdk-bot/workflow-bot-app.jar
 COPY ./wdk-bot/application.yaml wdk-bot/application.yaml
-ENTRYPOINT [ "java", "-jar", "./app.jar", "--spring.profiles.active=prod" ]
+ENTRYPOINT [ "/jre/bin/java", "-jar", "./app.jar", "--spring.profiles.active=prod" ]
