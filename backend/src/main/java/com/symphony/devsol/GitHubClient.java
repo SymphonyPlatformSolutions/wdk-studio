@@ -15,11 +15,11 @@ import java.util.Base64;
 import java.util.List;
 
 @RestController
-public class GitHubService {
+public class GitHubClient {
     private final String baseUri = "https://api.github.com/repos/finos/symphony-wdk-gallery";
     private final RestTemplate restTemplate;
 
-    public GitHubService(
+    public GitHubClient(
         @Value("${wdk.studio.github-token}") String token,
         RestTemplateBuilder restTemplateBuilder
     ) {

@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
-public class BotMonitoringService {
+public class WdkClient {
     @Value("${wdk.studio.base-uri}")
     private String baseUri;
     @Value("${wdk.studio.monitoring-token}")
     private String token;
     private final RestTemplate restTemplate;
 
-    public BotMonitoringService(RestTemplateBuilder restTemplateBuilder) {
+    public WdkClient(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder
             .additionalInterceptors((request, body, execution) -> {
                 request.getHeaders().add("X-Monitoring-Token", token);

@@ -24,7 +24,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequiredArgsConstructor
 public class WebService {
     private final String workflowRoot = "workflows/";
-    private final BotService botService;
+    private final WdkRunner botService;
 
     @GetMapping("/api/logs")
     public SseEmitter stream() {

@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableAsync
 @EnableCaching
-public class WDKStudioBackend {
+public class WdkStudioBackend {
     public static void main(String[] args) {
-        SpringApplication.run(WDKStudioBackend.class, args);
+        SpringApplication.run(WdkStudioBackend.class, args);
     }
 }

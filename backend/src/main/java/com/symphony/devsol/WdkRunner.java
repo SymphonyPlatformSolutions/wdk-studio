@@ -14,7 +14,7 @@ import java.time.Instant;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class BotService {
+public class WdkRunner {
     private final Environment env;
     private final TaskExecutor taskExecutor;
     @Getter
