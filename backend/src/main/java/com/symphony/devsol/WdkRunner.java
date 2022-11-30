@@ -34,7 +34,8 @@ public class WdkRunner {
 
     public void runBot() {
         resetEmitter();
-        String command = "java -jar workflow-bot-app.jar --spring.profiles.active=" + String.join(",", env.getActiveProfiles());
+        String path = System.getProperty("java.home") + "/bin/";
+        String command = path + "java -jar workflow-bot-app.jar --spring.profiles.active=" + String.join(",", env.getActiveProfiles());
         try {
             Process p = Runtime.getRuntime().exec(command, null, new File("wdk-bot"));
             taskExecutor.execute(() -> new StreamListener(p.getInputStream()).run());
