@@ -13,6 +13,7 @@ bdk-app:
   cors:
     "[/**]":
       allowed-origins: "*"
+      allowed-methods: ["POST", "GET"]
       allowed-credentials: false
   tracing:
     enabled: true
