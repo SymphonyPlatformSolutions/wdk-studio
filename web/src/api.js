@@ -1,3 +1,5 @@
+import { EventSourcePolyfill } from 'event-source-polyfill';
+
 const apiRoot = window.location.hostname === 'localhost' ? 'https://localhost:10443/' : '';
 
 const process = async (response) => {
@@ -34,7 +36,12 @@ const apiCall = (uri, body, callback, errorCallback) => {
 
 const getInstanceData = (workflowId, instanceId, callback, errorCallback) => {
     const uriRoot = `api/monitoring/${workflowId}/instances/${instanceId}/`;
-    const config = { headers: { 'Content-Type': 'application/json' } };
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + jwt
+        }
+    };
     const activities = fetch(apiRoot + uriRoot + 'activities', config).then(process);
     const variables = fetch(apiRoot + uriRoot + 'variables', config).then(process);
     Promise.all([ activities, variables ]).then((response) => {
@@ -58,4 +65,5 @@ export const api = {
     getInstanceData,
 };
 
-export const initLogs = (callback) => (new EventSource(apiRoot + "api/logs")).onmessage = callback;
+export const initLogs = (callback) =>
+    (new EventSourcePolyfill(apiRoot + "api/logs", { headers: { 'Authorization': 'Bearer ' + jwt } })).onmessage = callback;

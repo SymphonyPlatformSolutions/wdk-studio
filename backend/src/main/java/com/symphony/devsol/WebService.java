@@ -1,6 +1,7 @@
 package com.symphony.devsol;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class WebService {
@@ -44,6 +46,7 @@ public class WebService {
     @PostMapping("/api/read-workflow")
     public Workflow readWorkflow(@RequestBody ReadWorkflow request) throws IOException {
         String path = workflowRoot + request.workflow;
+        log.info("Workflow read: {}", request.workflow);
         return new Workflow(request.workflow, String.join("\n", Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8)));
     }
 
@@ -52,6 +55,7 @@ public class WebService {
         BufferedWriter writer = new BufferedWriter(new FileWriter(workflowRoot + workflow.workflow));
         writer.write(workflow.contents);
         writer.close();
+        log.info("Workflow updated: {}", workflow.workflow);
         return new Workflow(workflow.workflow, workflow.contents);
     }
 
@@ -68,6 +72,7 @@ public class WebService {
         BufferedWriter writer = new BufferedWriter(new FileWriter(workflowRoot + fileName));
         writer.write(workflow.contents);
         writer.close();
+        log.info("Workflow created: {}", workflow.workflow);
         return new Workflow(fileName, workflow.contents);
     }
 
@@ -76,6 +81,7 @@ public class WebService {
         if (!(new File(workflowRoot + workflow.workflow)).delete()) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
+        log.info("Workflow deleted: {}", workflow.workflow);
         return "ok";
     }
 

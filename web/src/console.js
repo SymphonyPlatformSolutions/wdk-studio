@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import styled from "styled-components";
-import { Switch } from "@symphony-ui/uitoolkit-components/components";
+import { Switch, Button } from "@symphony-ui/uitoolkit-components/components";
 import { initLogs } from './api';
 
 const ConsoleRoot = styled.div`
@@ -15,6 +15,11 @@ const LogsRoot = styled.div`
     font-family: Consolas, "Courier New", monospace;
     font-size: .9rem;
     white-space: pre;
+`;
+
+const ActionBar = styled.div`
+    display: flex;
+    justify-content: space-between;
 `;
 
 const Console = ({ logs, setLogs, theme }) => {
@@ -36,13 +41,21 @@ const Console = ({ logs, setLogs, theme }) => {
             <LogsRoot ref={logsRef} className="tk-text-color">
                 {logs}
             </LogsRoot>
-            <Switch
-                name="tail"
-                value="tail"
-                label="Tail Logs"
-                status={tail}
-                onChange={() => setTail((old) => (old === 'checked') ? 'unchecked' : 'checked')}
-            />
+            <ActionBar>
+                <Switch
+                    name="tail"
+                    value="tail"
+                    label="Tail Logs"
+                    status={tail}
+                    onChange={() => setTail((old) => (old === 'checked') ? 'unchecked' : 'checked')}
+                />
+                <Button
+                    variant="secondary"
+                    onClick={() => setLogs('')}
+                >
+                    Clear
+                </Button>
+            </ActionBar>
         </ConsoleRoot>
     );
 };
