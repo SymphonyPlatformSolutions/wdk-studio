@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.11.0')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.11.1')
     implementation 'org.finos.symphony.bdk:symphony-bdk-app-spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     compileOnly 'org.springframework.boot:spring-boot-starter-security'

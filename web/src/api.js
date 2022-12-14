@@ -9,12 +9,23 @@ const process = async (response) => {
     }
 };
 
+let jwt;
+const setJwt = (token) => jwt = token;
+
 const apiCall = (uri, body, callback, errorCallback) => {
-    const config = body && {
-        method: "post",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+    let config = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + jwt
+        }
     };
+    if (body) {
+        config = {
+            ...config,
+            method: 'post',
+            body: JSON.stringify(body)
+        }
+    }
     fetch(apiRoot + uri, config)
         .then(process)
         .then(callback)
@@ -32,6 +43,7 @@ const getInstanceData = (workflowId, instanceId, callback, errorCallback) => {
 };
 
 export const api = {
+    setJwt,
     listWorkflows: (callback, errorCallback) => apiCall('api/list-workflows', null, callback, errorCallback),
     readWorkflow: (request, callback, errorCallback) => apiCall('api/read-workflow', request, callback, errorCallback),
     addWorkflow: (request, callback, errorCallback) => apiCall('api/add-workflow', request, callback, errorCallback),
