@@ -15,9 +15,11 @@ logging.level:
   com:
     zaxxer: error
     symphony: info
-    symphony.bdk.workflow.swadl: error
-    symphony.bdk.spring.config: error
+    symphony.bdk:
+      workflow:
+        swadl: error
+        engine.executor.DebugExecutor: debug
+      spring.config: error
   springfox: error
-  # com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: debug
 management.endpoints.web.exposure.exclude: "*"
 spring.datasource.url: jdbc:h2:file:../workflows/data;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
