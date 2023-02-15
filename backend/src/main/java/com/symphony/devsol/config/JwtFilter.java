@@ -1,4 +1,4 @@
-package com.symphony.devsol;
+package com.symphony.devsol.config;
 
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;

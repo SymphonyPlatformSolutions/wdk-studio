@@ -1,4 +1,4 @@
-package com.symphony.devsol;
+package com.symphony.devsol.client;
 
 import com.symphony.devsol.model.github.GitHubContent;
 import com.symphony.devsol.model.github.GitHubTree;

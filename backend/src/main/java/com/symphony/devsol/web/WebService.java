@@ -1,5 +1,6 @@
-package com.symphony.devsol;
+package com.symphony.devsol.web;
 
+import com.symphony.devsol.WdkRunner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,12 +27,12 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequiredArgsConstructor
 public class WebService {
     private final String workflowRoot = "workflows/";
-    private final WdkRunner botService;
-
-    @GetMapping("/api/logs")
-    public SseEmitter stream() {
-        return botService.getEmitter();
-    }
+//    private final WdkRunner botService;
+//
+//    @GetMapping("/api/logs")
+//    public SseEmitter stream() {
+//        return botService.getEmitter();
+//    }
 
     @GetMapping("/api/list-workflows")
     public Set<String> listWorkflows() {

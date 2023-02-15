@@ -10,7 +10,7 @@ bdk-app:
   cors:
     "[/**]":
       allowed-origins: "*"
-      allowed-methods: ["POST", "GET"]
+      allowed-methods: [ "POST", "GET", "PUT", "DELETE" ]
       allowed-headers: "*"
       allowed-credentials: false
 
@@ -22,6 +22,7 @@ wdk.studio:
 logging.level:
   org:
     apache: error
+    glassfish: error
     springframework:
       security: error
       web.servlet: error

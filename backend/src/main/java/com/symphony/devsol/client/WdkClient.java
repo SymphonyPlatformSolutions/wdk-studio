@@ -1,4 +1,4 @@
-package com.symphony.devsol;
+package com.symphony.devsol.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
