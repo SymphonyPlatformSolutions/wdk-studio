@@ -2,11 +2,12 @@ bdk:
   host: develop2.symphony.com
   bot:
     username: wdk-studio-bot
-    privateKey:
-      path: rsa/bot-privatekey.pem
+    privateKey.path: rsa/bot-privatekey.pem
 wdk:
-  workflows.path: ../workflows
-  properties.monitoring-token: abc
+  workflows.path: ""
+  properties:
+    monitoring-token: abc
+    management-token: abc
 logging.level:
   org:
     reflections: error
@@ -22,4 +23,9 @@ logging.level:
       spring.config: error
   springfox: error
 management.endpoints.web.exposure.exclude: "*"
-spring.datasource.url: jdbc:h2:file:../workflows/data;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+spring:
+  datasource:
+    wdk:
+      jdbc-url: jdbc:h2:file:./data/wdk;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    camunda:
+      jdbc-url: jdbc:h2:file:./data/camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
