@@ -1,7 +1,7 @@
 plugins {
-    id 'java-library'
-    id 'org.springframework.boot' version "2.7.6"
-    id "io.freefair.lombok" version "6.5.0.2"
+    id 'java'
+    id 'org.springframework.boot' version '2.7.8'
+    id 'io.freefair.lombok' version '6.6.2'
 }
 
 java {
@@ -10,19 +10,14 @@ java {
     }
 }
 
-repositories {
-    mavenCentral()
-}
+repositories { mavenCentral() }
 
 dependencies {
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.11.1')
+    implementation platform ('org.finos.symphony.bdk:symphony-bdk-bom:2.12.0')
     implementation 'org.finos.symphony.bdk:symphony-bdk-app-spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
-tasks.named("jar") {
-    enabled = false
-}
+tasks.named("jar") { enabled = false }
 
-version = '0.1'
+version = '0.2'
