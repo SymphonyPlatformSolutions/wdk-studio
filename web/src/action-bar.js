@@ -4,7 +4,7 @@ import {
 import Wizard from './wizard'
 import Diagram from "./diagram";
 import styled from "styled-components";
-import { api } from './api';
+import api from './api';
 import { useState } from "react";
 
 const Root = styled.div`
@@ -19,6 +19,8 @@ const Section = styled.div`
 `;
 
 const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }) => {
+    const { deleteWorkflow } = api();
+
     const showToast = (msg, error = 'false') => {
         setToast({ show: true, content: msg, error });
         setTimeout(() => {
@@ -26,9 +28,9 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWork
         }, 2000);
     };
 
-    const deleteWorkflow = () => {
+    const submitDeleteWorkflow = () => {
         setDeleteModal({ show: true, loading: true });
-        api.deleteWorkflow({ workflow: currentWorkflow.value }, () => {
+        deleteWorkflow({ workflow: currentWorkflow.value }, () => {
             setDeleteModal({ show: false });
             showToast('Workflow deleted');
             setWorkflows((old) => old.filter((w) => w.value !== currentWorkflow.value));
@@ -45,7 +47,7 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWork
             <ModalFooter style={{ gap: '.5rem' }}>
                 <Button
                     variant="primary-destructive"
-                    onClick={deleteWorkflow}
+                    onClick={submitDeleteWorkflow}
                     disabled={deleteModal.loading}
                 >
                     { deleteModal.loading ? <Loader /> : 'Delete' }
@@ -180,9 +182,10 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, sel
     const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });
     const [ diagramModal, setDiagramModal ] = useState({ show: false });
+    const { addWorkflow } = api();
 
     const saveWorkflow = (workflow, contents) => {
-        api.writeWorkflow({ workflow, contents }, () => {
+        addWorkflow({ workflow, contents }, () => {
             setIsContentChanged('original');
             setContents(contents);
             setToast({ show: true, content: 'Saved!'});

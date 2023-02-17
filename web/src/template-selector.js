@@ -1,8 +1,8 @@
-import styled from "styled-components";
-import { useState, useEffect } from "react";
 import { Loader, Icon, Button } from "@symphony-ui/uitoolkit-components";
-import { api } from "./api";
+import { useState, useEffect } from "react";
+import api from "./api";
 import ReactMarkdown from 'react-markdown'
+import styled from "styled-components";
 
 const Root = styled.div`
     min-height: 18rem;
@@ -92,10 +92,11 @@ const Templates = ({
     setDescription,
 }) => {
     const [ selectedIndex, setSelectedIndex ] = useState(0);
+    const { listGalleryCategories, listGalleryWorkflows, getReadme, readGalleryWorkflow } = api();
 
     const loadCategories = () => {
         setPageLoading(true);
-        api.listGalleryCategories((c) => {
+        listGalleryCategories((c) => {
             setItems([ empty, ...c]);
             setStage(1);
             setPageLoading(false);
@@ -113,19 +114,19 @@ const Templates = ({
             loadCategories();
         } else if (stage === 1) {
             setPageLoading(true);
-            api.listGalleryWorkflows(selection, (workflows) => {
+            listGalleryWorkflows(selection, (workflows) => {
                 setItems([ empty, ...workflows]);
                 setStage(2);
                 setCategory(selection);
                 setPageLoading(false);
             });
-            api.getReadme(selection, (contents) => setDescription(contents));
+            getReadme(selection, (contents) => setDescription(contents));
         } else if (stage === 2) {
-            api.readGalleryWorkflow(category, selection, (contents) => {
+            readGalleryWorkflow(category, selection, (contents) => {
                 setSwadlTemplate(contents);
                 setTemplateLoading(false);
             });
-            api.getReadme(category + '/' + selection.replace(/\/.*/g, ''), (contents) => setDescription(contents));
+            getReadme(category + '/' + selection.replace(/\/.*/g, ''), (contents) => setDescription(contents));
         }
     }, [ selectedIndex ]);
 

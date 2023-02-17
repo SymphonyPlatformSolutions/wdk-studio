@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
 import { Button, Dropdown, Icon } from "@symphony-ui/uitoolkit-components/components";
-import styled from "styled-components";
-import { api } from './api';
+import { useEffect, useState, useRef } from 'react';
+import api from './api';
 import CreateWorkflowModal from './create-workflow';
+import styled from "styled-components";
 
 const Root = styled.div`
     display: grid;
@@ -17,12 +17,12 @@ const StyledDropdown = styled(Dropdown)`
 `;
 
 const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows, editMode, isContentChanged, setIsContentChanged }) => {
-    useEffect(() => {
-        api.listWorkflows((res) => {
-            const values = res.map(workflow => ({ label: workflow, value: workflow }));
-            setWorkflows(values);
-        });
-    }, [ setCurrentWorkflow, setWorkflows ]);
+    const { listWorkflows } = api();
+
+    useEffect(() => listWorkflows((res) => {
+        const values = res.map(workflow => ({ label: workflow, value: workflow }));
+        setWorkflows(values);
+    }), [ setCurrentWorkflow, setWorkflows ]);
 
     return (
         <StyledDropdown

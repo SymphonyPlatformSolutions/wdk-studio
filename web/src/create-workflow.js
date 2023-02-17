@@ -3,13 +3,14 @@ import {
     Button, Loader, TextField, Modal, ModalTitle, ModalBody, ModalFooter,
 } from "@symphony-ui/uitoolkit-components/components";
 import TemplateSelector from './template-selector';
-import { api } from './api';
+import api from './api';
 
 const CreateWorkflowModal = ({ createModal, setCreateModal, setToast, setWorkflows }) => {
     const [ newName, setNewName ] = useState('');
     const [ swadlTemplate, setSwadlTemplate ] = useState();
     const [ pageLoading, setPageLoading ] = useState(false);
     const [ templateLoading, setTemplateLoading ] = useState(false);
+    const { addWorkflow } = api();
 
     const showToast = (msg, error = 'false') => {
         setToast({ show: true, content: msg, error });
@@ -30,7 +31,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal, setToast, setWorkflo
         }
         setCreateModal({ show: true, loading: true });
         const template = swadlTemplate.replace(/newId/g, newName.replace(/-/g, ''));
-        api.addWorkflow({ workflow: newName, contents: template }, (res) => {
+        addWorkflow({ workflow: newName, contents: template }, (res) => {
             showToast('New workflow added', 'false');
             setCreateModal({ show: false });
             setNewName('');

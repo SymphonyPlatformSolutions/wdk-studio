@@ -5,7 +5,7 @@ import ReactFlow, {
 import dagre from 'dagre';
 import styled from 'styled-components';
 import './diagram/style.css';
-import { api } from './api';
+import api from './api';
 
 const Root = styled.div`
     border: #8f959e 1px solid;
@@ -54,6 +54,7 @@ const Diagram = ({ currentWorkflowId, selectedInstance }) => {
     const [ nodes, setNodes, onNodesChange ] = useNodesState(layoutedNodes);
     const [ edges, setEdges, onEdgesChange ] = useEdgesState(layoutedEdges);
     const [ activityData, setActivityData ] = useState();
+    const { getInstanceData, getWorkflowDefinition } = api();
 
     useEffect(() => {
         setNodes([]);
@@ -63,7 +64,7 @@ const Diagram = ({ currentWorkflowId, selectedInstance }) => {
 
     useEffect(() => {
         if (selectedInstance) {
-            api.getInstanceData(selectedInstance.id, selectedInstance.instanceId, (r) => setActivityData(r));
+            getInstanceData(selectedInstance.id, selectedInstance.instanceId, (r) => setActivityData(r));
         }
     }, [ selectedInstance ]);
 
@@ -100,7 +101,7 @@ const Diagram = ({ currentWorkflowId, selectedInstance }) => {
         });
     }, [activityData, setNodes]);
 
-    const loadDefinition = () => api.getWorkflowDefinition(currentWorkflowId, (data) => {
+    const loadDefinition = () => getWorkflowDefinition(currentWorkflowId, (data) => {
         const nodes = new Array();
         const edges = new Array();
         const regexType = /(.*)(_)/gm;

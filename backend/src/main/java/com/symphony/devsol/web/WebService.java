@@ -1,91 +1,75 @@
 package com.symphony.devsol.web;
 
-import com.symphony.devsol.WdkRunner;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.symphony.devsol.client.WdkClient;
+import com.symphony.devsol.model.studio.Workflow;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 public class WebService {
-    private final String workflowRoot = "workflows/";
-//    private final WdkRunner botService;
-//
-//    @GetMapping("/api/logs")
-//    public SseEmitter stream() {
-//        return botService.getEmitter();
-//    }
+    private final WdkClient wdk;
+    record TokenResponse(String token) {}
 
-    @GetMapping("/api/list-workflows")
-    public Set<String> listWorkflows() {
-        return Stream.of(new File(workflowRoot).listFiles())
-            .filter(file -> !file.isDirectory())
-            .map(File::getName)
-            .filter(f -> f.endsWith(".swadl.yaml"))
-            .sorted()
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+    @GetMapping("/api/workflows")
+    public JsonNode listWorkflows() {
+        return wdk.listWorkflows();
     }
 
-    @PostMapping("/api/read-workflow")
-    public Workflow readWorkflow(@RequestBody ReadWorkflow request) throws IOException {
-        String path = workflowRoot + request.workflow;
-        log.info("Workflow read: {}", request.workflow);
-        return new Workflow(request.workflow, String.join("\n", Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8)));
+    @GetMapping("/api/read-workflow/{workflowId}")
+    public JsonNode readWorkflow(@PathVariable String workflowId) {
+        return wdk.readWorkflow(workflowId);
     }
 
-    @PostMapping("/api/write-workflow")
-    public Workflow writeWorkflow(@RequestBody Workflow workflow) throws Exception {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(workflowRoot + workflow.workflow));
-        writer.write(workflow.contents);
-        writer.close();
-        log.info("Workflow updated: {}", workflow.workflow);
-        return new Workflow(workflow.workflow, workflow.contents);
+    @GetMapping("/api/management-token")
+    public TokenResponse getManagementToken() {
+        return new TokenResponse(wdk.getManagementToken());
     }
 
-    @PostMapping("/api/add-workflow")
-    public Workflow addWorkflow(@RequestBody Workflow workflow) throws Exception {
-        String workflowName = workflow.workflow.trim();
-        if (workflowName.isEmpty()) {
-            throw new ResponseStatusException(BAD_REQUEST, "Workflow name cannot be empty");
-        }
-        String fileName = workflowName + ".swadl.yaml";
-        if ((new File(workflowRoot + fileName)).exists()) {
-            throw new ResponseStatusException(BAD_REQUEST, "Workflow named " + workflowName + " already exists");
-        }
-        BufferedWriter writer = new BufferedWriter(new FileWriter(workflowRoot + fileName));
-        writer.write(workflow.contents);
-        writer.close();
-        log.info("Workflow created: {}", workflow.workflow);
-        return new Workflow(fileName, workflow.contents);
+    @GetMapping("/api/monitoring/{workflowId}/definitions")
+    public JsonNode getWorkflowDefinition(@PathVariable String workflowId) {
+        return wdk.getWorkflowDefinition(workflowId);
     }
 
-    @PostMapping("/api/delete-workflow")
-    public String deleteWorkflow(@RequestBody Workflow workflow) {
-        if (!(new File(workflowRoot + workflow.workflow)).delete()) {
-            throw new ResponseStatusException(BAD_REQUEST);
-        }
-        log.info("Workflow deleted: {}", workflow.workflow);
-        return "ok";
+    @GetMapping("/api/monitoring/{workflowId}/instances")
+    public JsonNode listWorkflowInstances(@PathVariable String workflowId) {
+        return wdk.listWorkflowInstances(workflowId);
     }
 
-    record Workflow(String workflow, String contents) {}
-    record ReadWorkflow(String workflow) {}
+    @GetMapping("/api/monitoring/{workflowId}/instances/{instanceId}/activities")
+    public JsonNode listInstanceActivities(@PathVariable String workflowId, @PathVariable String instanceId) {
+        return wdk.listInstanceActivities(workflowId, instanceId);
+    }
+
+    @GetMapping("/api/monitoring/{workflowId}/instances/{instanceId}/variables")
+    public JsonNode listInstanceVariables(@PathVariable String workflowId, @PathVariable String instanceId) {
+        return wdk.listInstanceVariables(workflowId, instanceId);
+    }
+
+    @PostMapping("/api/management/workflow")
+    public JsonNode addWorkflow(@RequestBody Workflow workflow) {
+        return wdk.addWorkflow(workflow);
+    }
+
+    @PutMapping("/api/management/workflow")
+    public JsonNode editWorkflow(@RequestBody Workflow workflow) {
+        return wdk.editWorkflow(workflow);
+    }
+
+    @DeleteMapping("/api/management/workflow/{workflowId}")
+    public void deleteWorkflow(@PathVariable String workflowId) {
+        wdk.deleteWorkflow(workflowId);
+    }
+
+    @PostMapping("/api/execute/{workflow}")
+    public JsonNode executeRequest(
+        @PathVariable String workflow,
+        @RequestBody JsonNode body,
+        @RequestHeader("X-Workflow-Token") String token
+    ) {
+        return wdk.executeRequest(workflow, body, token);
+    }
 }

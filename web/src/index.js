@@ -1,10 +1,12 @@
+import '@symphony-ui/uitoolkit-styles/dist/css/uitoolkit.css';
+import { atoms } from './atoms';
+import { editor } from 'monaco-editor';
+import { RecoilRoot, useRecoilState } from 'recoil';
+import api from './api';
+import MonitorX from './monitor-x';
 import React, { useState, useEffect, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
-import '@symphony-ui/uitoolkit-styles/dist/css/uitoolkit.css';
 import styled from 'styled-components';
-import { editor } from 'monaco-editor';
-import { api } from './api';
-import MonitorX from './monitor-x';
 
 const Editor = lazy(() => import('./editor'));
 const Console = lazy(() => import('./console'));
@@ -36,9 +38,12 @@ const App = () => {
     const [ theme, setTheme ] = useState('light');
     const [ snippet, setSnippet ] = useState({});
     const [ isContentChanged, setIsContentChanged ] = useState('original');
+    const setSession = useRecoilState(atoms.session)[1];
+    const { readWorkflow } = api();
 
     useEffect(() => {
         if (!window.SYMPHONY) {
+            setReady(true);
             return;
         }
 
@@ -62,7 +67,7 @@ const App = () => {
                 [`${appId}:app`],
             ).then(() => {
                 const userInfoService = SYMPHONY.services.subscribe('extended-user-info');
-                userInfoService.getJwt().then((jwt) => api.setJwt(jwt));
+                userInfoService.getJwt().then((jwt) => setSession({ token: jwt }));
                 setReady(true);
             });
         });
@@ -72,14 +77,14 @@ const App = () => {
         if (!currentWorkflow || !ready) {
             return;
         }
-        api.readWorkflow({ workflow: currentWorkflow?.value }, (response) => {
+        readWorkflow({ workflow: currentWorkflow?.value }, (response) => {
             setIsContentChanged('original');
             setContents(response.contents);
             setCurrentWorkflowId(response.contents.match(/id: ([\w\-]+)/)[1]);
         });
     }, [ ready, currentWorkflow, setContents ]);
 
-    return !ready ? 'Loading..' : (
+    return !ready ? 'Loading..' : !window.SYMPHONY ? 'This app only works in Symphony' : (
         <Root>
             <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, editMode, isContentChanged, setIsContentChanged }} />
             <ActionBar {...{ editor, setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }} />
@@ -90,4 +95,4 @@ const App = () => {
         </Root>
     );
 };
-ReactDOM.createRoot(document.querySelector('#root')).render(<App />);
+ReactDOM.createRoot(document.querySelector('#root')).render(<RecoilRoot><App /></RecoilRoot>);

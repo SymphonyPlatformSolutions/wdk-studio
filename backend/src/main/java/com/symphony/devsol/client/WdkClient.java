@@ -1,63 +1,99 @@
 package com.symphony.devsol.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.symphony.devsol.model.studio.Workflow;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.List;
+import static org.springframework.http.HttpMethod.*;
 
-@RestController
+@Service
 public class WdkClient {
     @Value("${wdk.studio.base-uri}")
     private String baseUri;
     @Value("${wdk.studio.monitoring-token}")
-    private String token;
-    private final RestTemplate restTemplate;
+    private String monitoringToken;
+    @Getter
+    @Value("${wdk.studio.management-token}")
+    private String managementToken;
+    private final RestTemplate monitoringApi;
+    private final RestTemplate managementApi;
 
     public WdkClient(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder
+        this.monitoringApi = restTemplateBuilder
             .additionalInterceptors((request, body, execution) -> {
-                request.getHeaders().add("X-Monitoring-Token", token);
+                request.getHeaders().add("X-Monitoring-Token", monitoringToken);
+                return execution.execute(request, body);
+            })
+            .defaultHeader("Accept", MediaType.APPLICATION_JSON.toString())
+            .build();
+        this.managementApi = restTemplateBuilder
+            .additionalInterceptors((request, body, execution) -> {
+                request.getHeaders().add("X-Management-Token", managementToken);
                 return execution.execute(request, body);
             })
             .defaultHeader("Accept", MediaType.APPLICATION_JSON.toString())
             .build();
     }
 
-    @GetMapping("/api/monitoring/{workflowId}/definitions")
-    public JsonNode getWorkflowDefinition(@PathVariable String workflowId) {
-        return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/definitions", JsonNode.class);
+    public JsonNode listWorkflows() {
+        return request(GET, "/workflows/", null);
     }
 
-    @GetMapping("/api/monitoring/{workflowId}/instances")
-    public JsonNode listWorkflowInstances(@PathVariable String workflowId) {
-        return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/instances", JsonNode.class);
+    public JsonNode getWorkflowDefinition(String workflowId) {
+        return request(GET, "/workflows/" + workflowId + "/definitions", null);
     }
 
-    @GetMapping("/api/monitoring/{workflowId}/instances/{instanceId}/activities")
-    public JsonNode listInstanceActivities(@PathVariable String workflowId, @PathVariable String instanceId) {
-        return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/instances/" + instanceId + "/states", JsonNode.class);
+    public JsonNode listWorkflowInstances(String workflowId) {
+        return request(GET, "/workflows/" + workflowId + "/instances", null);
     }
 
-    @GetMapping("/api/monitoring/{workflowId}/instances/{instanceId}/variables")
-    public JsonNode listInstanceVariables(@PathVariable String workflowId, @PathVariable String instanceId) {
-        return restTemplate.getForObject(baseUri + "/workflows/" + workflowId + "/instances/" + instanceId + "/variables", JsonNode.class);
+    public JsonNode listInstanceActivities(String workflowId, String instanceId) {
+        return request(GET, "/workflows/" + workflowId + "/instances/" + instanceId + "/states", null);
     }
 
-    @PostMapping("/api/execute/{workflow}")
-    public JsonNode executeRequest(
-        @PathVariable String workflow,
-        @RequestBody JsonNode body,
-        @RequestHeader("X-Workflow-Token") String token
-    ) {
+    public JsonNode listInstanceVariables(String workflowId, String instanceId) {
+        return request(GET, "/workflows/" + workflowId + "/instances/" + instanceId + "/variables", null);
+    }
+
+    public JsonNode executeRequest(String workflow, JsonNode body, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.set("X-Workflow-Token", token);
-        HttpEntity<Object> request = new HttpEntity<>(body, headers);
-        return restTemplate.postForObject(baseUri + "/workflows/"+ workflow + "/execute", request, JsonNode.class);
+        HttpEntity<JsonNode> request = new HttpEntity<>(body, headers);
+        return request(POST, "/workflows/" + workflow + "/execute", request);
+    }
+
+    public JsonNode addWorkflow(Workflow workflow) {
+        return request(POST, "/management/workflows", workflow);
+    }
+
+    public JsonNode editWorkflow(Workflow workflow) {
+        return request(PUT, "/management/workflows", workflow);
+    }
+
+    public JsonNode readWorkflow(String workflowId) {
+        return request(GET, "/management/workflows/" + workflowId, null);
+    }
+
+    public void deleteWorkflow(String workflowId) {
+        request(DELETE, "/management/workflows/" + workflowId, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    private JsonNode request(HttpMethod method, String path, Object object) {
+        RestTemplate template = path.startsWith("/management") ? managementApi : monitoringApi;
+        HttpEntity<Object> request = null;
+        if (object != null) {
+            request = object instanceof HttpEntity ? (HttpEntity<Object>) object : new HttpEntity<>(object);
+        }
+        return template.exchange(baseUri + path, method, request, JsonNode.class).getBody();
     }
 }

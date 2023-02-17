@@ -18,6 +18,7 @@ wdk.studio:
   base-uri: http://localhost:8080/wdk/v1
   github-token: abc
   monitoring-token: abc
+  management-token: abc
 
 logging.level:
   org:
