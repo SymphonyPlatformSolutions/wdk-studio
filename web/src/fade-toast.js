@@ -1,3 +1,5 @@
+import { atoms } from './atoms';
+import { useRecoilState } from 'recoil';
 import { Toast } from "@symphony-ui/uitoolkit-components/components";
 import styled, { keyframes } from "styled-components";
 
@@ -12,13 +14,17 @@ const Root = styled(Toast)`
     z-index: 100;
 `;
 
-const FadeToast = ({ toast }) => (
-    <Root
-        show={toast.show}
-        content={toast.content || ''}
-        leftIcon={toast.error === 'true' ? 'cross' : 'check'}
-        error={toast.error || 'false'}
-        placement={{ horizontal: 'center', vertical: 'bottom' }}
-    />
-);
+const FadeToast = () => {
+    const status = useRecoilState(atoms.status)[0];
+
+    return (
+        <Root
+            show={status.show}
+            content={status.content || ''}
+            leftIcon={status.error === 'true' ? 'cross' : 'check'}
+            error={status.error || 'false'}
+            placement={{ horizontal: 'center', vertical: 'bottom' }}
+        />
+    );
+};
 export default FadeToast;

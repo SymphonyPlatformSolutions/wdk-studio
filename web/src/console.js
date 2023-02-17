@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import styled from "styled-components";
 import { Switch, Button } from "@symphony-ui/uitoolkit-components/components";
-import { initLogs } from './api';
+import api from './api';
 
 const ConsoleRoot = styled.div`
     border: #8f959e 1px solid;
@@ -24,13 +24,20 @@ const ActionBar = styled.div`
 
 const Console = ({ logs, setLogs, theme }) => {
     const logsRef = useRef();
+    const [ token, setToken ] = useState();
     const [ tail, setTail ] = useState('checked');
+    const { getManagementToken, initLogs } = api();
 
-    useEffect(
-        () => initLogs((event) => {
-            event && setLogs((old) => `${old}${event.data}\n`);
-        }), [ setLogs ]
-    );
+    useEffect(() => {
+        getManagementToken((response) => setToken(response.token));
+    }, []);
+
+    useEffect(() => {
+        if (!token) {
+            return;
+        }
+        initLogs(token, (event) => event && setLogs((old) => `${old}${event.data}\n`));
+    }, [ token ]);
 
     useEffect(() => {
         (tail === 'checked') && (logsRef.current.scrollTop = logsRef.current.scrollHeight);
