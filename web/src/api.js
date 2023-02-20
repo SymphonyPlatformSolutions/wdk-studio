@@ -2,6 +2,13 @@ import { useRecoilState } from 'recoil';
 import { atoms } from './atoms';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 
+const parseJwt = (token) => {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = window.atob(base64).split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('');
+    return JSON.parse(decodeURIComponent(payload));
+};
+
 const api = () => {
     const dev = window.location.hostname === 'localhost';
     const backendRoot = dev ? 'https://localhost:10443' : '';
@@ -9,7 +16,10 @@ const api = () => {
     const setStatus = useRecoilState(atoms.status)[1];
     const setLoading = useRecoilState(atoms.loading)[1];
     const session = useRecoilState(atoms.session)[0];
-    const showStatus = (error, content) => setStatus({ show: true, error, content });
+    const showStatus = (error, content) => {
+        setStatus({ show: true, error, content });
+        setTimeout(() => setStatus({ show: false }), 3000);
+    };
 
     const process = async (response) => {
         if (response.ok) {
@@ -51,6 +61,7 @@ const api = () => {
         const headers = { 'X-Management-Token': token };
         const es = new EventSourcePolyfill(`${wdkRoot}/wdk/v1/management/workflows/logs`, { headers });
         es.onmessage = callback;
+        es.addEventListener()
     };
 
     const [ GET, POST, PUT, DELETE ] = [ 'GET', 'POST', 'PUT', 'DELETE' ];
@@ -65,19 +76,20 @@ const api = () => {
     };
 
     return {
-        showStatus,
         getManagementToken: (callback) => apiCall(GET, 'management-token', null, callback),
         listWorkflows: (callback) => apiCall(GET, 'workflows', null, callback),
         addWorkflow: (workflow, callback) => apiCall(POST, 'management/workflow', workflow, callback),
         editWorkflow: (workflow, callback) => apiCall(PUT, 'management/workflow', workflow, callback),
-        readWorkflow: (callback) => apiCall(GET, `read-workflow/${workflowId}`, null, callback),
-        deleteWorkflow: (callback) => apiCall(DELETE, `management/workflow/${workflowId}`, null, callback),
+        readWorkflow: (workflowId, callback) => apiCall(GET, `read-workflow/${workflowId}`, null, callback),
+        deleteWorkflow: (workflowId, callback) => apiCall(DELETE, `management/workflow/${workflowId}`, null, callback),
         listGalleryCategories: (callback) => apiCall(GET, 'gallery/categories', null, callback),
         listGalleryWorkflows: (category, callback) => apiCall(GET, `gallery/${category}/workflows`, null, callback),
         readGalleryWorkflow: (category, workflow, callback) => apiCall(GET, `gallery/${category}/workflows/${workflow}`, null, callback),
         getReadme: (path, callback) => apiCall(GET, `gallery/readme/${path}`, null, callback),
         getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `monitoring/${workflowId}/definitions`, null, callback),
         listWorkflowInstances: (workflowId, callback) => apiCall(GET, `monitoring/${workflowId}/instances`, null, callback),
+        parseJwt,
+        showStatus,
         getInstanceData,
         initLogs,
     };

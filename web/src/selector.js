@@ -2,7 +2,7 @@ import { Button, Dropdown, Icon } from "@symphony-ui/uitoolkit-components/compon
 import { useEffect, useState, useRef } from 'react';
 import api from './api';
 import CreateWorkflowModal from './create-workflow';
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const Root = styled.div`
     display: grid;
@@ -20,7 +20,7 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setW
     const { listWorkflows } = api();
 
     useEffect(() => listWorkflows((res) => {
-        const values = res.map(workflow => ({ label: workflow, value: workflow }));
+        const values = res.map(({ id }) => ({ label: id, value: id }));
         setWorkflows(values);
     }), [ setCurrentWorkflow, setWorkflows ]);
 
@@ -32,14 +32,14 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setW
             isDisabled={!editMode || isContentChanged=='modified'}
             onChange={({ target }) => {
                 setCurrentWorkflow(target.value);
-                setIsContentChanged( 'original' );
+                setIsContentChanged('original');
             }}
             value={currentWorkflow}
         />
     );
 };
 
-const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, editMode, isContentChanged, setIsContentChanged }) => {
+const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, editMode, isContentChanged, setIsContentChanged }) => {
     const [ createModal, setCreateModal ] = useState({ show: false });
 
     const usePrevious = (value) => {
@@ -65,7 +65,7 @@ const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrent
 
     return (
         <Root>
-            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, setToast, workflows, setWorkflows, editMode, isContentChanged, setIsContentChanged }} />
+            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows, editMode, isContentChanged, setIsContentChanged }} />
             <Button
                 variant="primary"
                 disabled={!editMode || isContentChanged=='modified'}
@@ -74,7 +74,7 @@ const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrent
             >
                 Workflow
             </Button>
-            <CreateWorkflowModal {...{ createModal, setCreateModal, setToast, setWorkflows }} />
+            <CreateWorkflowModal {...{ createModal, setCreateModal, setWorkflows }} />
         </Root>
     );
 };

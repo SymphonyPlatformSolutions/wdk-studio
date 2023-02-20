@@ -69,12 +69,12 @@ const getLoader = () => (
 const defaultTemplate =
 `id: newId
 activities:
-- send-message:
-    id: newIdInit
-    on:
-      message-received:
-        content: /hello
-    content: hello
+  - send-message:
+      id: init
+      on:
+        message-received:
+          content: /hello
+      content: hello
 `;
 
 const Templates = ({

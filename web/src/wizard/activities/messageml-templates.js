@@ -3,7 +3,7 @@ const MessageMLTemplates = {
     table: `<table>
               <thead>
                 <tr>
-                  <td>Header 1</td>        
+                  <td>Header 1</td>
                   <td>Header 2</td>
                   <td>Header 3</td>
                   <td>Header 4</td>
@@ -38,7 +38,7 @@ const MessageMLTemplates = {
             </table>`,
     form: `<form id="AddressForm">
             <text-field name="address" placeholder="type your address..." required="true"/>
-            <select name="city">              
+            <select name="city">
               <option selected="true" value="ny">New York</option>
               <option value="van">Vancouver</option>
               <option value="par">Paris</option>

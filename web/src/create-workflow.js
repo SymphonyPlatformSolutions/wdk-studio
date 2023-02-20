@@ -5,40 +5,38 @@ import {
 import TemplateSelector from './template-selector';
 import api from './api';
 
-const CreateWorkflowModal = ({ createModal, setCreateModal, setToast, setWorkflows }) => {
+const CreateWorkflowModal = ({ createModal, setCreateModal, setWorkflows }) => {
     const [ newName, setNewName ] = useState('');
     const [ swadlTemplate, setSwadlTemplate ] = useState();
     const [ pageLoading, setPageLoading ] = useState(false);
     const [ templateLoading, setTemplateLoading ] = useState(false);
-    const { addWorkflow } = api();
+    const { addWorkflow, showStatus } = api();
 
-    const showToast = (msg, error = 'false') => {
-        setToast({ show: true, content: msg, error });
-        setTimeout(() => {
-            setToast({ show: false });
-        }, 2000);
+    const showToast = (error, msg) => {
+        showStatus(error, msg);
         setCreateModal((old) => ({ ...old, loading: false }));
     };
 
     const createWorkflow = () => {
         if (newName.trim().length < 3) {
-            showToast(`Workflow name needs to be at least 3 characters long`, 'true');
+            showToast(true, 'Workflow name needs to be at least 3 characters long');
             return;
         }
         if (newName.indexOf(' ') > -1) {
-            showToast(`Workflow name cannot contain spaces`, 'true');
+            showToast(true, 'Workflow name cannot contain spaces');
             return;
         }
+        const id = newName.trim().toLowerCase();
         setCreateModal({ show: true, loading: true });
-        const template = swadlTemplate.replace(/newId/g, newName.replace(/-/g, ''));
-        addWorkflow({ workflow: newName, contents: template }, (res) => {
-            showToast('New workflow added', 'false');
+        const template = swadlTemplate.replace(/newId/g, id);
+        addWorkflow({ swadl: template, description: "New workflow" }, () => {
+            showToast(false, 'New workflow added');
             setCreateModal({ show: false });
             setNewName('');
-            const newWorkflow = { label: res.workflow, value: res.workflow };
+            const newWorkflow = { label: id, value: id };
             setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : ((b.value > a.value) ? -1 : 0))));
         }, ({ message }) => {
-            showToast(message, 'true');
+            showToast(true, message);
         });
     };
 
