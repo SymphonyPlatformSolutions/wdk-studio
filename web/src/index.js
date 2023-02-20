@@ -2,17 +2,16 @@ import '@symphony-ui/uitoolkit-styles/dist/css/uitoolkit.css';
 import { atoms } from './atoms';
 import { editor } from 'monaco-editor';
 import { RecoilRoot, useRecoilState } from 'recoil';
+import ActionBar from './action-bar';
 import api from './api';
+import Console from './console';
+import Editor from './editor';
+import FadeToast from './fade-toast';
 import MonitorX from './monitor-x';
-import React, { useState, useEffect, lazy } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import styled from 'styled-components';
-
-const Editor = lazy(() => import('./editor'));
-const Console = lazy(() => import('./console'));
-const WorkflowSelector = lazy(() => import('./selector'));
-const ActionBar = lazy(() => import('./action-bar'));
-const FadeToast = lazy(() => import('./fade-toast'));
+import WorkflowSelector from './selector';
 
 const Root = styled.div`
     display: flex;
@@ -24,7 +23,6 @@ const Root = styled.div`
 `;
 
 const App = () => {
-    const [ ready, setReady ] = useState(false);
     const [ workflows, setWorkflows ] = useState([]);
     const [ currentWorkflow, setCurrentWorkflow ] = useState();
     const [ currentWorkflowId, setCurrentWorkflowId ] = useState();
@@ -34,16 +32,15 @@ const App = () => {
     const [ contents, setContents ] = useState();
     const [ logs, setLogs ] = useState('');
     const [ markers, setMarkers ] = useState([]);
-    const [ toast, setToast ] = useState({ show: false });
     const [ theme, setTheme ] = useState('light');
     const [ snippet, setSnippet ] = useState({});
     const [ isContentChanged, setIsContentChanged ] = useState('original');
-    const setSession = useRecoilState(atoms.session)[1];
-    const { readWorkflow } = api();
+    const [ session, setSession ] = useRecoilState(atoms.session);
+    const { parseJwt, readWorkflow } = api();
 
     useEffect(() => {
         if (!window.SYMPHONY) {
-            setReady(true);
+            setSession(true);
             return;
         }
 
@@ -66,32 +63,44 @@ const App = () => {
                 ['modules', 'applications-nav', 'extended-user-info' ],
                 [`${appId}:app`],
             ).then(() => {
+                const token = window.localStorage.getItem('token');
+                if (token !== null) {
+                    const jwt = parseJwt(token);
+                    if (new Date().getTime() < (jwt.exp * 1000)) {
+                        setSession({ token });
+                    }
+                }
                 const userInfoService = SYMPHONY.services.subscribe('extended-user-info');
-                userInfoService.getJwt().then((jwt) => setSession({ token: jwt }));
-                setReady(true);
+                userInfoService.getJwt().then((token) => {
+                    if (token) {
+                        setSession({ token });
+                        window.localStorage.setItem('token', token);
+                    }
+                });
             });
         });
     }, []);
 
     useEffect(() => {
-        if (!currentWorkflow || !ready) {
+        if (!(currentWorkflow && session)) {
             return;
         }
-        readWorkflow({ workflow: currentWorkflow?.value }, (response) => {
+        readWorkflow(currentWorkflow?.value, (response) => {
             setIsContentChanged('original');
-            setContents(response.contents);
-            setCurrentWorkflowId(response.contents.match(/id: ([\w\-]+)/)[1]);
+            const current = response.filter(i => i.active)[0];
+            setContents(current.swadl);
+            setCurrentWorkflowId(current.swadl.match(/id: ([\w\-]+)/)[1]);
         });
-    }, [ ready, currentWorkflow, setContents ]);
+    }, [ session, currentWorkflow ]);
 
-    return !ready ? 'Loading..' : !window.SYMPHONY ? 'This app only works in Symphony' : (
+    return !session ? 'Loading..' : !window.SYMPHONY ? 'This app only works in Symphony' : (
         <Root>
-            <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, setToast, editMode, isContentChanged, setIsContentChanged }} />
-            <ActionBar {...{ editor, setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }} />
+            <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, editMode, isContentChanged, setIsContentChanged }} />
+            <ActionBar {...{ editor, setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setWorkflows, isContentChanged, setIsContentChanged }} />
             { editMode && <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
             { !editMode && <MonitorX {...{ currentWorkflowId, setSelectedInstance }} /> }
             { showConsole && <Console {...{ logs, setLogs, theme }} /> }
-            <FadeToast {...{ toast }} />
+            <FadeToast />
         </Root>
     );
 };

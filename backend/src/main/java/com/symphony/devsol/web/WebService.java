@@ -50,8 +50,8 @@ public class WebService {
     }
 
     @PostMapping("/api/management/workflow")
-    public JsonNode addWorkflow(@RequestBody Workflow workflow) {
-        return wdk.addWorkflow(workflow);
+    public void addWorkflow(@RequestBody Workflow workflow) {
+        wdk.addWorkflow(workflow);
     }
 
     @PutMapping("/api/management/workflow")

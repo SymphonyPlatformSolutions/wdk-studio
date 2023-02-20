@@ -8,9 +8,7 @@ import MessageMLTemplates from "./messageml-templates";
 const Root = styled.div`
     height: 400px;
     padding: 10px;
-    &: * {
-        margin-bottom:10px;
-    }
+    & * { margin-bottom: 10px }
 `;
 
 const Field = styled.div`
@@ -30,59 +28,58 @@ const Templates = styled.div`
     }
 `;
 
+const sendMessageTemplate = `
+  - send-message:
+      id: _id_
+      _event_
+      _stream_
+      content: |
+        _content_
+`;
+
+const getStreamTemplate = (streamId) => !streamId ? '' : `
+      to:
+        stream-id: ${streamId}
+`;
+
 const SendMessageForm = ({ setCodeSnippet, eventCodeSnippet }) => {
-    const [identifier, setIdentifier] = useState('');
-    const [streamId, setStreamId] = useState('');
-    const [content, setContent] = useState('');
+    const [ identifier, setIdentifier ] = useState();
+    const [ streamId, setStreamId ] = useState();
+    const [ content, setContent ] = useState();
 
     useEffect(() => {
-        if (identifier!=='' && content!=='') {
-            setCodeSnippet(
-`- send-message:
-      id: ${identifier}${streamId!=='' ? '\n    to:\n      stream-id: ' + streamId : ''}${eventCodeSnippet!==null ? '\n        ' + eventCodeSnippet : ''}
-      content: |
-        ${content}`);
-        } else {
-            setCodeSnippet(null);
+        let snippet = null;
+        if (identifier && content) {
+            snippet = sendMessageTemplate
+                .replace(/_id_/, identifier)
+                .replace(/_event_/, eventCodeSnippet || '')
+                .replace(/_stream_/, getStreamTemplate(streamId))
+                .replace(/_content_/, content)
+                .replace(/\n\s*\n/g, '\n');
         }
-    }, [identifier, content, eventCodeSnippet]);
+        setCodeSnippet(snippet);
+    }, [ identifier, content, eventCodeSnippet ]);
 
-    const handleChangeIdentifier = ({ target }) => {
-        setIdentifier(target.value);
-    };
+    const handleChangeIdentifier = ({ target }) => setIdentifier(target.value);
+    const handleChangeStreamId = ({ target }) => setStreamId(target.value);
+    const handleChangeContent = ({ target }) => setContent(target.value);
+    const handleCopyFrom = (template) => setContent( content + MessageMLTemplates[template] );
 
-    const handleChangeStreamId = ({ target }) => {
-        setStreamId(target.value);
-    };
-
-    const handleChangeContent = ({ target }) => {
-        setContent(target.value);
-    };
-
-    const handleCopyFrom = (template) => {
-        setContent( content + MessageMLTemplates[template] );
-    };
+    const links = [ 'simple', 'complex', 'table', 'form', 'card', '@mention' ];
 
     return (
         <Root>
-            <Title>Messages > Send a Message:</Title>
-            <Field><TextField label={'Identifier'} showRequired={true} value={identifier} onChange={(target) => handleChangeIdentifier(target)} /></Field>
-            <Field><TextField label={'StreamId'} showRequired={false} value={streamId} onChange={(target) => handleChangeStreamId(target)} /></Field>
+            <Title>Messages &gt; Send a Message:</Title>
+            <Field><TextField label={'Identifier'} showRequired={true} value={identifier} onChange={handleChangeIdentifier} /></Field>
+            <Field><TextField label={'StreamId'} showRequired={false} value={streamId} onChange={handleChangeStreamId} /></Field>
             <Field>
-                <TextArea label={'Content'} showRequired={true} value={content} onChange={(target) => handleChangeContent(target)} />
+                <TextArea label={'Content'} showRequired={true} value={content} onChange={handleChangeContent} />
                 <Templates>
                     <span className={'tk-label'}>Copy from:</span>
-                    <a className={'tk-label'} href={'#'} onClick={() => handleCopyFrom('simple')}>simple</a>
-                    <a className={'tk-label'} href={'#'} onClick={() => handleCopyFrom('simple')}>complex</a>
-                    <a className={'tk-label'} href={'#'} onClick={() => handleCopyFrom('table')}>table</a>
-                    <a className={'tk-label'} href={'#'} onClick={() => handleCopyFrom('form')}>form</a>
-                    <a className={'tk-label'} href={'#'} onClick={() => handleCopyFrom('card')}>card</a>
-                    <a className={'tk-label'} href={'#'} onClick={() => handleCopyFrom('simple')}>@mention</a>
+                    { links.map((link) => <a key={link} className={'tk-label'} href={'#'} onClick={() => handleCopyFrom(link)}>{link}</a>) }
                 </Templates>
             </Field>
         </Root>
     );
 };
-
-
 export default SendMessageForm;

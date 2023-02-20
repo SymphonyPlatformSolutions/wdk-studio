@@ -1,11 +1,11 @@
 import {
-    Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle
+    Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle,
 } from "@symphony-ui/uitoolkit-components/components";
-import Wizard from './wizard'
+import { useState } from 'react';
+import api from "./api";
 import Diagram from "./diagram";
 import styled from "styled-components";
-import api from './api';
-import { useState } from "react";
+import Wizard from './wizard'
 
 const Root = styled.div`
     display: flex;
@@ -18,25 +18,18 @@ const Section = styled.div`
     gap: .5rem;
 `;
 
-const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }) => {
-    const { deleteWorkflow } = api();
-
-    const showToast = (msg, error = 'false') => {
-        setToast({ show: true, content: msg, error });
-        setTimeout(() => {
-            setToast({ show: false });
-        }, 2000);
-    };
+const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, currentWorkflow, setWorkflows }) => {
+    const { deleteWorkflow, showStatus } = api();
 
     const submitDeleteWorkflow = () => {
         setDeleteModal({ show: true, loading: true });
-        deleteWorkflow({ workflow: currentWorkflow.value }, () => {
+        deleteWorkflow(currentWorkflow.value, () => {
             setDeleteModal({ show: false });
-            showToast('Workflow deleted');
+            showStatus(false, 'Workflow deleted');
             setWorkflows((old) => old.filter((w) => w.value !== currentWorkflow.value));
         }, (e) => {
             setDeleteModal({ show: false });
-            showToast('Error deleting workflow', 'true');
+            showStatus(true, 'Error deleting workflow');
         });
     };
 
@@ -116,7 +109,7 @@ const DiagramModal = ({ diagramModal, setDiagramModal, contents, currentWorkflow
     );
 };
 
-const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents, setToast }) => {
+const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents }) => {
     const [codeSnippet, setCodeSnippet] = useState(null)
     const [eventCodeSnippet, setEventCodeSnippet] = useState(null)
     const [conditionCodeSnippet, setConditionCodeSnippet] = useState(null)
@@ -177,21 +170,18 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
     );
 };
 
-const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setToast, setWorkflows, isContentChanged, setIsContentChanged }) => {
+const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setWorkflows, isContentChanged, setIsContentChanged }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
     const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });
     const [ diagramModal, setDiagramModal ] = useState({ show: false });
-    const { addWorkflow } = api();
+    const { addWorkflow, showStatus } = api();
 
-    const saveWorkflow = (workflow, contents) => {
-        addWorkflow({ workflow, contents }, () => {
+    const saveWorkflow = (swadl, description) => {
+        addWorkflow({ swadl, description }, () => {
             setIsContentChanged('original');
             setContents(contents);
-            setToast({ show: true, content: 'Saved!'});
-            setTimeout(() => {
-                setToast({ show: false });
-            }, 2000);
+            showStatus(false, 'Workflow saved');
         });
     };
 
@@ -205,7 +195,7 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, sel
                 <Button
                     variant="primary"
                     disabled={markers.length > 0 || isContentChanged != 'modified'}
-                    onClick={() => saveWorkflow(currentWorkflow.value, editor.getModels()[0].getValue())}
+                    onClick={() => saveWorkflow(editor.getModels()[0].getValue(), "Description")}
                 >
                     Save
                 </Button>
@@ -262,9 +252,9 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, sel
                     Help
                 </Button>
             </Section>
-            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setToast, currentWorkflow, setWorkflows }} />
+            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, currentWorkflow, setWorkflows }} />
             <ConfirmDiscardModal {...{ discardModal, setDiscardModal, editor, contents }} />
-            <WizardModal {...{ wizardModal, setSnippet, setWizardModal, setToast, editor, contents }} />
+            <WizardModal {...{ wizardModal, setSnippet, setWizardModal, editor, contents }} />
             <DiagramModal {...{ diagramModal, setDiagramModal, contents, currentWorkflowId, selectedInstance, setSelectedInstance }} />
         </Root>
     );
