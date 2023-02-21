@@ -1,4 +1,4 @@
-FROM openjdk:17-slim-bullseye
+FROM amazoncorretto:17
 COPY ./workflow-bot-app.jar app.jar
 RUN jlink --verbose --strip-java-debug-attributes --no-man-pages \
 --no-header-files --compress=2 --output /jre \

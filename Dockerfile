@@ -1,4 +1,4 @@
-FROM openjdk:17-slim-bullseye
+FROM amazoncorretto:17
 WORKDIR /build
 COPY ./backend/build/libs/*.jar app.jar
 RUN jar -xf app.jar && jdeps -q \
@@ -16,7 +16,7 @@ RUN jlink \
     --no-man-pages \
     --no-header-files \
     --compress=2 \
-    --output /jre \
+    --output /jre
 RUN mkdir /app && cp -r META-INF /app && cp -r BOOT-INF/classes/* /app
 
 FROM gcr.io/distroless/java-base-debian11
