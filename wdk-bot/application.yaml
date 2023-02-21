@@ -22,10 +22,12 @@ logging.level:
         engine.executor.DebugExecutor: debug
       spring.config: error
   springfox: error
-management.endpoints.web.exposure.exclude: "*"
 spring:
   datasource:
     wdk:
       jdbc-url: jdbc:h2:file:./data/wdk;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     camunda:
       jdbc-url: jdbc:h2:file:./data/camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+management:
+  server.port: 8080
+  endpoints.web.base-path: /

@@ -33,12 +33,6 @@ tasks.register('botJar', Copy) {
   rename { f -> "workflow-bot-app.jar" }
 }
 
-tasks.register('customActivityLibs', Copy) {
-  description "Copies custom activity dependencies in lib folder."
-  from jar
-  from configurations.runtimeClasspath
-  into "lib"
-}
-
 tasks.build.dependsOn tasks.botJar
-tasks.build.dependsOn tasks.customActivityLibs
+
+tasks.named("jar") { enabled = false }
