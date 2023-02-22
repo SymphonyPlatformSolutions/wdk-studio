@@ -1,13 +1,14 @@
 const isDev = window.location.hostname === 'localhost';
-const appId = isDev ? 'localhost-10443' : 'wdk-studio';
 const appUri = isDev ? 'http://localhost:3000' : window.location.origin;
+const appId = isDev ? 'localhost-10443' : 'wdk-studio';
+const controllerId = `${appId}:controller`;
 
 const auth = () => fetch('/bdk/v1/app/auth', { method: 'POST' });
 
 const register = ({ appToken }) => SYMPHONY.application.register(
-    { appId: appId, tokenA: appToken },
+    { appId, tokenA: appToken },
     [ 'modules', 'applications-nav', 'extended-user-info' ],
-    [ 'app:controller' ]
+    [ controllerId ]
 );
 
 const bootstrap = () => {
@@ -17,15 +18,15 @@ const bootstrap = () => {
     const title = (isDev ? '[DEV] ' : '') + 'WDK Studio';
     const meta = { title, icon: appUri + '/icon-16.png' };
 
-    navService.add('app', meta, 'app:controller');
+    navService.add(appId, meta, controllerId);
     controller.implement({
-        select: id => {
-            if (id === 'app') {
-                modulesService.show("test-app", meta, "app:controller", appUri)
+        select: (id) => {
+            if (id === appId) {
+                modulesService.show(`${appId}-app`, meta, controllerId, appUri);
             }
-        }
+        },
     });
 };
 
-let controller = SYMPHONY.services.register("app:controller");
+let controller = SYMPHONY.services.register(controllerId);
 SYMPHONY.remote.hello().then(auth).then(register).then(bootstrap);
