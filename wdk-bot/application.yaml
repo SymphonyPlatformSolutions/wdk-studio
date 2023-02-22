@@ -6,8 +6,8 @@ bdk:
 wdk:
   workflows.path: ""
   properties:
-    monitoring-token: abc
-    management-token: abc
+    monitoring-token: ${MONITORING_TOKEN}
+    management-token: ${MANAGEMENT_TOKEN}
 logging.level:
   org:
     reflections: error
