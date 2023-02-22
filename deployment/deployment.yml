@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: wdk-studio
+  name: wdk-studio
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: wdk-studio
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: wdk-studio
+    spec:
+      containers:
+      - envFrom:
+        - secretRef:
+            name: wdk-studio-keys
+        image: ghcr.io/symphonyplatformsolutions/wdk-bot:1.5.0-snapshot
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /wdk/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
+        name: wdk
+        ports:
+        - containerPort: 8080
+          name: wdk
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /wdk/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 1500m
+            memory: 1Gi
+          requests:
+            cpu: 1500m
+            memory: 1Gi
+        volumeMounts:
+        - mountPath: /data/symphony/rsa
+          name: keys
+        - mountPath: /data/symphony/data
+          name: data
+        - mountPath: /data/symphony/lib
+          name: lib
+        - mountPath: /data/symphony/application-prod.yaml
+          name: config
+          subPath: application-bot.yaml
+      - envFrom:
+        - secretRef:
+            name: wdk-studio-keys
+        image: ghcr.io/symphonyplatformsolutions/wdk-studio:2.0.42
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8082
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
+        name: studio
+        ports:
+        - containerPort: 8082
+          name: studio
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8082
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1536Mi
+          requests:
+            cpu: 500m
+            memory: 1536Mi
+        volumeMounts:
+        - mountPath: /data/symphony/rsa
+          name: keys
+        - mountPath: /data/symphony/application-prod.yaml
+          name: config
+          subPath: application-backend.yaml
+      volumes:
+      - configMap:
+          name: wdk-studio-config
+        name: config
+      - name: data
+        persistentVolumeClaim:
+          claimName: wdk-studio-data-pvc
+      - name: lib
+        persistentVolumeClaim:
+          claimName: wdk-studio-lib-pvc
+      - name: keys
+        secret:
+          secretName: wdk-studio-keys

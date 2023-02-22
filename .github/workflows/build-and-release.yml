@@ -1,4 +1,4 @@
-name: Build
+name: Build and Release
 
 on:
   push:
@@ -104,3 +104,13 @@ jobs:
       with:
         tag: ${{ steps.tag.outputs.new_tag }}
         generateReleaseNotes: true
+
+    - uses: smartsquaregmbh/delete-old-packages@v0.6.0
+      with:
+        keep: 5
+        type: container
+        names: |
+          wdk-studio
+          wdk-bot
+        token: ${{ secrets.GITHUB_TOKEN }}
+        organization: ${{ github.event.organization.login }}
