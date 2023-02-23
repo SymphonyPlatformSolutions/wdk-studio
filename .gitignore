@@ -1,6 +1,11 @@
 ##############################
 ## Symphony
 ##############################
+workflow-bot-apo.jar
+workflow-bot-app*.jar
+rsa/
+*.mv.db
+application-*.y*ml
 
 ##############################
 ## Java
@@ -87,8 +92,3 @@ nb-configuration.xml
 ## OS X
 ##############################
 .DS_Store
-
-rsa/
-workflow-bot-app.jar
-*.mv.db
-application-*.y*ml

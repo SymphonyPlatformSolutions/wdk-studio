@@ -1,6 +1,4 @@
-import '@symphony-ui/uitoolkit-styles/dist/css/uitoolkit.css';
 import { atoms } from './atoms';
-import { editor } from 'monaco-editor';
 import { RecoilRoot, useRecoilState } from 'recoil';
 import ActionBar from './action-bar';
 import api from './api';
@@ -39,13 +37,13 @@ const App = () => {
     const { parseJwt, readWorkflow } = api();
 
     useEffect(() => {
-        if (!window.SYMPHONY) {
-            setSession(true);
-            return;
-        }
-
         const isDev = window.location.hostname === 'localhost';
         const appId = isDev ? 'localhost-10443' : 'wdk-studio';
+
+        if (!window.SYMPHONY) {
+            setSession({ isDev });
+            return;
+        }
 
         window.SYMPHONY.remote.hello().then((data) => {
             const bodyClasses = []
@@ -93,11 +91,11 @@ const App = () => {
         });
     }, [ session, currentWorkflow ]);
 
-    return !session ? 'Loading..' : !window.SYMPHONY ? 'This app only works in Symphony' : (
+    return !session ? 'Loading..' : (!window.SYMPHONY && !session.isDev) ? 'This app only works in Symphony' : (
         <Root>
             <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, editMode, isContentChanged, setIsContentChanged }} />
-            <ActionBar {...{ editor, setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setWorkflows, isContentChanged, setIsContentChanged }} />
-            { editMode && <Editor {...{ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
+            <ActionBar {...{ setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setWorkflows, isContentChanged, setIsContentChanged }} />
+            { editMode && <Editor {...{ snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
             { !editMode && <MonitorX {...{ currentWorkflowId, setSelectedInstance }} /> }
             { showConsole && <Console {...{ logs, setLogs, theme }} /> }
             <FadeToast />

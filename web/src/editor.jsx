@@ -1,21 +1,32 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { Uri } from 'monaco-editor';
+import { editor } from 'monaco-editor';
 import { setDiagnosticsOptions } from 'monaco-yaml';
+import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from "styled-components";
+import YamlWorker from 'monaco-yaml/yaml.worker?worker';
 
 window.MonacoEnvironment = {
     getWorker(moduleId, label) {
-        return new Worker(new URL('monaco-yaml/yaml.worker', import.meta.url));
+        switch (label) {
+            case 'editorWorkerService': return new EditorWorker();
+            case 'yaml': return new YamlWorker();
+            default: throw new Error(`Unknown label ${label}`);
+        }
     },
 };
-
-const modelUri = 'https://raw.githubusercontent.com/finos/symphony-wdk/master/workflow-language/src/main/resources/swadl-schema-1.0.json';
+const uri = 'https://raw.githubusercontent.com/finos/symphony-wdk/master/workflow-language/src/main/resources/swadl-schema-1.0.json';
+const modelUri = Uri.parse(uri);
 setDiagnosticsOptions({
     validate: true,
     enableSchemaRequest: true,
     format: true,
     hover: true,
     completion: true,
-    schemas: [{ uri: modelUri, fileMatch: ['*'] }],
+    schemas: [
+        // { uri: modelUri, fileMatch: ['*'] },
+        { uri: uri, fileMatch: [String(modelUri)] },
+    ],
 });
 
 const Root = styled.div`
@@ -48,7 +59,7 @@ const ProblemEntry = styled.div`
     }
 `;
 
-const Editor = ({ editor, snippet, contents, markers, setMarkers, theme, setIsContentChanged }) => {
+const Editor = ({ snippet, contents, markers, setMarkers, theme, setIsContentChanged }) => {
     const ref = useRef(null);
     const [ thisEditor, setThisEditor ] = useState();
 
@@ -85,8 +96,7 @@ const Editor = ({ editor, snippet, contents, markers, setMarkers, theme, setIsCo
             }
             setThisEditor(editor.create(ref.current, {
                 automaticLayout: true,
-                value: contents,
-                language: 'yaml',
+                model: editor.createModel(contents, 'yaml', modelUri),
                 theme: 'vs-' + theme,
                 scrollbar: { vertical: 'hidden' },
             }));
