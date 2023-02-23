@@ -1,21 +1,17 @@
-import { defineConfig } from "vite";
-import fs from "fs";
-import path from "path";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import fs from 'fs';
+import path from 'path';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [ react(), reactVirtualized() ]
 });
 
+// Fix for bad import in react-virtualized
 const WRONG_CODE = `import { bpfrpt_proptype_WindowScroller } from "../WindowScroller.js";`;
 export function reactVirtualized() {
     return {
         name: "flat:react-virtualized",
-        // Note: we cannot use the `transform` hook here
-        //       because libraries are pre-bundled in vite directly,
-        //       plugins aren't able to hack that step currently.
-        //       so instead we manually edit the file in node_modules.
-        //       all we need is to find the timing before pre-bundling.
         configResolved() {
             const file = require
                 .resolve("react-virtualized")
@@ -28,4 +24,4 @@ export function reactVirtualized() {
             fs.writeFileSync(file, modified);
         },
     };
-}
+};

@@ -3,8 +3,8 @@ import { editor } from 'monaco-editor';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import React, { useEffect, useRef, useState } from 'react';
-import styled from "styled-components";
-import YamlWorker from 'monaco-yaml/yaml.worker?worker';
+import styled from 'styled-components';
+import YamlWorker from './yaml-worker?worker';
 
 window.MonacoEnvironment = {
     getWorker(moduleId, label) {
@@ -23,10 +23,7 @@ setDiagnosticsOptions({
     format: true,
     hover: true,
     completion: true,
-    schemas: [
-        // { uri: modelUri, fileMatch: ['*'] },
-        { uri: uri, fileMatch: [String(modelUri)] },
-    ],
+    schemas: [{ uri: uri, fileMatch: [String(modelUri)] }],
 });
 
 const Root = styled.div`
@@ -82,17 +79,17 @@ const Editor = ({ snippet, contents, markers, setMarkers, theme, setIsContentCha
         }
         if (thisEditor) {
             thisEditor.setValue(contents);
-            thisEditor.onDidChangeModelContent( (e) => {
+            thisEditor.onDidChangeModelContent((e) => {
                 const modifiedContents = editor.getModels()[0].getValue();
                 if ( modifiedContents != contents && !e.isFlush ) {
                     setIsContentChanged( 'modified' );
                 } else {
                     setIsContentChanged( 'pristine' );
                 }
-            } );
+            });
         } else {
             if (editor.getModels().length > 0) {
-                editor.getModels()[0].dispose()
+                editor.getModels()[0].dispose();
             }
             setThisEditor(editor.create(ref.current, {
                 automaticLayout: true,
@@ -101,7 +98,7 @@ const Editor = ({ snippet, contents, markers, setMarkers, theme, setIsContentCha
                 scrollbar: { vertical: 'hidden' },
             }));
         }
-    }, [ theme, contents, editor, thisEditor ]);
+    }, [ theme, contents, thisEditor ]);
 
     editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
 
