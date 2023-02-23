@@ -1,11 +1,12 @@
 import {
     Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle,
-} from "@symphony-ui/uitoolkit-components/components";
+} from '@symphony-ui/uitoolkit-components/components';
 import { useState } from 'react';
-import api from "./api";
-import Diagram from "./diagram";
-import styled from "styled-components";
+import api from './api';
+import Diagram from './diagram';
+import styled from 'styled-components';
 import Wizard from './wizard'
+import { editor } from 'monaco-editor';
 
 const Root = styled.div`
     display: flex;
@@ -57,7 +58,7 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, currentWorkflow, setW
     );
 };
 
-const ConfirmDiscardModal = ({ discardModal, setDiscardModal, editor, contents }) => {
+const ConfirmDiscardModal = ({ discardModal, setDiscardModal, contents }) => {
 
     const discardWorkflow = () => {
         editor.getModels()[0].setValue( contents );
@@ -109,7 +110,7 @@ const DiagramModal = ({ diagramModal, setDiagramModal, contents, currentWorkflow
     );
 };
 
-const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents }) => {
+const WizardModal = ({ wizardModal, setSnippet, setWizardModal, contents }) => {
     const [codeSnippet, setCodeSnippet] = useState(null)
     const [eventCodeSnippet, setEventCodeSnippet] = useState(null)
     const [conditionCodeSnippet, setConditionCodeSnippet] = useState(null)
@@ -123,7 +124,7 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
         <Modal size="large" show={wizardModal.show}>
             <ModalTitle>SWADL Code generation wizard</ModalTitle>
             <ModalBody style={{overflowY: 'hidden'}}>
-                <Wizard {...{setCodeSnippet, eventCodeSnippet, setEventCodeSnippet, conditionCodeSnippet, setConditionCodeSnippet, activeStep, editor, contents}} />
+                <Wizard {...{setCodeSnippet, eventCodeSnippet, setEventCodeSnippet, conditionCodeSnippet, setConditionCodeSnippet, activeStep, contents}} />
             </ModalBody>
             <ModalFooter style={{ gap: '.5rem' }}>
                 <Button
@@ -170,7 +171,7 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, editor, contents
     );
 };
 
-const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setWorkflows, isContentChanged, setIsContentChanged }) => {
+const ActionBar = ({ setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setWorkflows, isContentChanged, setIsContentChanged }) => {
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
     const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });
@@ -253,8 +254,8 @@ const ActionBar = ({ editor, setSnippet, currentWorkflow, currentWorkflowId, sel
                 </Button>
             </Section>
             <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, currentWorkflow, setWorkflows }} />
-            <ConfirmDiscardModal {...{ discardModal, setDiscardModal, editor, contents }} />
-            <WizardModal {...{ wizardModal, setSnippet, setWizardModal, editor, contents }} />
+            <ConfirmDiscardModal {...{ discardModal, setDiscardModal, contents }} />
+            <WizardModal {...{ wizardModal, setSnippet, setWizardModal, contents }} />
             <DiagramModal {...{ diagramModal, setDiagramModal, contents, currentWorkflowId, selectedInstance, setSelectedInstance }} />
         </Root>
     );
