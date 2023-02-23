@@ -1,5 +1,5 @@
 const isDev = window.location.hostname === 'localhost';
-const appUri = isDev ? 'http://localhost:3000' : window.location.origin;
+const appUri = isDev ? 'http://localhost:5173' : window.location.origin;
 const appId = isDev ? 'localhost-10443' : 'wdk-studio';
 const controllerId = `${appId}:controller`;
 

@@ -16,7 +16,7 @@ jobs:
         cache: 'yarn'
         cache-dependency-path: web/yarn.lock
 
-    - run: cd web && yarn install && yarn build && cp -r build ../backend/src/main/resources/static/
+    - run: cd web && yarn install && yarn build && cp -r dist ../backend/src/main/resources/static/
 
     - uses: actions/setup-java@v3
       with:

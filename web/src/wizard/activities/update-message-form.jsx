@@ -7,7 +7,7 @@ import {
 const Root = styled.div`
     height: 400px;
     padding: 10px;
-    &: * {
+    & * {
         margin-bottom:10px;
     }
 `;
@@ -48,7 +48,7 @@ const UpdateMessageForm = ({ setCodeSnippet, eventCodeSnippet }) => {
 
     return (
         <Root>
-            <Title>Messages > Update a Message:</Title>
+            <Title>Messages &gt; Update a Message:</Title>
             <Field><TextField label={'Identifier'} showRequired={true} value={identifier} onChange={(target) => handleChangeIdentifier(target)} /></Field>
             <Field><TextField label={'Message ID'} showRequired={true} value={messageId} onChange={(target) => handleChangeMessageId(target)} /></Field>
             <Field><TextArea label={'Content'} showRequired={true} value={content} onChange={(target) => handleChangeContent(target)} /></Field>
