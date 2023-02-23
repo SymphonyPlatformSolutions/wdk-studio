@@ -5,6 +5,7 @@ import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -23,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private final ExtensionAppAuthenticator extAppAuth;
+    private final Environment env;
     private String podCertificate;
 
     @PostConstruct
@@ -38,7 +41,13 @@ public class JwtFilter extends OncePerRequestFilter {
     {
         final String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (Arrays.asList(env.getActiveProfiles()).contains("dev")) {
+            UserClaim userClaim = new UserClaim();
+            userClaim.setUsername("dev-user@company.com");
+            var authToken = new UsernamePasswordAuthenticationToken(userClaim, null, List.of());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            log.info("{} called {}", userClaim.getUsername(), request.getRequestURI());
+        } else if (authHeader != null && authHeader.startsWith("Bearer ")) {
             try {
                 String jwt = authHeader.substring(7);
                 UserClaim userClaim = JwtHelper.validateJwt(jwt, podCertificate);
