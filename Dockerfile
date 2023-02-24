@@ -11,7 +11,7 @@ RUN jar -xf app.jar && jdeps -q \
     app.jar > /deps
 RUN jlink \
     --verbose \
-    --add-modules $(cat /deps) \
+    --add-modules $(cat /deps),jdk.crypto.ec \
     --strip-java-debug-attributes \
     --no-man-pages \
     --no-header-files \
