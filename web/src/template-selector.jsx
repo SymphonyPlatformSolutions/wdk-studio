@@ -53,7 +53,6 @@ const TemplateDescription = styled.div`
 const LoadingRoot = styled.div`
     padding: 1rem;
     font-size: 2rem;
-    height: 100%;
     display: flex;
     flex-grow: 1;
     justify-content: center;
