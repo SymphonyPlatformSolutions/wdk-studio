@@ -1,12 +1,14 @@
+import { atoms } from './atoms';
 import {
     Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle,
 } from '@symphony-ui/uitoolkit-components/components';
+import { editor } from 'monaco-editor';
+import { useRecoilState } from 'recoil';
 import { useState } from 'react';
 import api from './api';
 import Diagram from './diagram';
 import styled from 'styled-components';
 import Wizard from './wizard'
-import { editor } from 'monaco-editor';
 
 const Root = styled.div`
     display: flex;
@@ -171,7 +173,8 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, contents }) => {
     );
 };
 
-const ActionBar = ({ setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, setWorkflows, isContentChanged, setIsContentChanged }) => {
+const ActionBar = ({ setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, isContentChanged, setIsContentChanged }) => {
+    const setWorkflows = useRecoilState(atoms.workflows)[1];
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
     const [ discardModal, setDiscardModal ] = useState({ show: false });
     const [ wizardModal, setWizardModal ] = useState({ show: false });

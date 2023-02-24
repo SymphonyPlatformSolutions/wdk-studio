@@ -1,6 +1,8 @@
 package com.symphony.devsol.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.symphony.devsol.model.studio.Workflow;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,11 +11,19 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
+import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
 
 @Service
 public class WdkClient {
@@ -26,14 +36,17 @@ public class WdkClient {
     private String managementToken;
     private final RestTemplate monitoringApi;
     private final RestTemplate managementApi;
+    private final ObjectMapper mapper;
 
-    public WdkClient(RestTemplateBuilder restTemplateBuilder) {
+    public WdkClient(RestTemplateBuilder restTemplateBuilder, ObjectMapper mapper) {
+        this.mapper = mapper;
         this.monitoringApi = restTemplateBuilder
             .additionalInterceptors((request, body, execution) -> {
                 request.getHeaders().add("X-Monitoring-Token", monitoringToken);
                 return execution.execute(request, body);
             })
             .defaultHeader("Accept", MediaType.APPLICATION_JSON.toString())
+            .errorHandler(errorHandler)
             .build();
         this.managementApi = restTemplateBuilder
             .additionalInterceptors((request, body, execution) -> {
@@ -41,8 +54,27 @@ public class WdkClient {
                 return execution.execute(request, body);
             })
             .defaultHeader("Accept", MediaType.APPLICATION_JSON.toString())
+            .errorHandler(errorHandler)
             .build();
     }
+
+    ResponseErrorHandler errorHandler = new ResponseErrorHandler() {
+        @Override
+        public boolean hasError(ClientHttpResponse response) throws IOException {
+            return response.getStatusCode().series() == CLIENT_ERROR
+                || response.getStatusCode().series() == SERVER_ERROR;
+        }
+
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+            String text = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+            try {
+                Map<?, ?> map = mapper.readValue(text, Map.class);
+                text = map.get("message").toString();
+            } catch (JsonProcessingException ignore) {}
+            throw new ResponseStatusException(response.getStatusCode(), text);
+        }
+    };
 
     public JsonNode listWorkflows() {
         return request(GET, "/workflows/", null, JsonNode.class);

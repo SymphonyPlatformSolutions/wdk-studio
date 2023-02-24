@@ -29,7 +29,8 @@ const api = () => {
             const contentType = response.headers.get('Content-type').split(';')[0];
             return contentType === 'text/plain' ? response.text() : response.json();
         } else {
-            throw new Error((await response.json()).detail);
+            const error = await response.json();
+            throw new Error(error.detail || error.message);
         }
     };
 

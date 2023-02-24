@@ -10,20 +10,20 @@ const fade = keyframes`
 
 const Root = styled(Toast)`
     animation: ${fade} 2s linear forwards;
-    background: ${props => (props.error === 'true' ? 'var(--tk-color-red-50)' : 'var(--tk-color-green-50)')};
     z-index: 100;
 `;
 
 const FadeToast = () => {
     const status = useRecoilState(atoms.status)[0];
+    const getBackgroundColor = () => status.error ? 'red' : 'green';
 
     return (
         <Root
             show={status.show}
             content={status.content || ''}
-            leftIcon={status.error === 'true' ? 'cross' : 'check'}
-            error={status.error || 'false'}
+            leftIcon={status.error ? 'cross' : 'check'}
             placement={{ horizontal: 'center', vertical: 'bottom' }}
+            style={{ background: `var(--tk-color-${getBackgroundColor()}-50)` }}
         />
     );
 };

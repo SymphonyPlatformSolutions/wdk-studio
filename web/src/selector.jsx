@@ -1,5 +1,7 @@
+import { atoms } from './atoms';
 import { Button, Dropdown, Icon } from "@symphony-ui/uitoolkit-components/components";
 import { useEffect, useState, useRef } from 'react';
+import { useRecoilState } from 'recoil';
 import api from './api';
 import CreateWorkflowModal from './create-workflow';
 import styled from 'styled-components';
@@ -39,8 +41,9 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setW
     );
 };
 
-const WorkflowSelector = ({ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, editMode, isContentChanged, setIsContentChanged }) => {
+const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, editMode, isContentChanged, setIsContentChanged }) => {
     const [ createModal, setCreateModal ] = useState({ show: false });
+    const [ workflows, setWorkflows ] = useRecoilState(atoms.workflows);
 
     const usePrevious = (value) => {
         const ref = useRef();

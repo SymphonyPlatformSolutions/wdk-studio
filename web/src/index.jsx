@@ -21,7 +21,6 @@ const Root = styled.div`
 `;
 
 const App = () => {
-    const [ workflows, setWorkflows ] = useState([]);
     const [ currentWorkflow, setCurrentWorkflow ] = useState();
     const [ currentWorkflowId, setCurrentWorkflowId ] = useState();
     const [ selectedInstance, setSelectedInstance ] = useState();
@@ -93,8 +92,8 @@ const App = () => {
 
     return !session ? 'Loading..' : (!window.SYMPHONY && !session.isDev) ? 'This app only works in Symphony' : (
         <Root>
-            <WorkflowSelector {...{ workflows, setWorkflows, currentWorkflow, setCurrentWorkflow, editMode, isContentChanged, setIsContentChanged }} />
-            <ActionBar {...{ setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, setWorkflows, isContentChanged, setIsContentChanged }} />
+            <WorkflowSelector {...{ currentWorkflow, setCurrentWorkflow, editMode, isContentChanged, setIsContentChanged }} />
+            <ActionBar {...{ setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, isContentChanged, setIsContentChanged }} />
             { editMode && <Editor {...{ snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
             { !editMode && <MonitorX {...{ currentWorkflowId, setSelectedInstance }} /> }
             { showConsole && <Console {...{ logs, setLogs, theme }} /> }
