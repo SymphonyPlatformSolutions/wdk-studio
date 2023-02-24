@@ -28,7 +28,10 @@ const CreateWorkflowModal = ({ createModal, setCreateModal, setWorkflows }) => {
         }
         const id = newName.trim().toLowerCase();
         setCreateModal({ show: true, loading: true });
-        const template = swadlTemplate.replace(/newId/g, id);
+        const template = swadlTemplate
+            .replace(/newId/g, id)
+            .replace(/id: ([\w\-]+)/, `id: ${id}`);
+
         addWorkflow({ swadl: template, description: "New workflow" }, () => {
             showToast(false, 'New workflow added');
             setCreateModal({ show: false });
