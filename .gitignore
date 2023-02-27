@@ -5,7 +5,8 @@ workflow-bot-apo.jar
 workflow-bot-app*.jar
 rsa/
 *.mv.db
-application-*.y*ml
+application-private.y*ml
+./data
 
 ##############################
 ## Java

@@ -24,20 +24,10 @@ const ActionBar = styled.div`
 
 const Console = ({ logs, setLogs, theme }) => {
     const logsRef = useRef();
-    const [ token, setToken ] = useState();
     const [ tail, setTail ] = useState('checked');
-    const { getManagementToken, initLogs } = api();
+    const { initLogs } = api();
 
-    useEffect(() => {
-        getManagementToken((response) => setToken(response.token));
-    }, []);
-
-    useEffect(() => {
-        if (!token) {
-            return;
-        }
-        initLogs(token, (event) => event && setLogs((old) => `${old}${event.data}\n`));
-    }, [ token ]);
+    useEffect(() => initLogs((event) => event && setLogs((old) => `${old}${event.data}\n`)), []);
 
     useEffect(() => {
         (tail === 'checked') && (logsRef.current.scrollTop = logsRef.current.scrollHeight);

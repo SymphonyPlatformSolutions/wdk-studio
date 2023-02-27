@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'io.freefair.lombok' version '6.6.2'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
+}
+
+configurations {
+    botJar
+}
+
+dependencies {
+    implementation 'org.finos.symphony.bdk:symphony-bdk-app-spring-boot-starter:2.12.0'
+    compileOnly 'org.finos.symphony.wdk:workflow-language:1.5.0-SNAPSHOT'
+    botJar 'org.finos.symphony.wdk:workflow-bot-app:1.5.0-SNAPSHOT:boot'
+}
+
+tasks.register('botJar', Copy) {
+    description "Downloads WDK jar."
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from configurations.botJar
+    into project.projectDir
+    rename { f -> "workflow-bot-app.jar" }
+}
+
+tasks.register('customActivityLibs', Copy) {
+    description "Copies custom activity dependencies in lib folder."
+    from jar
+    from configurations.runtimeClasspath
+    into "lib"
+}
+
+tasks.build.dependsOn tasks.customActivityLibs
+tasks.botJar.dependsOn tasks.build

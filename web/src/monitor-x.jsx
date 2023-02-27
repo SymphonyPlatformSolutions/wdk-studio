@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import api from './api';
-import Prism from 'prismjs';
-import 'prismjs/themes/prism.min.css';
-import { Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle } from "@symphony-ui/uitoolkit-components/components";
+import { Button, Modal, ModalBody, ModalFooter, ModalTitle } from "@symphony-ui/uitoolkit-components/components";
 
 const InstanceMetricPanel = styled.div`
     display: flex;

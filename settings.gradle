@@ -1,4 +1,0 @@
-rootProject.name = 'wdk-studio'
-
-include 'backend'
-include 'wdk-bot'
