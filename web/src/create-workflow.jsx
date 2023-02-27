@@ -4,8 +4,12 @@ import {
 } from "@symphony-ui/uitoolkit-components/components";
 import TemplateSelector from './template-selector';
 import api from './api';
+import { atoms } from './atoms';
+import { useRecoilState } from 'recoil';
 
-const CreateWorkflowModal = ({ createModal, setCreateModal, setWorkflows }) => {
+const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
+    const setWorkflows = useRecoilState(atoms.workflows)[1];
+    const setCurrentWorkflow = useRecoilState(atoms.currentWorkflow)[1];
     const [ newName, setNewName ] = useState('');
     const [ swadlTemplate, setSwadlTemplate ] = useState();
     const [ pageLoading, setPageLoading ] = useState(false);
@@ -37,7 +41,8 @@ const CreateWorkflowModal = ({ createModal, setCreateModal, setWorkflows }) => {
             setCreateModal({ show: false });
             setNewName('');
             const newWorkflow = { label: id, value: id };
-            setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : ((b.value > a.value) ? -1 : 0))));
+            setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : -1)));
+            setCurrentWorkflow(newWorkflow);
         }, ({ message }) => {
             showToast(true, message);
         });

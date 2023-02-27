@@ -1,15 +1,17 @@
 import { atoms } from './atoms';
+import Loader from '@symphony-ui/uitoolkit-components/components/loader';
 import { RecoilRoot, useRecoilState } from 'recoil';
-import ActionBar from './action-bar';
 import api from './api';
-import Console from './console';
-import Editor from './editor';
 import FadeToast from './fade-toast';
-import MonitorX from './monitor-x';
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import styled from 'styled-components';
-import WorkflowSelector from './selector';
+
+const Editor = lazy(() => import('./editor'));
+const Console = lazy(() => import('./console'));
+const WorkflowSelector = lazy(() => import('./selector'));
+const ActionBar = lazy(() => import('./action-bar'));
+const MonitorX = lazy(() => import('./monitor-x'));
 
 const Root = styled.div`
     display: flex;
@@ -21,8 +23,7 @@ const Root = styled.div`
 `;
 
 const App = () => {
-    const [ currentWorkflow, setCurrentWorkflow ] = useState();
-    const [ currentWorkflowId, setCurrentWorkflowId ] = useState();
+    const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
     const [ selectedInstance, setSelectedInstance ] = useState();
     const [ showConsole, setShowConsole ] = useState(true);
     const [ editMode, setEditMode ] = useState(true);
@@ -68,36 +69,43 @@ const App = () => {
                     }
                 }
                 const userInfoService = SYMPHONY.services.subscribe('extended-user-info');
-                userInfoService.getJwt().then((token) => {
-                    if (token) {
-                        setSession({ token });
-                        window.localStorage.setItem('token', token);
-                    }
-                });
+                if (userInfoService) {
+                    userInfoService.getJwt().then((token) => {
+                        if (token) {
+                            setSession({ token });
+                            window.localStorage.setItem('token', token);
+                        }
+                    });
+                }
             });
         });
     }, []);
 
     useEffect(() => {
-        if (!(currentWorkflow && session)) {
+        if (!session) {
+            return;
+        }
+        if (!currentWorkflow) {
+            setContents(undefined);
             return;
         }
         readWorkflow(currentWorkflow?.value, (response) => {
             setIsContentChanged('original');
             const current = response.filter(i => i.active)[0];
             setContents(current.swadl);
-            setCurrentWorkflowId(current.swadl.match(/id: ([\w\-]+)/)[1]);
         });
     }, [ session, currentWorkflow ]);
 
     return !session ? 'Loading..' : (!window.SYMPHONY && !session.isDev) ? 'This app only works in Symphony' : (
         <Root>
-            <WorkflowSelector {...{ currentWorkflow, setCurrentWorkflow, editMode, isContentChanged, setIsContentChanged }} />
-            <ActionBar {...{ setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, isContentChanged, setIsContentChanged }} />
-            { editMode && <Editor {...{ snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
-            { !editMode && <MonitorX {...{ currentWorkflowId, setSelectedInstance }} /> }
-            { showConsole && <Console {...{ logs, setLogs, theme }} /> }
-            <FadeToast />
+            <Suspense fallback={<Loader variant="primary" />}>
+                <WorkflowSelector {...{ editMode, isContentChanged, setIsContentChanged }} />
+                <ActionBar {...{ setSnippet, selectedInstance, setSelectedInstance, contents, editMode, setEditMode, setContents, showConsole, setShowConsole, markers, isContentChanged, setIsContentChanged }} />
+                { editMode && <Editor {...{ snippet, contents, markers, setMarkers, theme, setIsContentChanged }} /> }
+                { !editMode && <MonitorX {...{ setSelectedInstance }} /> }
+                { showConsole && <Console {...{ logs, setLogs, theme }} /> }
+                <FadeToast />
+            </Suspense>
         </Root>
     );
 };

@@ -1,32 +1,15 @@
 FROM amazoncorretto:17
-WORKDIR /build
-COPY ./backend/build/libs/*.jar app.jar
-RUN jar -xf app.jar && jdeps -q \
-    --ignore-missing-deps \
-    --print-module-deps \
-    --recursive \
-    --multi-release 17 \
-    --class-path="BOOT-INF/lib/*" \
-    --module-path="BOOT-INF/lib/*" \
-    app.jar > /deps
-RUN jlink \
-    --verbose \
-    --add-modules $(cat /deps),jdk.crypto.ec \
-    --strip-java-debug-attributes \
-    --no-man-pages \
-    --no-header-files \
-    --compress=2 \
-    --output /jre
-RUN mkdir /app && cp -r META-INF /app && cp -r BOOT-INF/classes/* /app
+RUN jlink --verbose --strip-java-debug-attributes --no-man-pages \
+--no-header-files --compress=2 --output /jre \
+--add-modules java.base,java.compiler,java.desktop,java.instrument,java.prefs,java.rmi,java.scripting,\
+java.security.jgss,java.security.sasl,java.sql.rowset,jdk.attach,jdk.httpserver,jdk.jdi,jdk.jfr,\
+jdk.management,jdk.net,jdk.unsupported,jdk.crypto.ec
 
 FROM gcr.io/distroless/java-base-debian11
 WORKDIR /data/symphony
 COPY --from=0 /jre /jre
-COPY --from=0 /build/BOOT-INF/lib /lib
-COPY --from=0 /app .
-ENTRYPOINT [ \
-  "/jre/bin/java", \
-  "-cp", ".:/lib/*", \
-  "com.symphony.devsol.WdkStudioBackend", \
-  "--spring.profiles.active=prod" \
-]
+COPY workflow-bot-app.jar app.jar
+COPY lib/wdk-studio.jar lib/wdk-studio.jar
+COPY lib/symphony-bdk-app-spring-boot-starter*.jar lib/bdk-app-starter.jar
+COPY application.yaml application.yaml
+ENTRYPOINT [ "/jre/bin/java", "-jar", "app.jar", "--spring.profiles.active=prod" ]
