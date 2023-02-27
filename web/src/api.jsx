@@ -11,8 +11,7 @@ const parseJwt = (token) => {
 
 const api = () => {
     const dev = window.location.hostname === 'localhost';
-    const backendRoot = dev ? 'https://localhost:10443' : '';
-    const wdkRoot = dev ? 'http://localhost:8080' : '';
+    const apiRoot = dev ? 'https://localhost:10443' : '';
     const setStatus = useRecoilState(atoms.status)[1];
     const setLoading = useRecoilState(atoms.loading)[1];
     const session = useRecoilState(atoms.session)[0];
@@ -23,7 +22,7 @@ const api = () => {
 
     const process = async (response) => {
         if (response.ok) {
-            if (response.headers.get('Content-Length') === '0') {
+            if (response.status === 204 || response.headers.get('Content-Length') === '0') {
                 return new Promise((r) => r(""));
             }
             const contentType = response.headers.get('Content-type').split(';')[0];
@@ -42,15 +41,24 @@ const api = () => {
     };
 
     const apiCall = (method, uri, body, callback) => {
-        const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.token}`
-        };
+        const headers = {};
+        if (session?.token) {
+            headers['Authorization'] = `Bearer ${session.token}`;
+        }
+        if (uri.indexOf('/management/') > -1) {
+            headers['X-Management-Token'] = '';
+        }
         const config = { method, headers };
         if (body) {
-            config.body = JSON.stringify(body);
+            if (uri === 'v1/management/workflows') {
+                const formData  = new FormData();
+                Object.keys(body).forEach((key) => formData.append(key, body[key]));
+                config.body = formData;
+            } else {
+                config.body = JSON.stringify(body);
+            }
         }
-        const promise = fetch(`${backendRoot}/api/${uri}`, config).then(process);
+        const promise = fetch(`${apiRoot}/${uri}`, config).then(process);
         if (!callback) {
             return promise;
         } else {
@@ -58,9 +66,12 @@ const api = () => {
         }
     };
 
-    const initLogs = (token, callback) => {
-        const headers = { 'X-Management-Token': token };
-        const es = new EventSourcePolyfill(`${wdkRoot}/wdk/v1/management/workflows/logs`, { headers });
+    const initLogs = (callback) => {
+        const headers = { 'X-Management-Token': '' };
+        if (session?.token) {
+            headers.Authorization = `Bearer ${session.token}`;
+        }
+        const es = new EventSourcePolyfill(`${apiRoot}/v1/management/workflows/logs`, { headers });
         es.onmessage = callback;
         es.addEventListener()
     };
@@ -68,8 +79,8 @@ const api = () => {
     const [ GET, POST, PUT, DELETE ] = [ 'GET', 'POST', 'PUT', 'DELETE' ];
 
     const getInstanceData = (workflowId, instanceId, callback) => {
-        const uriRoot = `monitoring/${workflowId}/instances/${instanceId}`;
-        const activities = apiCall(GET, `${uriRoot}/activities`, null, null);
+        const uriRoot = `v1/workflows/${workflowId}/instances/${instanceId}`;
+        const activities = apiCall(GET, `${uriRoot}/states`, null, null);
         const variables = apiCall(GET, `${uriRoot}/variables`, null, null);
         Promise.all([ activities, variables ])
             .then((response) => callback({ activities: response[0], variables: response[1] }))
@@ -77,18 +88,17 @@ const api = () => {
     };
 
     return {
-        getManagementToken: (callback) => apiCall(GET, 'management-token', null, callback),
-        listWorkflows: (callback) => apiCall(GET, 'workflows', null, callback),
-        addWorkflow: (workflow, callback) => apiCall(POST, 'management/workflow', workflow, callback),
-        editWorkflow: (workflow, callback) => apiCall(PUT, 'management/workflow', workflow, callback),
-        readWorkflow: (workflowId, callback) => apiCall(GET, `read-workflow/${workflowId}`, null, callback),
-        deleteWorkflow: (workflowId, callback) => apiCall(DELETE, `management/workflow/${workflowId}`, null, callback),
+        listWorkflows: (callback) => apiCall(GET, 'v1/workflows/', null, callback),
+        addWorkflow: (workflow, callback) => apiCall(POST, 'v1/management/workflows', workflow, callback),
+        editWorkflow: (workflow, callback) => apiCall(PUT, 'v1/management/workflows', workflow, callback),
+        readWorkflow: (workflowId, callback) => apiCall(GET, `v1/management/workflows/${workflowId}`, null, callback),
+        deleteWorkflow: (workflowId, callback) => apiCall(DELETE, `v1/management/workflows/${workflowId}`, null, callback),
         listGalleryCategories: (callback) => apiCall(GET, 'gallery/categories', null, callback),
         listGalleryWorkflows: (category, callback) => apiCall(GET, `gallery/${category}/workflows`, null, callback),
         readGalleryWorkflow: (category, workflow, callback) => apiCall(GET, `gallery/${category}/workflows/${workflow}`, null, callback),
         getReadme: (path, callback) => apiCall(GET, `gallery/readme/${path}`, null, callback),
-        getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `monitoring/${workflowId}/definitions`, null, callback),
-        listWorkflowInstances: (workflowId, callback) => apiCall(GET, `monitoring/${workflowId}/instances`, null, callback),
+        getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/definitions`, null, callback),
+        listWorkflowInstances: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/instances`, null, callback),
         parseJwt,
         showStatus,
         getInstanceData,

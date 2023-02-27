@@ -1,6 +1,6 @@
 import { atoms } from './atoms';
 import { Button, Dropdown, Icon } from "@symphony-ui/uitoolkit-components/components";
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import api from './api';
 import CreateWorkflowModal from './create-workflow';
@@ -18,7 +18,9 @@ const StyledDropdown = styled(Dropdown)`
     input { user-select: none; pointer-events: none }
 `;
 
-const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows, editMode, isContentChanged, setIsContentChanged }) => {
+const WorkflowDropdown = ({ editMode, isContentChanged, setIsContentChanged }) => {
+    const [ workflows, setWorkflows ] = useRecoilState(atoms.workflows);
+    const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
     const { listWorkflows } = api();
 
     useEffect(() => listWorkflows((res) => {
@@ -41,34 +43,26 @@ const WorkflowDropdown = ({ currentWorkflow, setCurrentWorkflow, workflows, setW
     );
 };
 
-const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, editMode, isContentChanged, setIsContentChanged }) => {
+const WorkflowSelector = ({ editMode, isContentChanged, setIsContentChanged }) => {
     const [ createModal, setCreateModal ] = useState({ show: false });
-    const [ workflows, setWorkflows ] = useRecoilState(atoms.workflows);
-
-    const usePrevious = (value) => {
-        const ref = useRef();
-        useEffect(() => {
-            ref.current = value;
-        });
-        return ref.current;
-    };
-    const prevWorkflows = usePrevious(workflows);
+    const workflows = useRecoilState(atoms.workflows)[0];
+    const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
 
     useEffect(() => {
-        if (!prevWorkflows || prevWorkflows?.length === workflows.length) {
+        if (!workflows) {
             return;
-        } else if ((prevWorkflows?.length === 0 && workflows?.length > 0) || (workflows.length < prevWorkflows?.length)) {
-            setCurrentWorkflow(workflows[0]);
-        } else {
-            const prev = prevWorkflows?.map((w) => w.value);
-            const delta = workflows.map((w) => w.value).filter((i) => prev.indexOf(i) === -1)[0];
-            setCurrentWorkflow(workflows.filter((w) => w.value === delta)[0]);
         }
-    }, [ prevWorkflows, workflows, setCurrentWorkflow ]);
+        if (
+            (!currentWorkflow && workflows.length > 0) ||
+            (currentWorkflow && workflows.map((w) => w.value).indexOf(currentWorkflow.value) === -1)
+        ) {
+            setCurrentWorkflow(workflows[0]);
+        }
+    }, [ workflows, currentWorkflow, setCurrentWorkflow ]);
 
     return (
         <Root>
-            <WorkflowDropdown {...{ currentWorkflow, setCurrentWorkflow, workflows, setWorkflows, editMode, isContentChanged, setIsContentChanged }} />
+            <WorkflowDropdown {...{ editMode, isContentChanged, setIsContentChanged }} />
             <Button
                 variant="primary"
                 disabled={!editMode || isContentChanged=='modified'}
@@ -77,7 +71,7 @@ const WorkflowSelector = ({ currentWorkflow, setCurrentWorkflow, editMode, isCon
             >
                 Workflow
             </Button>
-            <CreateWorkflowModal {...{ createModal, setCreateModal, setWorkflows }} />
+            <CreateWorkflowModal {...{ createModal, setCreateModal }} />
         </Root>
     );
 };

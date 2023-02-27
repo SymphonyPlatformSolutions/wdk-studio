@@ -1,6 +1,7 @@
 bdk.app:
   appId: localhost-10443
   privateKey.path: rsa/privatekey.pem
+
 server:
   port: 10443
   ssl:
@@ -8,4 +9,5 @@ server:
     key-store-password: password
     key-store-type: pkcs12
     key-alias: tomcat
+
 spring.web.resources.static-locations: file:web/public

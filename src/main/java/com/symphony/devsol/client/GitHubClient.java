@@ -30,7 +30,7 @@ public class GitHubClient {
     }
 
     @Cacheable("gallery-categories")
-    @GetMapping("/api/gallery/categories")
+    @GetMapping("gallery/categories")
     public List<String> listGalleryCategories() {
         return restTemplate.getForObject(baseUri + "/git/trees/main?recursive=1", GitHubTree.class)
             .getTree().stream()
@@ -42,7 +42,7 @@ public class GitHubClient {
     }
 
     @Cacheable("gallery-workflows")
-    @GetMapping("/api/gallery/{category}/workflows")
+    @GetMapping("gallery/{category}/workflows")
     public List<String> listGalleryWorkflows(@PathVariable String category) {
         String subPath = "categories/" + category + "/";
         return restTemplate.getForObject(baseUri + "/git/trees/main?recursive=1", GitHubTree.class)
@@ -55,7 +55,7 @@ public class GitHubClient {
     }
 
     @Cacheable("gallery-workflow-content")
-    @GetMapping("/api/gallery/{category}/workflows/{workflow}/{file}")
+    @GetMapping("gallery/{category}/workflows/{workflow}/{file}")
     public String getWorkflow(@PathVariable String category, @PathVariable String workflow, @PathVariable String file) {
         String uri = baseUri + "/contents/categories/" + category + "/" + workflow + "/" + file;
         String base64Contents = restTemplate.getForObject(uri, GitHubContent.class).getContent()
@@ -64,7 +64,7 @@ public class GitHubClient {
     }
 
     @Cacheable("gallery-readme-content")
-    @GetMapping("/api/gallery/readme/{category}")
+    @GetMapping("gallery/readme/{category}")
     public String getReadme(@PathVariable String category) {
         String uri = baseUri + "/contents/categories/" + category + "/README.md";
         String base64Contents = restTemplate.getForObject(uri, GitHubContent.class).getContent()
@@ -73,7 +73,7 @@ public class GitHubClient {
     }
 
     @Cacheable("gallery-readme-content")
-    @GetMapping("/api/gallery/readme/{category}/{workflow}")
+    @GetMapping("gallery/readme/{category}/{workflow}")
     public String getReadme(@PathVariable String category, @PathVariable String workflow) {
         String uri = baseUri + "/contents/categories/" + category + "/" + workflow + "/README.md";
         String base64Contents = restTemplate.getForObject(uri, GitHubContent.class).getContent()

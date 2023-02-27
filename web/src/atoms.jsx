@@ -5,4 +5,5 @@ export const atoms = {
     status: atom({ key: 'status', default: { show: false }}),
     session: atom({ key: 'session', default: undefined }),
     workflows: atom({ key: 'workflows', default: undefined }),
+    currentWorkflow: atom({ key: 'currentWorkflow', default: undefined }),
 };

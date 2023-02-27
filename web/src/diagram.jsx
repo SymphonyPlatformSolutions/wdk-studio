@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import ReactFlow, {
-    ConnectionLineType, useNodesState, useEdgesState, Controls, Background, MarkerType, applyEdgeChanges
+    ConnectionLineType, useNodesState, useEdgesState, Background, MarkerType, applyEdgeChanges
 } from 'reactflow';
 import dagre from 'dagre';
 import styled from 'styled-components';
 import './diagram/style.css';
 import api from './api';
+import { atoms } from './atoms';
+import { useRecoilState } from 'recoil';
 
 const Root = styled.div`
     border: #8f959e 1px solid;
@@ -50,7 +52,8 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
 const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([], []);
 
-const Diagram = ({ currentWorkflowId, selectedInstance }) => {
+const Diagram = ({ selectedInstance }) => {
+    const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
     const [ nodes, setNodes, onNodesChange ] = useNodesState(layoutedNodes);
     const [ edges, setEdges, onEdgesChange ] = useEdgesState(layoutedEdges);
     const [ activityData, setActivityData ] = useState();
@@ -101,7 +104,7 @@ const Diagram = ({ currentWorkflowId, selectedInstance }) => {
         });
     }, [activityData, setNodes]);
 
-    const loadDefinition = () => getWorkflowDefinition(currentWorkflowId, (data) => {
+    const loadDefinition = () => getWorkflowDefinition(currentWorkflow.value, (data) => {
         const nodes = new Array();
         const edges = new Array();
         const regexType = /(.*)(_)/gm;

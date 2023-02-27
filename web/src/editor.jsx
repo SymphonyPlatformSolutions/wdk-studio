@@ -1,5 +1,5 @@
 import { Uri } from 'monaco-editor';
-import { editor } from 'monaco-editor';
+import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import React, { useEffect, useRef, useState } from 'react';
@@ -54,6 +54,13 @@ const ProblemEntry = styled.div`
         background-color: var(--tk-color-red-30);
         cursor: pointer;
     }
+`;
+
+const EmptyRoot = styled.div`
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;
 
 const Editor = ({ snippet, contents, markers, setMarkers, theme, setIsContentChanged }) => {
@@ -116,9 +123,11 @@ const Editor = ({ snippet, contents, markers, setMarkers, theme, setIsContentCha
         </ProblemEntry>
     ));
 
+    const Empty = () => (<EmptyRoot>No Workflows</EmptyRoot>);
+
     return (
         <Root>
-            <EditorRoot ref={ref} large={markers.length === 0} />
+            { !contents ? <Empty /> : <EditorRoot ref={ref} large={markers.length === 0} /> }
             { markers.length > 0 && <ProblemsRoot><Problems {...{markers}} /></ProblemsRoot> }
         </Root>
     );

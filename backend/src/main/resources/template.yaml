@@ -1,8 +1,0 @@
-id: abc
-activities:
-- send-message:
-    id: abcInit
-    on:
-      message-received:
-        content: /hello
-    content: hello

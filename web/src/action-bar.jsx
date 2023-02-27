@@ -2,7 +2,7 @@ import { atoms } from './atoms';
 import {
     Button, Loader, Modal, ModalBody, ModalFooter, ModalTitle,
 } from '@symphony-ui/uitoolkit-components/components';
-import { editor } from 'monaco-editor';
+import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { useRecoilState } from 'recoil';
 import { useState } from 'react';
 import api from './api';
@@ -21,7 +21,9 @@ const Section = styled.div`
     gap: .5rem;
 `;
 
-const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, currentWorkflow, setWorkflows }) => {
+const ConfirmDeleteModal = ({ deleteModal, setDeleteModal }) => {
+    const setWorkflows = useRecoilState(atoms.workflows)[1];
+    const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
     const { deleteWorkflow, showStatus } = api();
 
     const submitDeleteWorkflow = () => {
@@ -61,11 +63,10 @@ const ConfirmDeleteModal = ({ deleteModal, setDeleteModal, currentWorkflow, setW
 };
 
 const ConfirmDiscardModal = ({ discardModal, setDiscardModal, contents }) => {
-
     const discardWorkflow = () => {
         editor.getModels()[0].setValue( contents );
-        setDiscardModal( { show: false } );
-    }
+        setDiscardModal({ show: false });
+    };
 
     return (
         <Modal size="medium" show={discardModal.show}>
@@ -91,26 +92,23 @@ const ConfirmDiscardModal = ({ discardModal, setDiscardModal, contents }) => {
     );
 };
 
-const DiagramModal = ({ diagramModal, setDiagramModal, contents, currentWorkflowId, selectedInstance, setSelectedInstance }) => {
-
-    return (
-        <Modal size="full-width" show={diagramModal.show}>
-            <ModalTitle>Diagram</ModalTitle>
-            <ModalBody>
-                <Diagram {...{currentWorkflowId, selectedInstance}} />
-            </ModalBody>
-            <ModalFooter style={{ gap: '.5rem' }}>
-                <Button
-                    variant="secondary"
-                    onClick={() => setDiagramModal({ show: false })}
-                    disabled={diagramModal.loading}
-                >
-                    Close
-                </Button>
-            </ModalFooter>
-        </Modal>
-    );
-};
+const DiagramModal = ({ diagramModal, setDiagramModal, selectedInstance }) => (
+    <Modal size="full-width" show={diagramModal.show}>
+        <ModalTitle>Diagram</ModalTitle>
+        <ModalBody>
+            <Diagram {...{ selectedInstance }} />
+        </ModalBody>
+        <ModalFooter style={{ gap: '.5rem' }}>
+            <Button
+                variant="secondary"
+                onClick={() => setDiagramModal({ show: false })}
+                disabled={diagramModal.loading}
+            >
+                Close
+            </Button>
+        </ModalFooter>
+    </Modal>
+);
 
 const WizardModal = ({ wizardModal, setSnippet, setWizardModal, contents }) => {
     const [codeSnippet, setCodeSnippet] = useState(null)
@@ -120,7 +118,7 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, contents }) => {
 
     const addCodeSnippet = () => {
         setSnippet({ content: codeSnippet, ts: Date.now() });
-    }
+    };
 
     return (
         <Modal size="large" show={wizardModal.show}>
@@ -173,7 +171,7 @@ const WizardModal = ({ wizardModal, setSnippet, setWizardModal, contents }) => {
     );
 };
 
-const ActionBar = ({ setSnippet, currentWorkflow, currentWorkflowId, selectedInstance, setSelectedInstance, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, isContentChanged, setIsContentChanged }) => {
+const ActionBar = ({ setSnippet, selectedInstance, setSelectedInstance, contents, setContents, editMode, setEditMode, showConsole, setShowConsole, markers, isContentChanged, setIsContentChanged }) => {
     const setWorkflows = useRecoilState(atoms.workflows)[1];
     const [ deleteModal, setDeleteModal ] = useState({ show: false });
     const [ discardModal, setDiscardModal ] = useState({ show: false });
@@ -189,9 +187,7 @@ const ActionBar = ({ setSnippet, currentWorkflow, currentWorkflowId, selectedIns
         });
     };
 
-    const openHelp = () => {
-        window.open( 'https://github.com/finos/symphony-wdk/blob/master/docs/reference.md', '_blank', false);
-    };
+    const openHelp = () => window.open('//github.com/finos/symphony-wdk/blob/master/docs/reference.md', '_blank', false);
 
     return (
         <Root>
@@ -256,10 +252,10 @@ const ActionBar = ({ setSnippet, currentWorkflow, currentWorkflowId, selectedIns
                     Help
                 </Button>
             </Section>
-            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, currentWorkflow, setWorkflows }} />
+            <ConfirmDeleteModal {...{ deleteModal, setDeleteModal, setWorkflows }} />
             <ConfirmDiscardModal {...{ discardModal, setDiscardModal, contents }} />
             <WizardModal {...{ wizardModal, setSnippet, setWizardModal, contents }} />
-            <DiagramModal {...{ diagramModal, setDiagramModal, contents, currentWorkflowId, selectedInstance, setSelectedInstance }} />
+            <DiagramModal {...{ diagramModal, setDiagramModal, contents, selectedInstance, setSelectedInstance }} />
         </Root>
     );
 };
