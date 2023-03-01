@@ -1,3 +1,5 @@
+import { atoms } from './atoms';
+import { useRecoilState } from 'recoil';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import api from './api';
@@ -68,11 +70,14 @@ const Table = styled.div`
             flex: 1 1 auto;
             display: block;
             overflow-y: scroll;
-            td { font-weight: 300 }
+            td { color: var(tk-text-color); font-weight: 300 }
         }
         tbody tr {
             width: 100%;
-            &:hover { background: var(--tk-color-electricity-60) }
+            &:hover {
+                color: #fff !important;
+                background: var(--tk-color-electricity-50) !important;
+            }
         }
         thead, tbody tr {
             display: table;
@@ -134,6 +139,19 @@ const InstanceList = ({data, loadInstances, selectedInstanceId, callback}) => {
         .replaceAll(/([\d]+)\.(\d)([\d]+)/g, "$1.$2")
         .toLowerCase();
 
+    const getStyle = (instanceId, status) => {
+        const style = {  };
+
+        if (status === 'PENDING') {
+            style.color = 'var(--tk-color-green-30)';
+        }
+        if (instanceId === selectedInstanceId) {
+            style.background = 'var(--tk-color-electricity-40)';
+            style.color = '#fff';
+        }
+        return style;
+    };
+
     return (
         <>
             <TableTitle>
@@ -153,7 +171,7 @@ const InstanceList = ({data, loadInstances, selectedInstanceId, callback}) => {
                     </thead>
                     <tbody>
                         {data.map((row, i) => (
-                            <tr key={i} className="selectable" style={{background: row.instanceId===selectedInstanceId ? 'var(--tk-color-electricity-60)' : '', color: row.status==='PENDING' ? 'var(--tk-color-green-30)' : 'var(tk-text-color)'}} onClick={() => callback(row)}>
+                            <tr key={i} className="selectable" style={getStyle(row.instanceId, row.status)} onClick={() => callback(row)}>
                                 <td className="icon">{row.instanceId===selectedInstanceId ? '>' : ''}</td>
                                 <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
                                 <td className="date">{row.endDate? (new Date(row.endDate)).toLocaleString() : 'Running...'}</td>
@@ -281,7 +299,8 @@ const ExpandActivityModal = ({ expandActivityModal, setExpandActivityModal, acti
     );
 };
 
-const MonitorX = ({ currentWorkflowId, setSelectedInstance }) => {
+const MonitorX = ({ setSelectedInstance }) => {
+    const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
     const [ instances, setInstances ] = useState([]);
     const [ selectedInstanceId, setSelectedInstanceId ] = useState();
     const [ activityData, setActivityData ] = useState();
@@ -295,11 +314,11 @@ const MonitorX = ({ currentWorkflowId, setSelectedInstance }) => {
 
     useEffect(() => {
         if (selectedInstanceId) {
-            getInstanceData(currentWorkflowId, selectedInstanceId, (r) => setActivityData(r));
+            getInstanceData(currentWorkflow.value, selectedInstanceId, (r) => setActivityData(r));
         }
     }, [ selectedInstanceId ]);
 
-    const loadInstances = () => listWorkflowInstances(currentWorkflowId, (r) => setInstances(r.reverse()));
+    const loadInstances = () => listWorkflowInstances(currentWorkflow.value, (r) => setInstances(r.reverse()));
 
     return (
         <div className="tk-text-color">
