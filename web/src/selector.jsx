@@ -23,17 +23,16 @@ const WorkflowDropdown = ({ editMode, isContentChanged, setIsContentChanged }) =
     const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
     const { listWorkflows } = api();
 
-    useEffect(() => listWorkflows((res) => {
-        const values = res.map(({ id }) => ({ label: id, value: id }));
-        setWorkflows(values);
-    }), [ setCurrentWorkflow, setWorkflows ]);
+    useEffect(() => listWorkflows((response) =>
+        setWorkflows(response.map(({ id }) => ({ label: id, value: id })).sort((a, b) => a.label > b.label ? 1 : -1))
+    ), [ setCurrentWorkflow, setWorkflows ]);
 
     return (
         <StyledDropdown
             blurInputOnSelect
             label="Select Workflow"
             options={workflows}
-            isDisabled={!editMode || isContentChanged=='modified'}
+            isDisabled={!editMode || isContentChanged === 'modified'}
             onChange={({ target }) => {
                 setCurrentWorkflow(target.value);
                 setIsContentChanged('original');
@@ -65,7 +64,7 @@ const WorkflowSelector = ({ editMode, isContentChanged, setIsContentChanged }) =
             <WorkflowDropdown {...{ editMode, isContentChanged, setIsContentChanged }} />
             <Button
                 variant="primary"
-                disabled={!editMode || isContentChanged=='modified'}
+                disabled={!editMode || isContentChanged === 'modified'}
                 onClick={() => setCreateModal({ show: true })}
                 iconLeft={<Icon iconName="plus" />}
             >
