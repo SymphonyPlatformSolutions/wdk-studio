@@ -1,10 +1,15 @@
-import { Uri } from 'monaco-editor';
+import { atoms } from '../core/atoms';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { setDiagnosticsOptions } from 'monaco-yaml';
+import { Uri } from 'monaco-editor';
+import { useRecoilState } from 'recoil';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import YamlWorker from './yaml-worker?worker';
+import api from '../core/api';
+
+const CreateWorkflowButton = lazy(() => import('../create-workflow/create-workflow-button'));
 
 window.MonacoEnvironment = {
     getWorker(moduleId, label) {
@@ -63,9 +68,27 @@ const EmptyRoot = styled.div`
     align-items: center;
 `;
 
-const Editor = ({ snippet, contents, markers, setMarkers, theme, setIsContentChanged }) => {
+const Editor = () => {
     const ref = useRef(null);
+    const { readWorkflow } = api();
     const [ thisEditor, setThisEditor ] = useState();
+    const theme = useRecoilState(atoms.theme)[0];
+    const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
+    const [ markers, setMarkers ] = useRecoilState(atoms.markers);
+    const setIsContentChanged = useRecoilState(atoms.isContentChanged)[1];
+    const snippet = useRecoilState(atoms.snippet)[0];
+    const [ contents, setContents ] = useRecoilState(atoms.contents);
+
+    useEffect(() => {
+        if (!currentWorkflow) {
+            setContents(undefined);
+            return;
+        }
+        readWorkflow(currentWorkflow?.value, (response) => {
+            const current = response.filter(i => i.active)[0];
+            setContents(current.swadl);
+        });
+    }, [ currentWorkflow, setContents ]);
 
     useEffect(() => {
         if (!snippet.content) {
@@ -78,36 +101,32 @@ const Editor = ({ snippet, contents, markers, setMarkers, theme, setIsContentCha
             thisEditor.executeEdits("wizard", [op]);
             thisEditor.focus();
         }
-    }, [snippet]);
+    }, [ snippet ]);
 
     useEffect(() => {
         if (!contents) {
             return;
         }
-        if (thisEditor) {
-            thisEditor.setValue(contents);
-            thisEditor.onDidChangeModelContent((e) => {
-                const modifiedContents = editor.getModels()[0].getValue();
-                if ( modifiedContents != contents && !e.isFlush ) {
-                    setIsContentChanged( 'modified' );
-                } else {
-                    setIsContentChanged( 'pristine' );
-                }
-            });
-        } else {
-            if (editor.getModels().length > 0) {
-                editor.getModels()[0].dispose();
-            }
-            setThisEditor(editor.create(ref.current, {
-                automaticLayout: true,
-                model: editor.createModel(contents, 'yaml', modelUri),
-                theme: 'vs-' + theme,
-                scrollbar: { vertical: 'hidden' },
-            }));
+        if (editor.getModels().length > 0) {
+            editor.getModels()[0].dispose();
         }
-    }, [ theme, contents, thisEditor ]);
-
-    editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
+        const newEditor = editor.create(ref.current, {
+            automaticLayout: true,
+            model: editor.createModel(contents, 'yaml', modelUri),
+            theme: 'vs-' + theme,
+            scrollbar: { vertical: 'hidden' },
+        });
+        newEditor.onDidChangeModelContent((e) => {
+            const modifiedContents = editor.getModels()[0].getValue();
+            if (modifiedContents != contents && !e.isFlush) {
+                setIsContentChanged('modified');
+            } else {
+                setIsContentChanged('pristine');
+            }
+        });
+        editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
+        setThisEditor(newEditor);
+    }, [ theme, contents ]);
 
     const goto = (lineNumber, column) => {
         thisEditor.revealLineInCenter(lineNumber);
@@ -123,7 +142,11 @@ const Editor = ({ snippet, contents, markers, setMarkers, theme, setIsContentCha
         </ProblemEntry>
     ));
 
-    const Empty = () => (<EmptyRoot>No Workflows</EmptyRoot>);
+    const Empty = () => (
+        <EmptyRoot>
+            <CreateWorkflowButton />
+        </EmptyRoot>
+    );
 
     return (
         <Root>

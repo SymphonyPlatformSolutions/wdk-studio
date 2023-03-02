@@ -1,9 +1,9 @@
-import { atoms } from './atoms';
-import { Button, Dropdown, Icon } from "@symphony-ui/uitoolkit-components/components";
-import { useEffect, useState } from 'react';
+import { atoms } from './core/atoms';
+import { Dropdown } from "@symphony-ui/uitoolkit-components/components";
+import { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
-import api from './api';
-import CreateWorkflowModal from './create-workflow';
+import api from './core/api';
+import CreateWorkflowButton from './create-workflow/create-workflow-button';
 import styled from 'styled-components';
 
 const Root = styled.div`
@@ -18,14 +18,19 @@ const StyledDropdown = styled(Dropdown)`
     input { user-select: none; pointer-events: none }
 `;
 
-const WorkflowDropdown = ({ editMode, isContentChanged, setIsContentChanged }) => {
+const WorkflowDropdown = () => {
     const [ workflows, setWorkflows ] = useRecoilState(atoms.workflows);
     const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
+    const [ isContentChanged, setIsContentChanged ] = useRecoilState(atoms.isContentChanged);
+    const editMode = useRecoilState(atoms.editMode)[0];
     const { listWorkflows } = api();
 
-    useEffect(() => listWorkflows((response) =>
-        setWorkflows(response.map(({ id }) => ({ label: id, value: id })).sort((a, b) => a.label > b.label ? 1 : -1))
-    ), [ setCurrentWorkflow, setWorkflows ]);
+    useEffect(() => listWorkflows((response) => {
+        const values = response
+            .map(({ id }) => ({ label: id, value: id }))
+            .sort((a, b) => a.label > b.label ? 1 : -1)
+        setWorkflows(values);
+    }), [ setCurrentWorkflow, setWorkflows ]);
 
     return (
         <StyledDropdown
@@ -42,8 +47,7 @@ const WorkflowDropdown = ({ editMode, isContentChanged, setIsContentChanged }) =
     );
 };
 
-const WorkflowSelector = ({ editMode, isContentChanged, setIsContentChanged }) => {
-    const [ createModal, setCreateModal ] = useState({ show: false });
+const WorkflowSelector = () => {
     const workflows = useRecoilState(atoms.workflows)[0];
     const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
 
@@ -61,16 +65,8 @@ const WorkflowSelector = ({ editMode, isContentChanged, setIsContentChanged }) =
 
     return (
         <Root>
-            <WorkflowDropdown {...{ editMode, isContentChanged, setIsContentChanged }} />
-            <Button
-                variant="primary"
-                disabled={!editMode || isContentChanged === 'modified'}
-                onClick={() => setCreateModal({ show: true })}
-                iconLeft={<Icon iconName="plus" />}
-            >
-                Workflow
-            </Button>
-            <CreateWorkflowModal {...{ createModal, setCreateModal }} />
+            <WorkflowDropdown />
+            <CreateWorkflowButton />
         </Root>
     );
 };

@@ -1,6 +1,6 @@
 import { Loader, Icon, Button } from "@symphony-ui/uitoolkit-components";
 import { useState, useEffect } from "react";
-import api from "./api";
+import api from "../core/api";
 import ReactMarkdown from 'react-markdown'
 import styled from "styled-components";
 

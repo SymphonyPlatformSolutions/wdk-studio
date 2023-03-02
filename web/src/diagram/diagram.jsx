@@ -4,9 +4,9 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import styled from 'styled-components';
-import './diagram/style.css';
-import api from './api';
-import { atoms } from './atoms';
+import './style.css';
+import api from '../core/api';
+import { atoms } from '../core/atoms';
 import { useRecoilState } from 'recoil';
 
 const Root = styled.div`
@@ -52,8 +52,9 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
 const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([], []);
 
-const Diagram = ({ selectedInstance }) => {
+const Diagram = () => {
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
+    const selectedInstance = useRecoilState(atoms.selectedInstance)[0];
     const [ nodes, setNodes, onNodesChange ] = useNodesState(layoutedNodes);
     const [ edges, setEdges, onEdgesChange ] = useEdgesState(layoutedEdges);
     const [ activityData, setActivityData ] = useState();

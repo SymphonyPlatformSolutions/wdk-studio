@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import {
-    Button, Loader, TextField, Modal, ModalTitle, ModalBody, ModalFooter,
+    Button, Icon, Loader, TextField, Modal, ModalTitle, ModalBody, ModalFooter,
 } from "@symphony-ui/uitoolkit-components/components";
 import TemplateSelector from './template-selector';
-import api from './api';
-import { atoms } from './atoms';
+import api from '../core/api';
+import { atoms } from '../core/atoms';
 import { useRecoilState } from 'recoil';
 
 const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
@@ -87,4 +87,25 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
         </Modal>
     );
 };
-export default CreateWorkflowModal;
+
+const CreateWorkflowButton = () => {
+    const [ createModal, setCreateModal ] = useState({ show: false });
+    const editMode = useRecoilState(atoms.editMode)[0];
+    const isContentChanged = useRecoilState(atoms.isContentChanged)[0];
+
+    return (
+        <>
+            <Button
+                variant="primary"
+                disabled={!editMode || isContentChanged === 'modified'}
+                onClick={() => setCreateModal({ show: true })}
+                iconLeft={<Icon iconName="plus" />}
+            >
+                Workflow
+            </Button>
+            <CreateWorkflowModal {...{ createModal, setCreateModal }} />
+        </>
+    );
+};
+
+export default CreateWorkflowButton;
