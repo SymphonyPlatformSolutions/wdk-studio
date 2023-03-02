@@ -6,4 +6,9 @@ export const atoms = {
     session: atom({ key: 'session', default: undefined }),
     workflows: atom({ key: 'workflows', default: undefined }),
     currentWorkflow: atom({ key: 'currentWorkflow', default: undefined }),
+    editMode: atom({ key: 'editMode', default: true }),
+    isContentChanged: atom({ key: 'isContentChanged', default: 'original' }),
+    selectedInstance: atom({ key: 'selectedInstance', default: undefined }),
+    contents: atom({ key: 'contents', default: undefined }),
+    snippet: atom({ key: 'snippet', default: {} }),
 };

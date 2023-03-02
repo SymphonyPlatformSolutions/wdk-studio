@@ -22,8 +22,9 @@ const ActionBar = styled.div`
     justify-content: space-between;
 `;
 
-const Console = ({ logs, setLogs, theme }) => {
+const Console = ({ theme }) => {
     const logsRef = useRef();
+    const [ logs, setLogs ] = useState('');
     const [ tail, setTail ] = useState('checked');
     const { initLogs } = api();
 

@@ -44,7 +44,7 @@ const Chevron = styled.i`
     line-height: 24px;
 `;
 
-const ActivityWizard = ({setCodeSnippet, eventCodeSnippet}) => {
+const ActivityWizard = ({ setCodeSnippet, eventCodeSnippet }) => {
     const [ selectedType, setSelectedType ] = useState(0);
     const [ selectedActivityForm, setSelectedActivityForm ] = useState({});
 
