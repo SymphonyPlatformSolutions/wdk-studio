@@ -12,10 +12,6 @@ spec:
     port: 8080
     protocol: TCP
     targetPort: 8080
-  - name: studio
-    port: 8082
-    protocol: TCP
-    targetPort: 8082
   selector:
     app: wdk-studio
   type: NodePort

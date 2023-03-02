@@ -24,31 +24,31 @@ spec:
       - envFrom:
         - secretRef:
             name: wdk-studio-keys
-        image: ghcr.io/symphonyplatformsolutions/wdk-bot:1.5.0-snapshot
+        image: ghcr.io/symphonyplatformsolutions/wdk-studio:2.0.48
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
           httpGet:
-            path: /wdk/health
+            path: /health
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 30
+          initialDelaySeconds: 35
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 10
-        name: wdk
+        name: studio
         ports:
-        - containerPort: 8080
-          name: wdk
-          protocol: TCP
+          - containerPort: 8080
+            name: wdk
+            protocol: TCP
         readinessProbe:
           failureThreshold: 3
           httpGet:
-            path: /wdk/health
+            path: /health
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 30
-          periodSeconds: 30
+          initialDelaySeconds: 35
+          periodSeconds: 2
           successThreshold: 1
           timeoutSeconds: 5
         resources:
@@ -67,50 +67,7 @@ spec:
           name: lib
         - mountPath: /data/symphony/application-prod.yaml
           name: config
-          subPath: application-bot.yaml
-      - envFrom:
-        - secretRef:
-            name: wdk-studio-keys
-        image: ghcr.io/symphonyplatformsolutions/wdk-studio:2.0.42
-        imagePullPolicy: IfNotPresent
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /health
-            port: 8082
-            scheme: HTTP
-          initialDelaySeconds: 30
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 10
-        name: studio
-        ports:
-        - containerPort: 8082
-          name: studio
-          protocol: TCP
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /health
-            port: 8082
-            scheme: HTTP
-          initialDelaySeconds: 30
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 5
-        resources:
-          limits:
-            cpu: 500m
-            memory: 1536Mi
-          requests:
-            cpu: 500m
-            memory: 1536Mi
-        volumeMounts:
-        - mountPath: /data/symphony/rsa
-          name: keys
-        - mountPath: /data/symphony/application-prod.yaml
-          name: config
-          subPath: application-backend.yaml
+          subPath: application-prod.yaml
       volumes:
       - configMap:
           name: wdk-studio-config

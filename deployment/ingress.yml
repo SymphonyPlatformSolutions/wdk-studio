@@ -4,20 +4,12 @@ metadata:
   name: wdk-studio-ingress
 spec:
   rules:
-  - host: wdk-studio
+  - host: wdk-studio.symphonymarket.solutions
     http:
       paths:
-      - backend:
-          service:
-            name: wdk-studio
-            port:
-              number: 8080
-        path: /wdk/*
-        pathType: ImplementationSpecific
-      - backend:
-          service:
-            name: wdk-studio
-            port:
-              number: 8082
-        path: /*
-        pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: wdk-studio
+              port:
+                number: 8080
+          pathType: ImplementationSpecific

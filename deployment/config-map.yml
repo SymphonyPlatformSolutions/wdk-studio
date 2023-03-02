@@ -1,15 +1,10 @@
 apiVersion: v1
 data:
-  application-backend.yaml: |
+  application-prod.yaml: |
     server:
-      port: 8082
       compression:
         enabled: true
         mime-types: text/html,text/xml,text/plain,application/javascript,text/css,image/jpeg
-    wdk.studio:
-      base-uri: http://wdk-studio:8080/wdk/v1
-      github-token: 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
-  application-bot.yaml: |
     springfox.documentation.auto-startup: false
 kind: ConfigMap
 metadata:
