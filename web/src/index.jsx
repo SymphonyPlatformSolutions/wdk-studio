@@ -19,7 +19,7 @@ const Root = styled.div`
     font-family: SymphonyLato, serif;
     font-size: 1rem;
     flex-direction: column;
-    height: 100%;
+    flex: 1 1 1px;
 `;
 
 const LoadingRoot = styled.div`

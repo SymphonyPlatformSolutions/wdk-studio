@@ -8,21 +8,23 @@ import {
 } from '@symphony-ui/uitoolkit-components/components';
 
 const MonitorRoot = styled.div`
-    height: calc(100vh - 7.5rem);
+    flex: 1 1 1px;
     display: flex;
     flex-direction: column;
 `;
 
 const TriPlane = styled.div`
-    height: 100%;
+    flex: 1 1 1px;
+    overflow: auto;
     display: grid;
     grid-template-rows: repeat(3, 1fr);
+    gap: .5rem;
 `;
 
 const DetailPlane = styled.div`
-    min-width: 100%;
     display: flex;
     flex-direction: column;
+    overflow-y: scroll;
 `;
 
 const InstanceMetricPanel = styled.div`
@@ -55,12 +57,13 @@ const InstanceMetricItemNumber = styled.div`
 `;
 
 const TableTitle = styled.h3`
+    position: fixed;
+    width: calc(100vw - 2.6rem);
     font-weight: 800;
-    background: var(--tk-table-hover-color);
-    padding: 4px;
+    background: var(--tk-table-hover-color, #cfd0d2);
+    padding: .3rem;
     margin: 0;
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     & > div:last-child {
       cursor: pointer;
@@ -70,6 +73,8 @@ const TableTitle = styled.h3`
 const Table = styled.table`
     font-weight: 300;
     border-collapse: collapse;
+    margin-top: 2rem;
+    align-self: flex-start;
 
     th { text-align: left }
     th, td {
@@ -271,21 +276,21 @@ const Monitor = () => {
                     <Table>
                         <thead>
                             <tr>
-                                <th className="icon"></th>
-                                <th className="date">Start</th>
-                                <th className="date">End</th>
-                                <th className="date">Duration</th>
-                                <th className="autosizable">Status</th>
+                                <th></th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Duration</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {instances.map((row, i) => (
                                 <tr key={i} className="selectable" style={getStyle(row.instanceId, row.status)} onClick={() => setSelectedInstance(row)}>
-                                    <td className="icon">{row.instanceId===selectedInstance?.instanceId ? '>' : ''}</td>
-                                    <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
-                                    <td className="date">{row.endDate? (new Date(row.endDate)).toLocaleString() : 'Running...'}</td>
-                                    <td className="date">{formatDuration(row.duration)}</td>
-                                    <td className="autosizable">{row.status}</td>
+                                    <td>{row.instanceId===selectedInstance?.instanceId ? '>' : ' '}</td>
+                                    <td>{(new Date(row.startDate)).toLocaleString()}</td>
+                                    <td>{row.endDate? (new Date(row.endDate)).toLocaleString() : 'Running...'}</td>
+                                    <td>{formatDuration(row.duration)}</td>
+                                    <td>{row.status}</td>
                                 </tr>
                             ))}
                         </tbody>

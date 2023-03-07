@@ -33,8 +33,7 @@ setDiagnosticsOptions({
 
 const Root = styled.div`
     border: #8f959e 1px solid;
-    height: 100%;
-    min-height: 0;
+    flex: 1 1 1px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
