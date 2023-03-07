@@ -55,6 +55,7 @@ const ActionBar = ({ showConsole, setShowConsole }) => {
                 <ActionButton
                     label={`${showConsole ? 'Hide' : 'Show'} Console`}
                     onClick={() => setShowConsole((old) => !old)}
+                    disabled={!editMode}
                 />
                 <DeleteButton />
                 <ActionButton label="Help" onClick={() => openHelp()} />

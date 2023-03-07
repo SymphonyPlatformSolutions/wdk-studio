@@ -5,33 +5,48 @@ import styled from 'styled-components';
 import api from './core/api';
 import {
     Button, Modal, ModalBody, ModalFooter, ModalTitle,
-} from "@symphony-ui/uitoolkit-components/components";
+} from '@symphony-ui/uitoolkit-components/components';
+
+const MonitorRoot = styled.div`
+    height: calc(100vh - 7.5rem);
+    display: flex;
+    flex-direction: column;
+`;
+
+const TriPlane = styled.div`
+    height: 100%;
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
+`;
+
+const DetailPlane = styled.div`
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+`;
 
 const InstanceMetricPanel = styled.div`
-    display: flex;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    justify-content: center;
+    padding: 1rem 3rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
 `;
 
 const InstanceMetricItem = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
     border: 1px var(--tk-color-electricity-20) solid;
-    padding: 3px;
-    width: 150px;
-    height: 80px;
-    margin: 2px;
+    border-radius: .3rem;
+    padding: .5rem;
     text-align: center;
+
     &:last-child {
-        border: 1px var(--tk-color-error) solid;
-        color: var(--tk-color-error);
+        border: 1px var(--tk-color-error, #ee3d3d) solid;
+        color: var(--tk-color-error, #ee3d3d);
     }
 `;
 
 const InstanceMetricItemTitle = styled.div`
-    font-weight: 300;
+    font-weight: 600;
+    margin-bottom: .8rem;
 `;
 
 const InstanceMetricItemNumber = styled.div`
@@ -39,10 +54,11 @@ const InstanceMetricItemNumber = styled.div`
     font-size: 2rem;
 `;
 
-const TableTitle = styled.div`
-    font-weight: 400;
+const TableTitle = styled.h3`
+    font-weight: 800;
     background: var(--tk-table-hover-color);
     padding: 4px;
+    margin: 0;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -51,53 +67,27 @@ const TableTitle = styled.div`
     }
 `;
 
-const Table = styled.div`
-    height: calc((100vh - 24em) / 3);
-    padding: .4rem;
-    margin-bottom: .4rem;
+const Table = styled.table`
+    font-weight: 300;
+    border-collapse: collapse;
 
-    table {
-        border-collapse: collapse;
-        display: flex;
-        flex-flow: column;
-        height: 100%;
-        width: 100%;
-
-        thead {
-            flex: 0 0 auto;
-            width: calc(100% - 0.9em);
-            th { text-align: left; font-weight: 400 }
-        }
-        tbody {
-            flex: 1 1 auto;
-            display: block;
-            overflow-y: scroll;
-            td { color: var(tk-text-color); font-weight: 300 }
-        }
-        tbody tr {
-            width: 100%;
-            &:hover {
-                color: #fff !important;
-                background: var(--tk-color-electricity-50) !important;
-            }
-        }
-        thead, tbody tr {
-            display: table;
-            table-layout: fixed;
-            th:last-child, td:last-child { padding-right: 1rem }
-        }
-        .icon { width: 1rem; text-align: center }
-        .date { width: 12rem }
-        .selectable:hover { cursor: pointer }
-        .autosizable { width: auto }
-        .identifier { width: 8rem }
+    th { text-align: left }
+    th, td {
+        white-space: nowrap;
+        padding-right: 1.5rem;
+        max-width: 50vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-
+    tbody tr:hover {
+        cursor: pointer;
+        color: #fff;
+        background: var(--tk-color-electricity-50);
+    }
 `;
 
 const ActivityDetail = styled.div`
     border: 1px solid #808080;
-    max-height: calc(100vh - 220px);
     overflow-y: auto;
     overflow-x: auto;
     background: #000000;
@@ -105,41 +95,31 @@ const ActivityDetail = styled.div`
     color: #4caf50;
 `;
 
-const InstanceMetrics = ({instances}) => {
-    const activeInstances = instances.filter(function (element, index, array) {
-        return (element.status === 'PENDING');
-    })
-    const completedInstances = instances.filter(function (element, index, array) {
-        return (element.status === 'COMPLETED');
-    })
+const InstanceMetrics = ({ instances }) => {
+    const statuses = [ 'Pending', 'Completed', 'Failed' ];
+    const countInstances = (status) => instances.filter((i) => i.status === status.toUpperCase()).length;
     return (
         <InstanceMetricPanel>
             <InstanceMetricItem>
                 <InstanceMetricItemTitle>Total</InstanceMetricItemTitle>
                 <InstanceMetricItemNumber>{instances.length}</InstanceMetricItemNumber>
             </InstanceMetricItem>
-            <InstanceMetricItem>
-                <InstanceMetricItemTitle>Pending</InstanceMetricItemTitle>
-                <InstanceMetricItemNumber>{activeInstances.length}</InstanceMetricItemNumber>
-            </InstanceMetricItem>
-            <InstanceMetricItem>
-                <InstanceMetricItemTitle>Completed</InstanceMetricItemTitle>
-                <InstanceMetricItemNumber>{completedInstances.length}</InstanceMetricItemNumber>
-            </InstanceMetricItem>
-            <InstanceMetricItem>
-                <InstanceMetricItemTitle>Failed</InstanceMetricItemTitle>
-                <InstanceMetricItemNumber>0</InstanceMetricItemNumber>
-            </InstanceMetricItem>
+            { statuses.map((status) => (
+                <InstanceMetricItem key={status}>
+                    <InstanceMetricItemTitle>{status}</InstanceMetricItemTitle>
+                    <InstanceMetricItemNumber>{countInstances(status)}</InstanceMetricItemNumber>
+                </InstanceMetricItem>
+            ))}
         </InstanceMetricPanel>
-    )
-}
+    );
+};
 
 const ActivityList = ({ activityData, setExpandActivityModal, setActivityDetails }) => {
     const [ currentVariables, setCurrentVariables ] = useState();
     const regexType = /(.*)(_)/gm;
 
     useEffect(() => {
-        setCurrentVariables(activityData?.variables[activityData.variables.length - 1]);
+        setCurrentVariables(activityData?.variables.pop());
     }, [ activityData ]);
 
     const showActivityDetails = (outputs) => {
@@ -157,93 +137,93 @@ const ActivityList = ({ activityData, setExpandActivityModal, setActivityDetails
         setCurrentVariables(filtered[0] || activityData?.variables[0]);
     };
 
+    const formatVariable = (variable) => {
+        if (typeof variable === 'object') {
+            // console.log(JSON.stringify(variable)); // todo pop dialog
+        }
+        return variable.toString();
+    }
+
     return (
         <>
-            <TableTitle>Activities</TableTitle>
-            <Table>
-                <table>
+            <DetailPlane>
+                <TableTitle>Activities</TableTitle>
+                <Table>
                     <thead>
                         <tr>
-                            <th className="identifier">ID</th>
-                            <th className="date">Type</th>
-                            <th className="date">Start</th>
-                            <th className="date">End</th>
-                            <th className="autosizable"></th>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                    {activityData?.activities?.nodes?.map((row, i) => (
-                        <tr key={i} className="selectable" onClick={() => loadVariables(row.endDate)}>
-                            <td className="identifier">{row.nodeId.replace(regexType, '')}</td>
-                            <td className="date">{row.type}</td>
-                            <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
-                            <td className="date">{(new Date(row.endDate)).toLocaleString()}</td>
-                            <td className="autosizable" onClick={() => showActivityDetails(row.outputs) }>...</td>
-                        </tr>
-                    ))}
+                        {activityData?.activities?.nodes?.map((row, i) => (
+                            <tr key={i} onClick={() => loadVariables(row.endDate)}>
+                                <td>{row.nodeId.replace(regexType, '')}</td>
+                                <td>{row.type}</td>
+                                <td>{(new Date(row.startDate)).toLocaleString()}</td>
+                                <td>{(new Date(row.endDate)).toLocaleString()}</td>
+                                <td onClick={() => showActivityDetails(row.outputs) }>...</td>
+                            </tr>
+                        ))}
                     </tbody>
-                </table>
-            </Table>
-
-            <TableTitle>
-                Variables
-            </TableTitle>
-            <Table>
-                <table>
+                </Table>
+            </DetailPlane>
+            <DetailPlane>
+                <TableTitle>Variables</TableTitle>
+                <Table>
                     <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Value</th>
-                        <th className="date">Updated</th>
-                    </tr>
+                        <tr>
+                            <th>Name</th>
+                            <th>Value</th>
+                            <th>Updated</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {currentVariables && Object.keys(currentVariables.outputs).map((key, i) => (
-                        <tr key={i}>
-                            <td>{key}</td>
-                            <td>{currentVariables.outputs[key]}</td>
-                            <td className="date">{(new Date(currentVariables.updateTime)).toLocaleString()}</td>
-                        </tr>
-                    ))}
+                        {currentVariables && Object.keys(currentVariables.outputs).map((key, i) => (
+                            <tr key={i}>
+                                <td>{key}</td>
+                                <td>{formatVariable(currentVariables.outputs[key])}</td>
+                                <td>{(new Date(currentVariables.updateTime)).toLocaleString()}</td>
+                            </tr>
+                        ))}
                     </tbody>
-                </table>
-            </Table>
+                </Table>
+            </DetailPlane>
         </>
     );
 };
 
-const ExpandActivityModal = ({ expandActivityModal, setExpandActivityModal, activityDetails }) => {
-
-    return (
-        <Modal size="large" show={expandActivityModal.show}>
-            <ModalTitle>Activity Payload</ModalTitle>
-            <ModalBody>
-                <ActivityDetail>
-                    <pre>
-                        <code>
-                            {JSON.stringify(activityDetails, null, 2)}
-                        </code>
-                    </pre>
-                </ActivityDetail>
-            </ModalBody>
-            <ModalFooter style={{ gap: '.5rem' }}>
-                <Button
-                    variant="secondary"
-                    onClick={() => setExpandActivityModal({ show: false })}
-                    disabled={expandActivityModal.loading}
-                >
-                    Close
-                </Button>
-            </ModalFooter>
-        </Modal>
-    );
-};
+const ExpandActivityModal = ({ expandActivityModal, setExpandActivityModal, activityDetails }) => (
+    <Modal size="large" show={expandActivityModal.show}>
+        <ModalTitle>Activity Payload</ModalTitle>
+        <ModalBody>
+            <ActivityDetail>
+                <pre>
+                    <code>
+                        {JSON.stringify(activityDetails, null, 2)}
+                    </code>
+                </pre>
+            </ActivityDetail>
+        </ModalBody>
+        <ModalFooter style={{ gap: '.5rem' }}>
+            <Button
+                variant="secondary"
+                onClick={() => setExpandActivityModal({ show: false })}
+                disabled={expandActivityModal.loading}
+            >
+                Close
+            </Button>
+        </ModalFooter>
+    </Modal>
+);
 
 const Monitor = () => {
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
-    const setSelectedInstance = useRecoilState(atoms.selectedInstance)[1];
+    const [ selectedInstance, setSelectedInstance ] = useRecoilState(atoms.selectedInstance);
     const [ instances, setInstances ] = useState([]);
-    const [ selectedInstanceId, setSelectedInstanceId ] = useState();
     const [ activityData, setActivityData ] = useState();
     const [ activityDetails, setActivityDetails ] = useState();
     const [ expandActivityModal, setExpandActivityModal ] = useState({ show: false });
@@ -254,17 +234,12 @@ const Monitor = () => {
     useEffect(() => loadInstances(), []);
 
     useEffect(() => {
-        if (selectedInstanceId) {
-            getInstanceData(currentWorkflow.value, selectedInstanceId, (r) => setActivityData(r));
+        if (selectedInstance) {
+            getInstanceData(currentWorkflow.value, selectedInstance.instanceId, (r) => setActivityData(r));
         }
-    }, [ selectedInstanceId ]);
+    }, [ selectedInstance ]);
 
     const Instances = () => {
-        const getInstanceActivities = (row) => {
-            setSelectedInstanceId(row.instanceId);
-            setSelectedInstance(row);
-        }
-
         const InstanceList = () => {
             const formatDuration = (duration) => duration?.toString()
                 .substring(2)
@@ -273,12 +248,14 @@ const Monitor = () => {
                 .toLowerCase();
 
             const getStyle = (instanceId, status) => {
-                const style = {  };
+                const style = {};
 
                 if (status === 'PENDING') {
                     style.color = 'var(--tk-color-green-30)';
+                } else if (status === 'FAILED') {
+                    style.color = 'var(--tk-color-error, #ee3d3d)';
                 }
-                if (instanceId === selectedInstanceId) {
+                if (instanceId === selectedInstance?.instanceId) {
                     style.background = 'var(--tk-color-electricity-40)';
                     style.color = '#fff';
                 }
@@ -286,48 +263,48 @@ const Monitor = () => {
             };
 
             return (
-                <>
+                <DetailPlane>
                     <TableTitle>
                         <div>Instances</div>
                         <div onClick={loadInstances}>&#8634;</div>
                     </TableTitle>
                     <Table>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th className="icon"></th>
-                                    <th className="date">Start</th>
-                                    <th className="date">End</th>
-                                    <th className="date">Duration</th>
-                                    <th className="autosizable">Status</th>
+                        <thead>
+                            <tr>
+                                <th className="icon"></th>
+                                <th className="date">Start</th>
+                                <th className="date">End</th>
+                                <th className="date">Duration</th>
+                                <th className="autosizable">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {instances.map((row, i) => (
+                                <tr key={i} className="selectable" style={getStyle(row.instanceId, row.status)} onClick={() => setSelectedInstance(row)}>
+                                    <td className="icon">{row.instanceId===selectedInstance?.instanceId ? '>' : ''}</td>
+                                    <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
+                                    <td className="date">{row.endDate? (new Date(row.endDate)).toLocaleString() : 'Running...'}</td>
+                                    <td className="date">{formatDuration(row.duration)}</td>
+                                    <td className="autosizable">{row.status}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {instances.map((row, i) => (
-                                    <tr key={i} className="selectable" style={getStyle(row.instanceId, row.status)} onClick={() => getInstanceActivities(row)}>
-                                        <td className="icon">{row.instanceId===selectedInstanceId ? '>' : ''}</td>
-                                        <td className="date">{(new Date(row.startDate)).toLocaleString()}</td>
-                                        <td className="date">{row.endDate? (new Date(row.endDate)).toLocaleString() : 'Running...'}</td>
-                                        <td className="date">{formatDuration(row.duration)}</td>
-                                        <td className="autosizable">{row.status}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                            ))}
+                        </tbody>
                     </Table>
-                </>
+                </DetailPlane>
             )
         };
         return (!instances || instances.length === 0) ? 'No instances yet' : <InstanceList/>;
     };
 
     return (
-        <div className="tk-text-color">
+        <MonitorRoot className="tk-text-color">
             <InstanceMetrics {...{ instances }} />
-            <Instances />
-            <ActivityList {...{ activityData, setExpandActivityModal, setActivityDetails }} />
-            <ExpandActivityModal {...{ expandActivityModal, setExpandActivityModal, activityDetails }} />
-        </div>
+            <TriPlane>
+                <Instances />
+                <ActivityList {...{ activityData, setExpandActivityModal, setActivityDetails }} />
+                <ExpandActivityModal {...{ expandActivityModal, setExpandActivityModal, activityDetails }} />
+            </TriPlane>
+        </MonitorRoot>
     )
 };
 export default Monitor;
