@@ -15,6 +15,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
     const [ pageLoading, setPageLoading ] = useState(false);
     const [ templateLoading, setTemplateLoading ] = useState(false);
     const { addWorkflow, showStatus } = api();
+    const session = useRecoilState(atoms.session)[0];
 
     const showToast = (error, msg) => {
         showStatus(error, msg);
@@ -36,7 +37,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
             .replace(/newId/g, id)
             .replace(/id: ([\w\-]+)/, `id: ${id}`);
 
-        addWorkflow({ swadl: template, description: "New workflow" }, () => {
+        addWorkflow({ swadl: template, author: session.id, description: "New workflow" }, () => {
             showToast(false, 'New workflow added');
             setCreateModal({ show: false });
             setNewName('');

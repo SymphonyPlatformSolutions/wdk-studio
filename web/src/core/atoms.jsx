@@ -10,6 +10,7 @@ export const atoms = {
     isContentChanged: atom({ key: 'isContentChanged', default: 'original' }),
     selectedInstance: atom({ key: 'selectedInstance', default: undefined }),
     contents: atom({ key: 'contents', default: undefined }),
+    author: atom({ key: 'author', default: undefined }),
     snippet: atom({ key: 'snippet', default: {} }),
     markers: atom({ key: 'markers', default: [] }),
     logs: atom({ key: 'logs', default: '' }),

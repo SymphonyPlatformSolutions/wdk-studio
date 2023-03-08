@@ -1,6 +1,6 @@
 import { atoms } from '../core/atoms';
-import { Dropdown } from "@symphony-ui/uitoolkit-components/components";
-import { useEffect } from 'react';
+import { Dropdown, Button } from "@symphony-ui/uitoolkit-components/components";
+import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import api from '../core/api';
 import CreateWorkflowButton from './create-workflow-button';
@@ -8,7 +8,7 @@ import styled from 'styled-components';
 
 const Root = styled.div`
     display: grid;
-    grid-template-columns: 4fr 0.5fr;
+    grid-template-columns: 4fr 1.5fr 0.5fr;
     align-items: flex-end;
     gap: .5rem;
 `;
@@ -19,11 +19,13 @@ const StyledDropdown = styled(Dropdown)`
 `;
 
 const WorkflowDropdown = () => {
+    const session = useRecoilState(atoms.session)[0];
     const [ workflows, setWorkflows ] = useRecoilState(atoms.workflows);
     const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
     const [ isContentChanged, setIsContentChanged ] = useRecoilState(atoms.isContentChanged);
     const editMode = useRecoilState(atoms.editMode)[0];
     const { listWorkflows } = api();
+    const label = `Hello ${session.displayName}. Select a workflow:`;
 
     useEffect(() => listWorkflows((response) => {
         const values = response
@@ -35,7 +37,7 @@ const WorkflowDropdown = () => {
     return (
         <StyledDropdown
             blurInputOnSelect
-            label="Select Workflow"
+            label={label}
             options={workflows}
             isDisabled={!editMode || isContentChanged === 'modified'}
             onChange={({ target }) => {
@@ -47,7 +49,28 @@ const WorkflowDropdown = () => {
     );
 };
 
-const WorkflowSelector = () => {
+const Author = ({ uiService }) => {
+    const author = useRecoilState(atoms.author)[0];
+    const { getUser } = api();
+    const [ authorUser, setAuthorUser ] = useState();
+
+    useEffect(() => {
+        if (!author) {
+            return;
+        }
+        getUser(author, (user) => setAuthorUser(user));
+    }, [ author ]);
+
+    const launchIM = () => uiService.openIMbyUserIDs([ author ]);
+
+    return (
+        <Button variant="secondary" disabled={!author} onClick={launchIM}>
+            { !authorUser ? 'Loading..' : `@${authorUser.displayName}` }
+        </Button>
+    );
+};
+
+const WorkflowSelector = ({ uiService }) => {
     const workflows = useRecoilState(atoms.workflows)[0];
     const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
 
@@ -66,6 +89,7 @@ const WorkflowSelector = () => {
     return (
         <Root>
             <WorkflowDropdown />
+            <Author {...{ uiService }} />
             <CreateWorkflowButton />
         </Root>
     );

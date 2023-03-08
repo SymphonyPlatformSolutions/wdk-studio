@@ -6,7 +6,9 @@ const parseJwt = (token) => {
     const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
     const payload = window.atob(base64).split('')
         .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('');
-    return JSON.parse(decodeURIComponent(payload));
+    const jwt = JSON.parse(decodeURIComponent(payload));
+    const { id, displayName, emailAddress } = jwt.user;
+    return { id, displayName, emailAddress, exp: jwt.exp };
 };
 
 const api = () => {
@@ -99,6 +101,7 @@ const api = () => {
         getReadme: (path, callback) => apiCall(GET, `gallery/readme/${path}`, null, callback),
         getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/definitions`, null, callback),
         listWorkflowInstances: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/instances`, null, callback),
+        getUser: (userId, callback) => apiCall(GET, `user/${userId}`, null, callback),
         parseJwt,
         showStatus,
         getInstanceData,

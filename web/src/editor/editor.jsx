@@ -71,15 +71,18 @@ const Editor = () => {
     const setIsContentChanged = useRecoilState(atoms.isContentChanged)[1];
     const snippet = useRecoilState(atoms.snippet)[0];
     const [ contents, setContents ] = useRecoilState(atoms.contents);
+    const setAuthor = useRecoilState(atoms.author)[1];
 
     useEffect(() => {
         if (!currentWorkflow) {
             setContents(undefined);
+            setAuthor(undefined);
             return;
         }
         readWorkflow(currentWorkflow?.value, (response) => {
             const current = response.filter(i => i.active)[0];
             setContents(current.swadl);
+            setAuthor(current.lastUpdatedBy);
         });
     }, [ currentWorkflow, setContents ]);
 

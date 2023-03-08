@@ -10,10 +10,11 @@ const SaveButton = () => {
     const setContents = useRecoilState(atoms.contents)[1];
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const { addWorkflow, showStatus } = api();
+    const session = useRecoilState(atoms.session)[0];
 
     const saveWorkflow = (swadl, description) => {
         setLoading(true);
-        addWorkflow({ swadl, description }, () => {
+        addWorkflow({ swadl, author: session.id, description }, () => {
             setLoading(false);
             setIsContentChanged('original');
             setContents(swadl);

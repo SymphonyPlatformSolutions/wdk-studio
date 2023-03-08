@@ -23,56 +23,59 @@ const Root = styled.div`
     width: calc(100vw - 1rem);
 `;
 
-const initSymphony = (appId, parseJwt, setTheme, setSession) => {
-    window.SYMPHONY.remote.hello().then((data) => {
-        const bodyClasses = []
-        if (data.themeV2.name === 'dark') {
-            bodyClasses.push('tk-dark');
-        }
-        if (data.themeV2.isCondensedMode) {
-            bodyClasses.push('tk-condensed');
-        }
-        document.querySelector('body').className = bodyClasses.join(' ');
-        setTheme(data.themeV2.name);
-
-        SYMPHONY.application.connect(
-            appId,
-            ['modules', 'applications-nav', 'extended-user-info' ],
-            [`${appId}:app`],
-        ).then(() => {
-            const token = window.localStorage.getItem('token');
-            if (token !== null) {
-                const jwt = parseJwt(token);
-                if (new Date().getTime() < (jwt.exp * 1000)) {
-                    setSession({ token });
-                }
-            }
-            const userInfoService = SYMPHONY.services.subscribe('extended-user-info');
-            if (userInfoService) {
-                userInfoService.getJwt().then((token) => {
-                    if (token) {
-                        setSession({ token });
-                        window.localStorage.setItem('token', token);
-                    }
-                });
-            }
-        }, (e) => console.error(e));
-    });
-};
-
 const App = () => {
     const [ showConsole, setShowConsole ] = useState(true);
     const editMode = useRecoilState(atoms.editMode)[0];
     const setTheme = useRecoilState(atoms.theme)[1];
     const [ session, setSession ] = useRecoilState(atoms.session);
+    const [ uiService, setUiService ] = useState();
     const { parseJwt } = api();
+
+    const initSymphony = (appId) => {
+        window.SYMPHONY.remote.hello().then((data) => {
+            const bodyClasses = []
+            if (data.themeV2.name === 'dark') {
+                bodyClasses.push('tk-dark');
+            }
+            if (data.themeV2.isCondensedMode) {
+                bodyClasses.push('tk-condensed');
+            }
+            document.querySelector('body').className = bodyClasses.join(' ');
+            setTheme(data.themeV2.name);
+
+            SYMPHONY.application.connect(
+                appId,
+                [ 'modules', 'applications-nav', 'extended-user-info', 'ui' ],
+                [ `${appId}:app` ],
+            ).then(() => {
+                const token = window.localStorage.getItem('token');
+                if (token !== null) {
+                    const jwt = parseJwt(token);
+                    if (new Date().getTime() < (jwt.exp * 1000)) {
+                        setSession({ token, ...jwt });
+                    }
+                }
+                const userInfoService = SYMPHONY.services.subscribe('extended-user-info');
+                if (userInfoService) {
+                    userInfoService.getJwt().then((token) => {
+                        if (token) {
+                            const jwt = parseJwt(token);
+                            setSession({ token, ...jwt });
+                            window.localStorage.setItem('token', token);
+                        }
+                    });
+                }
+                setUiService(SYMPHONY.services.subscribe('ui'));
+            }, (e) => console.error(e));
+        });
+    };
 
     useEffect(() => {
         const isDev = window.location.hostname === 'localhost';
         const appId = isDev ? 'localhost-10443' : 'wdk-studio';
 
         if (window.SYMPHONY) {
-            initSymphony(appId, parseJwt, setTheme, setSession);
+            initSymphony(appId);
         } else {
             setSession({ isDev });
         }
@@ -82,7 +85,7 @@ const App = () => {
         : (!window.SYMPHONY && !session.isDev) ? 'Please launch Symphony to use WDK Studio' : (
         <Suspense fallback={<Spinner />}>
             <Root>
-                <WorkflowSelector />
+                <WorkflowSelector {...{ uiService }} />
                 <ActionBar {...{ showConsole, setShowConsole }} />
                 { editMode && <Editor /> }
                 { !editMode && <Monitor /> }
