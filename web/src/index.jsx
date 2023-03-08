@@ -20,6 +20,7 @@ const Root = styled.div`
     font-size: 1rem;
     flex-direction: column;
     flex: 1 1 1px;
+    width: calc(100vw - 1rem);
 `;
 
 const initSymphony = (appId, parseJwt, setTheme, setSession) => {

@@ -1,9 +1,7 @@
 import { atoms } from '../core/atoms';
-import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { setDiagnosticsOptions } from 'monaco-yaml';
-import { Uri } from 'monaco-editor';
+import { editor, Uri } from 'monaco-editor';
 import { useRecoilState } from 'recoil';
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import React, { lazy, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import YamlWorker from './yaml-worker?worker';
@@ -13,11 +11,7 @@ const CreateWorkflowButton = lazy(() => import('../create-workflow/create-workfl
 
 window.MonacoEnvironment = {
     getWorker(moduleId, label) {
-        switch (label) {
-            case 'editorWorkerService': return new EditorWorker();
-            case 'yaml': return new YamlWorker();
-            default: throw new Error(`Unknown label ${label}`);
-        }
+        return new YamlWorker();
     },
 };
 const uri = 'https://raw.githubusercontent.com/finos/symphony-wdk/master/workflow-language/src/main/resources/swadl-schema-1.0.json';
@@ -106,25 +100,29 @@ const Editor = () => {
         if (!contents) {
             return;
         }
-        if (editor.getModels().length > 0) {
-            editor.getModels()[0].dispose();
-        }
-        const newEditor = editor.create(ref.current, {
-            automaticLayout: true,
-            model: editor.createModel(contents, 'yaml', modelUri),
-            theme: 'vs-' + theme,
-            scrollbar: { vertical: 'hidden' },
-        });
-        newEditor.onDidChangeModelContent((e) => {
-            const modifiedContents = editor.getModels()[0].getValue();
-            if (modifiedContents != contents && !e.isFlush) {
-                setIsContentChanged('modified');
-            } else {
-                setIsContentChanged('pristine');
+        if (thisEditor) {
+            thisEditor.setValue(contents);
+        } else {
+            if (editor.getModels().length > 0) {
+                editor.getModels()[0].dispose();
             }
-        });
-        editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
-        setThisEditor(newEditor);
+            const newEditor = editor.create(ref.current, {
+                automaticLayout: true,
+                model: editor.createModel(contents, 'yaml', modelUri),
+                theme: 'vs-' + theme,
+                scrollbar: { vertical: 'hidden' },
+            });
+            newEditor.onDidChangeModelContent((e) => {
+                const modifiedContents = editor.getModels()[0].getValue();
+                if (modifiedContents != contents && !e.isFlush) {
+                    setIsContentChanged('modified');
+                } else {
+                    setIsContentChanged('pristine');
+                }
+            });
+            editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
+            setThisEditor(newEditor);
+        }
     }, [ theme, contents ]);
 
     const goto = (lineNumber, column) => {
