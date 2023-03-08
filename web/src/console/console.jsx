@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import styled from "styled-components";
 import { Switch, Button } from "@symphony-ui/uitoolkit-components/components";
-import api from './core/api';
+import api from '../core/api';
 import { useRecoilState } from 'recoil';
-import { atoms } from './core/atoms';
+import { atoms } from '../core/atoms';
+import ResizeBar from './resize-bar';
 
 const ConsoleRoot = styled.div`
     position: fixed;
@@ -28,23 +29,12 @@ const ActionBar = styled.div`
     margin: .5rem;
 `;
 
-const ResizeBar = styled.div`
-    position: fixed;
-    left: 0;
-    bottom: ${props => props.height + 50 - 40}px;
-    width: 100%;
-    height: 80px;
-    z-index: 99;
-    user-select: none;
-    :hover { cursor: ns-resize }
-`;
-
 const Console = () => {
     const logsRef = useRef();
     const theme = useRecoilState(atoms.theme)[0];
     const [ logs, setLogs ] = useRecoilState(atoms.logs);
     const [ tail, setTail ] = useState(true);
-    const [ resize, setResize ] = useState({ drag: false });
+
     const [ consoleHeight, setConsoleHeight ] = useState(200);
     const { initLogs } = api();
 
@@ -54,27 +44,10 @@ const Console = () => {
         tail && (logsRef.current.scrollTop = logsRef.current.scrollHeight);
     }, [ logs, tail ]);
 
-    const handleResizeStart = ({ nativeEvent }) =>
-        setResize({ drag: true, x: nativeEvent.offsetX, y: nativeEvent.offsetY });
-
-    const handleResizeMove = ({ nativeEvent }) => {
-        if (resize.drag) {
-            setConsoleHeight(old => old + resize.y - nativeEvent.offsetY);
-        }
-    };
-
-    const handleResizeEnd = () => setResize({ drag: false });
-
     return (
         <ConsoleRoot theme={theme}>
-            <ResizeBar
-                height={consoleHeight}
-                onMouseDown={handleResizeStart}
-                onMouseMove={handleResizeMove}
-                onMouseUp={handleResizeEnd}
-                onMouseLeave={handleResizeEnd}
-            />
-            <LogsRoot ref={logsRef} height={consoleHeight} className="tk-text-color">
+            <ResizeBar {...{ consoleHeight, setConsoleHeight }} />
+            <LogsRoot ref={logsRef} height={consoleHeight}>
                 {logs}
             </LogsRoot>
             <ActionBar>

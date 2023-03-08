@@ -1,9 +1,9 @@
-import { atoms } from './core/atoms';
+import { atoms } from '../core/atoms';
 import { Dropdown } from "@symphony-ui/uitoolkit-components/components";
 import { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
-import api from './core/api';
-import CreateWorkflowButton from './create-workflow/create-workflow-button';
+import api from '../core/api';
+import CreateWorkflowButton from './create-workflow-button';
 import styled from 'styled-components';
 
 const Root = styled.div`

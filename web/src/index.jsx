@@ -1,17 +1,17 @@
 import { atoms } from './core/atoms';
-import Loader from '@symphony-ui/uitoolkit-components/components/loader';
 import { RecoilRoot, useRecoilState } from 'recoil';
 import api from './core/api';
 import FadeToast from './core/fade-toast';
 import React, { Suspense, useState, useEffect, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import styled from 'styled-components';
+import Spinner from './core/spinner';
 
 const Editor = lazy(() => import('./editor/editor'));
-const Console = lazy(() => import('./console'));
-const WorkflowSelector = lazy(() => import('./selector'));
+const Console = lazy(() => import('./console/console'));
+const WorkflowSelector = lazy(() => import('./create-workflow/workflow-selector'));
 const ActionBar = lazy(() => import('./action-bar/action-bar'));
-const Monitor = lazy(() => import('./monitor'));
+const Monitor = lazy(() => import('./monitor/monitor'));
 
 const Root = styled.div`
     display: flex;
@@ -20,12 +20,6 @@ const Root = styled.div`
     font-size: 1rem;
     flex-direction: column;
     flex: 1 1 1px;
-`;
-
-const LoadingRoot = styled.div`
-    font-size: 6rem;
-    padding-left: calc(50vw - 3rem);
-    padding-top: calc(50vh - 3rem);
 `;
 
 const initSymphony = (appId, parseJwt, setTheme, setSession) => {
@@ -82,12 +76,6 @@ const App = () => {
             setSession({ isDev });
         }
     }, []);
-
-    const Spinner = () => (
-        <LoadingRoot>
-            <Loader variant="primary" />
-        </LoadingRoot>
-    );
 
     return !session ? 'Loading'
         : (!window.SYMPHONY && !session.isDev) ? 'Please launch Symphony to use WDK Studio' : (
