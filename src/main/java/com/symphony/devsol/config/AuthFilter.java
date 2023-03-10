@@ -5,6 +5,7 @@ import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,8 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 @Component
 @RequiredArgsConstructor
 public class AuthFilter extends OncePerRequestFilter {
+    @Value("${wdk.properties.management-token}")
+    private String managementToken;
     private String podCertificate;
     private final Environment env;
     private final ExtensionAppAuthenticator extAppAuth;
@@ -41,9 +44,12 @@ public class AuthFilter extends OncePerRequestFilter {
         @NonNull FilterChain chain
     ) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
+        String managementTokenHeader = request.getHeader("X-Management-Token");
         UserClaim userClaim = new UserClaim();
 
-        if (authHeader == null && Arrays.asList(env.getActiveProfiles()).contains("dev")) {
+        if (managementToken.equals(managementTokenHeader)) {
+            userClaim.setUsername("mgmt-token");
+        } else if (authHeader == null && Arrays.asList(env.getActiveProfiles()).contains("dev")) {
             userClaim.setUsername("no-auth");
         } else if (execPattern.matcher(request.getRequestURI()).matches()) {
             userClaim.setUsername("webhook");
@@ -53,6 +59,7 @@ public class AuthFilter extends OncePerRequestFilter {
                 userClaim = JwtHelper.validateJwt(jwt, podCertificate);
             } catch (Exception e) {
                 response.sendError(SC_UNAUTHORIZED, "Invalid Credentials");
+                return;
             }
         }
         if (userClaim.getUsername() != null) {

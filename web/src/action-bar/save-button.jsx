@@ -1,6 +1,6 @@
 import { atoms } from '../core/atoms';
 import { useRecoilState } from 'recoil';
-import { Button, Loader } from '@symphony-ui/uitoolkit-components/components';
+import { Button } from '@symphony-ui/uitoolkit-components/components';
 import api from '../core/api';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 
@@ -26,10 +26,11 @@ const SaveButton = () => {
         <>
             <Button
                 variant="primary"
+                loading={loading}
                 disabled={loading || markers.length > 0 || isContentChanged !== 'modified'}
                 onClick={() => saveWorkflow(editor.getModels()[0].getValue(), "Description")}
             >
-                { loading ? <Loader /> : 'Save' }
+                Save
             </Button>
         </>
     );
