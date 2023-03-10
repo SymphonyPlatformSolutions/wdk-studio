@@ -53,6 +53,7 @@ public class AuthFilter extends OncePerRequestFilter {
                 userClaim = JwtHelper.validateJwt(jwt, podCertificate);
             } catch (Exception e) {
                 response.sendError(SC_UNAUTHORIZED, "Invalid Credentials");
+                return;
             }
         }
         if (userClaim.getUsername() != null) {

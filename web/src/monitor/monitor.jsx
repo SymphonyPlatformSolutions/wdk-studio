@@ -36,7 +36,7 @@ const Monitor = () => {
     const [ instances, setInstances ] = useState([]);
     const [ activityData, setActivityData ] = useState();
     const { getInstanceData, listWorkflowInstances } = api();
-    const [ loading, setLoading ] = useState(false);
+    const [ loading, setLoading ] = useRecoilState(atoms.loading);
 
     const loadInstances = () => {
         setLoading(true);

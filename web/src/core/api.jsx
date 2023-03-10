@@ -7,8 +7,8 @@ const parseJwt = (token) => {
     const payload = window.atob(base64).split('')
         .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('');
     const jwt = JSON.parse(decodeURIComponent(payload));
-    const { id, displayName, emailAddress } = jwt.user;
-    return { id, displayName, emailAddress, exp: jwt.exp };
+    const { id, displayName } = jwt.user;
+    return { id, displayName, exp: jwt.exp };
 };
 
 const api = () => {
@@ -42,13 +42,10 @@ const api = () => {
         showStatus(true, msg);
     };
 
-    const apiCall = (method, uri, body, callback) => {
-        const headers = {};
-        if (session?.token) {
-            headers['Authorization'] = `Bearer ${session.token}`;
-        }
-        if (uri.indexOf('/management/') > -1) {
-            headers['X-Management-Token'] = '';
+    const apiCall = (method, uri, body, callback, token) => {
+        const headers = { 'X-Management-Token': '', 'X-Monitoring-Token': '' };
+        if (token || session?.token) {
+            headers['Authorization'] = `Bearer ${token || session.token}`;
         }
         const config = { method, headers };
         if (body) {
@@ -90,6 +87,7 @@ const api = () => {
     };
 
     return {
+        getProfile: (token, callback) => apiCall(GET, 'symphony/profile', null, callback, token),
         listWorkflows: (callback) => apiCall(GET, 'v1/workflows/', null, callback),
         addWorkflow: (workflow, callback) => apiCall(POST, 'v1/management/workflows', workflow, callback),
         editWorkflow: (workflow, callback) => apiCall(PUT, 'v1/management/workflows', workflow, callback),
@@ -101,7 +99,8 @@ const api = () => {
         getReadme: (path, callback) => apiCall(GET, `gallery/readme/${path}`, null, callback),
         getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/definitions`, null, callback),
         listWorkflowInstances: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/instances`, null, callback),
-        getUser: (userId, callback) => apiCall(GET, `user/${userId}`, null, callback),
+        getUser: (userId, callback) => apiCall(GET, `symphony/user/${userId}`, null, callback),
+        searchUser: (query) => apiCall(GET, `symphony/user?q=${query}`, null, null),
         parseJwt,
         showStatus,
         getInstanceData,

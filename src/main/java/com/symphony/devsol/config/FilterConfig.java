@@ -9,20 +9,29 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Configuration
 public class FilterConfig {
     @Bean
-    public FilterRegistrationBean<OncePerRequestFilter> authFilterRegistration(AuthFilter authFilter) {
+    public FilterRegistrationBean<OncePerRequestFilter> authFilterRegistration(AuthFilter filter) {
         FilterRegistrationBean<OncePerRequestFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(authFilter);
-        registration.addUrlPatterns("/v1/*", "/gallery/*");
+        registration.setFilter(filter);
+        registration.addUrlPatterns("/v1/*", "/gallery/*", "/symphony/*");
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return registration;
     }
 
     @Bean
-    public FilterRegistrationBean<OncePerRequestFilter> wdkFilterRegistration(WdkFilter wdkFilter) {
+    public FilterRegistrationBean<OncePerRequestFilter> accessFilterRegistration(AccessFilter filter) {
         FilterRegistrationBean<OncePerRequestFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(wdkFilter);
-        registration.addUrlPatterns("/v1/*");
+        registration.setFilter(filter);
+        registration.addUrlPatterns("/v1/management/workflows", "/v1/management/workflows/*");
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
+        return registration;
+    }
+
+    @Bean
+    public FilterRegistrationBean<OncePerRequestFilter> wdkFilterRegistration(WdkFilter filter) {
+        FilterRegistrationBean<OncePerRequestFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(filter);
+        registration.addUrlPatterns("/v1/*");
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 2);
         return registration;
     }
 }

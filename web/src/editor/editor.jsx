@@ -10,9 +10,7 @@ import api from '../core/api';
 const CreateWorkflowButton = lazy(() => import('../create-workflow/create-workflow-button'));
 
 window.MonacoEnvironment = {
-    getWorker(moduleId, label) {
-        return new YamlWorker();
-    },
+    getWorker: (moduleId, label) => new YamlWorker(),
 };
 const uri = 'https://raw.githubusercontent.com/finos/symphony-wdk/master/workflow-language/src/main/resources/swadl-schema-1.0.json';
 const modelUri = Uri.parse(uri);
@@ -31,6 +29,7 @@ const Root = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    max-height: calc(100vh - 7rem);
 `;
 
 const EditorRoot = styled.div`
@@ -71,7 +70,8 @@ const Editor = () => {
     const setIsContentChanged = useRecoilState(atoms.isContentChanged)[1];
     const snippet = useRecoilState(atoms.snippet)[0];
     const [ contents, setContents ] = useRecoilState(atoms.contents);
-    const setAuthor = useRecoilState(atoms.author)[1];
+    const [ author, setAuthor ] = useRecoilState(atoms.author);
+    const session = useRecoilState(atoms.session)[0];
 
     useEffect(() => {
         if (!currentWorkflow) {
@@ -82,7 +82,7 @@ const Editor = () => {
         readWorkflow(currentWorkflow?.value, (response) => {
             const current = response.filter(i => i.active)[0];
             setContents(current.swadl);
-            setAuthor(current.lastUpdatedBy);
+            setAuthor(parseInt(current.lastUpdatedBy));
         });
     }, [ currentWorkflow, setContents ]);
 
@@ -105,6 +105,7 @@ const Editor = () => {
         }
         if (thisEditor) {
             thisEditor.setValue(contents);
+            thisEditor.updateOptions({ readOnly: author !== session.id });
         } else {
             if (editor.getModels().length > 0) {
                 editor.getModels()[0].dispose();
@@ -114,6 +115,7 @@ const Editor = () => {
                 model: editor.createModel(contents, 'yaml', modelUri),
                 theme: 'vs-' + theme,
                 scrollbar: { vertical: 'hidden' },
+                readOnly: author !== session.id,
             });
             newEditor.onDidChangeModelContent((e) => {
                 const modifiedContents = editor.getModels()[0].getValue();
@@ -126,7 +128,7 @@ const Editor = () => {
             editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
             setThisEditor(newEditor);
         }
-    }, [ theme, contents ]);
+    }, [ contents ]);
 
     const goto = (lineNumber, column) => {
         thisEditor.revealLineInCenter(lineNumber);

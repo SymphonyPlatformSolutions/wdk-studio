@@ -73,9 +73,10 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
             <ModalFooter style={{ gap: '.5rem' }}>
                 <Button
                     onClick={createWorkflow}
+                    loading={createModal.loading}
                     disabled={newName==='' || createModal.loading || pageLoading || templateLoading}
                 >
-                    { createModal.loading ? <Loader /> : 'Create' }
+                    Create
                 </Button>
                 <Button
                     variant="secondary"
