@@ -1,6 +1,6 @@
 import { atoms } from '../core/atoms';
 import {
-    Button, Modal, ModalBody, ModalFooter, ModalTitle, Loader,
+    Button, Modal, ModalBody, ModalFooter, ModalTitle,
 } from '@symphony-ui/uitoolkit-components/components';
 import { useRecoilState } from 'recoil';
 import { useState } from 'react';
@@ -8,7 +8,8 @@ import api from '../core/api';
 
 const DeleteButton = () => {
     const editMode = useRecoilState(atoms.editMode)[0];
-    const [ deleteModal, setDeleteModal ] = useState({ show: false });
+    const [ show, setShow ]  = useState(false);
+    const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
 
     const ConfirmDeleteModal = () => {
@@ -17,33 +18,31 @@ const DeleteButton = () => {
         const { deleteWorkflow, showStatus } = api();
 
         const submitDeleteWorkflow = () => {
-            setDeleteModal({ show: true, loading: true });
+            setLoading(true);
             deleteWorkflow(currentWorkflow.value, () => {
-                setDeleteModal({ show: false });
+                setShow(false);
                 showStatus(false, 'Workflow deleted');
                 setWorkflows((old) => old.filter((w) => w.value !== currentWorkflow.value));
-            }, (e) => {
-                setDeleteModal({ show: false });
-                showStatus(true, 'Error deleting workflow');
             });
         };
 
         return (
-            <Modal size="medium" show={deleteModal.show}>
+            <Modal size="medium" show={show}>
                 <ModalTitle>Confirm Delete</ModalTitle>
                 <ModalBody>This will delete the workflow permanently. Are you sure?</ModalBody>
                 <ModalFooter style={{ gap: '.5rem' }}>
                     <Button
                         variant="primary-destructive"
                         onClick={submitDeleteWorkflow}
-                        disabled={deleteModal.loading}
+                        disabled={loading}
+                        loading={loading}
                     >
-                        { deleteModal.loading ? <Loader /> : 'Delete' }
+                        Delete
                     </Button>
                     <Button
                         variant="secondary"
-                        onClick={() => setDeleteModal({ show: false })}
-                        disabled={deleteModal.loading}
+                        onClick={() => setShow(false)}
+                        disabled={loading}
                     >
                         Cancel
                     </Button>
@@ -57,7 +56,7 @@ const DeleteButton = () => {
             <Button
                 variant="primary-destructive"
                 disabled={!currentWorkflow || !editMode}
-                onClick={() => setDeleteModal({ show: true })}
+                onClick={() => setShow(true)}
             >
                 Delete
             </Button>

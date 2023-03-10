@@ -1,21 +1,22 @@
 import { atoms } from '../core/atoms';
-import { Dropdown, Button } from "@symphony-ui/uitoolkit-components/components";
-import { useEffect, useState } from 'react';
+import { Dropdown } from "@symphony-ui/uitoolkit-components/components";
+import { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import api from '../core/api';
 import CreateWorkflowButton from './create-workflow-button';
 import styled from 'styled-components';
+import AuthorMenu from './author-menu';
 
 const Root = styled.div`
-    display: grid;
-    grid-template-columns: 4fr 1.5fr 0.5fr;
+    display: flex;
     align-items: flex-end;
     gap: .5rem;
 `;
 
 const StyledDropdown = styled(Dropdown)`
-    & .tk-select .tk-select__container.tk-select__control .tk-select__value-container:hover { cursor: pointer; }
+    & .tk-select__value-container:hover { cursor: pointer !important; }
     input { user-select: none; pointer-events: none }
+    flex: 3;
 `;
 
 const WorkflowDropdown = () => {
@@ -37,8 +38,10 @@ const WorkflowDropdown = () => {
     return (
         <StyledDropdown
             blurInputOnSelect
+            isTypeAheadEnabled={false}
             label={label}
             options={workflows}
+            placeholder={workflows?.length > 0 ? 'Select a workflow' : 'No workflows yet'}
             isDisabled={!editMode || isContentChanged === 'modified'}
             onChange={({ target }) => {
                 setCurrentWorkflow(target.value);
@@ -46,27 +49,6 @@ const WorkflowDropdown = () => {
             }}
             value={currentWorkflow}
         />
-    );
-};
-
-const Author = ({ uiService }) => {
-    const author = useRecoilState(atoms.author)[0];
-    const { getUser } = api();
-    const [ authorUser, setAuthorUser ] = useState();
-
-    useEffect(() => {
-        if (!author) {
-            return;
-        }
-        getUser(author, (user) => setAuthorUser(user));
-    }, [ author ]);
-
-    const launchIM = () => uiService.openIMbyUserIDs([ author ]);
-
-    return (
-        <Button variant="secondary" disabled={!author} onClick={launchIM}>
-            { !authorUser ? 'Loading..' : `@${authorUser.displayName}` }
-        </Button>
     );
 };
 
@@ -89,7 +71,7 @@ const WorkflowSelector = ({ uiService }) => {
     return (
         <Root>
             <WorkflowDropdown />
-            <Author {...{ uiService }} />
+            { workflows?.length > 0 && <AuthorMenu {...{ uiService }} /> }
             <CreateWorkflowButton />
         </Root>
     );

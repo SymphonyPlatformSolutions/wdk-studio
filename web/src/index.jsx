@@ -24,12 +24,12 @@ const Root = styled.div`
 `;
 
 const App = () => {
-    const [ showConsole, setShowConsole ] = useState(true);
+    const [ showConsole, setShowConsole ] = useState(false);
     const editMode = useRecoilState(atoms.editMode)[0];
     const setTheme = useRecoilState(atoms.theme)[1];
     const [ session, setSession ] = useRecoilState(atoms.session);
     const [ uiService, setUiService ] = useState();
-    const { parseJwt } = api();
+    const { parseJwt, getProfile } = api();
 
     const initSymphony = (appId) => {
         window.SYMPHONY.remote.hello().then((data) => {
@@ -48,20 +48,20 @@ const App = () => {
                 [ 'modules', 'applications-nav', 'extended-user-info', 'ui' ],
                 [ `${appId}:app` ],
             ).then(() => {
-                const token = window.localStorage.getItem('token');
-                if (token !== null) {
-                    const jwt = parseJwt(token);
-                    if (new Date().getTime() < (jwt.exp * 1000)) {
-                        setSession({ token, ...jwt });
-                    }
+                const existingSession = JSON.parse(window.localStorage.getItem('session'));
+                if (existingSession && new Date().getTime() < (existingSession.exp * 1000)) {
+                    setSession(existingSession);
                 }
                 const userInfoService = SYMPHONY.services.subscribe('extended-user-info');
                 if (userInfoService) {
                     userInfoService.getJwt().then((token) => {
                         if (token) {
-                            const jwt = parseJwt(token);
-                            setSession({ token, ...jwt });
-                            window.localStorage.setItem('token', token);
+                            getProfile(token, (response) => {
+                                const jwt = parseJwt(token);
+                                const newSession = { token, ...jwt, ...response };
+                                setSession(newSession);
+                                window.localStorage.setItem('session', JSON.stringify(newSession));
+                            });
                         }
                     });
                 }

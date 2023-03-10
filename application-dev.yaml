@@ -10,4 +10,7 @@ server:
     key-store-type: pkcs12
     key-alias: tomcat
 
+management:
+  server.port: 8081
+
 spring.web.resources.static-locations: file:web/public
