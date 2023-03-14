@@ -93,6 +93,7 @@ const api = () => {
         editWorkflow: (workflow, callback) => apiCall(PUT, 'v1/management/workflows', workflow, callback),
         readWorkflow: (workflowId, callback) => apiCall(GET, `v1/management/workflows/${workflowId}`, null, callback),
         deleteWorkflow: (workflowId, callback) => apiCall(DELETE, `v1/management/workflows/${workflowId}`, null, callback),
+        rollbackWorkflow: (workflowId, version, callback) => apiCall(POST, `v1/management/workflows/${workflowId}/versions/${version}`, null, callback),
         listGalleryCategories: (callback) => apiCall(GET, 'gallery/categories', null, callback),
         listGalleryWorkflows: (category, callback) => apiCall(GET, `gallery/${category}/workflows`, null, callback),
         readGalleryWorkflow: (category, workflow, callback) => apiCall(GET, `gallery/${category}/workflows/${workflow}`, null, callback),

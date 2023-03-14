@@ -37,7 +37,7 @@ const EditorRoot = styled.div`
 `;
 
 const ProblemsRoot = styled.div`
-    background-color: var(--tk-color-red-20);
+    background-color: var(--tk-color-red-${props => props.theme === 'light' ? 20 : 60});
     border-top: 1px #8f959e solid;
     overflow-x: auto;
     height: 100px;
@@ -48,7 +48,7 @@ const ProblemEntry = styled.div`
     font-size: .9rem;
     padding: .2rem;
     :hover {
-        background-color: var(--tk-color-red-30);
+        background-color: var(--tk-color-red-${props => props.theme === 'light' ? 30 : 40});
         cursor: pointer;
     }
 `;
@@ -71,6 +71,7 @@ const Editor = () => {
     const snippet = useRecoilState(atoms.snippet)[0];
     const [ contents, setContents ] = useRecoilState(atoms.contents);
     const [ author, setAuthor ] = useRecoilState(atoms.author);
+    const activeVersion = useRecoilState(atoms.activeVersion)[0];
     const session = useRecoilState(atoms.session)[0];
 
     useEffect(() => {
@@ -84,7 +85,7 @@ const Editor = () => {
             setContents(current.swadl);
             setAuthor(parseInt(current.lastUpdatedBy));
         });
-    }, [ currentWorkflow, setContents ]);
+    }, [ currentWorkflow, activeVersion ]);
 
     useEffect(() => {
         if (!snippet.content) {
@@ -108,9 +109,10 @@ const Editor = () => {
             thisEditor.updateOptions({ readOnly: author !== session.id });
         } else {
             if (editor.getModels().length > 0) {
-                editor.getModels()[0].dispose();
+                editor.getModels().forEach((e) => e.dispose());
             }
             const newEditor = editor.create(ref.current, {
+                language: 'yaml',
                 automaticLayout: true,
                 model: editor.createModel(contents, 'yaml', modelUri),
                 theme: 'vs-' + theme,
@@ -128,7 +130,7 @@ const Editor = () => {
             editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
             setThisEditor(newEditor);
         }
-    }, [ contents ]);
+    }, [ contents, author ]);
 
     const goto = (lineNumber, column) => {
         thisEditor.revealLineInCenter(lineNumber);
@@ -136,10 +138,10 @@ const Editor = () => {
         thisEditor.focus();
     }
 
-    const Problems = ({ markers }) => markers.map((
+    const Problems = ({ theme, markers }) => markers.map((
         { startLineNumber, startColumn, message }, index
     ) => (
-        <ProblemEntry key={index} onClick={() => goto(startLineNumber, startColumn)}>
+        <ProblemEntry key={index} theme={theme} onClick={() => goto(startLineNumber, startColumn)}>
             {startLineNumber}: {message}
         </ProblemEntry>
     ));
@@ -153,7 +155,11 @@ const Editor = () => {
     return (
         <Root>
             { !contents ? <Empty /> : <EditorRoot ref={ref} large={markers.length === 0} /> }
-            { markers.length > 0 && <ProblemsRoot><Problems {...{markers}} /></ProblemsRoot> }
+            { markers.length > 0 && (
+                <ProblemsRoot {...{ theme }}>
+                    <Problems {...{ theme, markers }} />
+                </ProblemsRoot>
+            )}
         </Root>
     );
 };

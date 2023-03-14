@@ -27,6 +27,7 @@ public class AccessFilter extends OncePerRequestFilter {
     private List<Long> admins;
     private final WdkClient wdkClient;
     private final Pattern idPattern = Pattern.compile("^id: ([\\w\\-]+)");
+    private final Pattern wfPattern = Pattern.compile("/v1/management/workflows/([\\w\\-]+)");
 
     @Override
     protected void doFilterInternal(
@@ -38,7 +39,12 @@ public class AccessFilter extends OncePerRequestFilter {
             long userId = ((UserClaim) request.getAttribute("user")).getId();
             String workflowId = null;
 
-            if (List.of("POST", "PUT").contains(request.getMethod())) {
+            Matcher matcher = wfPattern.matcher(request.getServletPath());
+            if (matcher.find()) {
+                workflowId = matcher.group(1);
+            }
+
+            if (workflowId == null && List.of("POST", "PUT").contains(request.getMethod())) {
                 // Check that caller matches declared author, or is an admin
                 byte[] authorBytes = request.getPart("author").getInputStream().readAllBytes();
                 long authorId = Long.parseLong(new String(authorBytes, UTF_8));
@@ -53,10 +59,6 @@ public class AccessFilter extends OncePerRequestFilter {
                 if (idMatcher.find()) {
                     workflowId = idMatcher.group(1);
                 }
-            }
-            if (request.getMethod().equals("DELETE")) {
-                String path = request.getServletPath();
-                workflowId = path.substring(path.lastIndexOf('/') + 1);
             }
 
             // Check that caller owns the workflow

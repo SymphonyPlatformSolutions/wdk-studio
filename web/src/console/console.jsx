@@ -34,7 +34,6 @@ const Console = () => {
     const theme = useRecoilState(atoms.theme)[0];
     const [ logs, setLogs ] = useRecoilState(atoms.logs);
     const [ tail, setTail ] = useState(true);
-
     const [ consoleHeight, setConsoleHeight ] = useState(200);
     const { initLogs } = api();
 
