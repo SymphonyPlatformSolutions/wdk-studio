@@ -21,6 +21,7 @@ const Root = styled.div`
     flex-direction: column;
     flex: 1 1 1px;
     width: calc(100vw - 1rem);
+    button[disabled] { cursor: not-allowed }
 `;
 
 const App = () => {

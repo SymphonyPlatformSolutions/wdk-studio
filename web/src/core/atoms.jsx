@@ -9,6 +9,7 @@ export const atoms = {
     editMode: atom({ key: 'editMode', default: true }),
     isContentChanged: atom({ key: 'isContentChanged', default: 'original' }),
     selectedInstance: atom({ key: 'selectedInstance', default: undefined }),
+    activeVersion: atom({ key: 'activeVersion', default: undefined }),
     contents: atom({ key: 'contents', default: undefined }),
     author: atom({ key: 'author', default: undefined }),
     snippet: atom({ key: 'snippet', default: {} }),

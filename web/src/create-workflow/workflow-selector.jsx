@@ -19,7 +19,7 @@ const StyledDropdown = styled(Dropdown)`
     flex: 3;
 `;
 
-const WorkflowDropdown = () => {
+const WorkflowDropdown = ({ setActiveVersion }) => {
     const session = useRecoilState(atoms.session)[0];
     const [ workflows, setWorkflows ] = useRecoilState(atoms.workflows);
     const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
@@ -30,7 +30,7 @@ const WorkflowDropdown = () => {
 
     useEffect(() => listWorkflows((response) => {
         const values = response
-            .map(({ id }) => ({ label: id, value: id }))
+            .map(({ id, version }) => ({ label: id, value: id, version }))
             .sort((a, b) => a.label > b.label ? 1 : -1)
         setWorkflows(values);
     }), [ setCurrentWorkflow, setWorkflows ]);
@@ -45,6 +45,7 @@ const WorkflowDropdown = () => {
             isDisabled={!editMode || isContentChanged === 'modified'}
             onChange={({ target }) => {
                 setCurrentWorkflow(target.value);
+                setActiveVersion(target.version);
                 setIsContentChanged('original');
             }}
             value={currentWorkflow}
@@ -55,6 +56,7 @@ const WorkflowDropdown = () => {
 const WorkflowSelector = ({ uiService }) => {
     const workflows = useRecoilState(atoms.workflows)[0];
     const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
+    const setActiveVersion = useRecoilState(atoms.activeVersion)[1];
 
     useEffect(() => {
         if (!workflows) {
@@ -65,12 +67,13 @@ const WorkflowSelector = ({ uiService }) => {
             (currentWorkflow && workflows.map((w) => w.value).indexOf(currentWorkflow.value) === -1)
         ) {
             setCurrentWorkflow(workflows[0]);
+            setActiveVersion(workflows[0].version);
         }
     }, [ workflows, currentWorkflow, setCurrentWorkflow ]);
 
     return (
         <Root>
-            <WorkflowDropdown />
+            <WorkflowDropdown setActiveVersion={setActiveVersion} />
             { workflows?.length > 0 && <AuthorMenu {...{ uiService }} /> }
             <CreateWorkflowButton />
         </Root>

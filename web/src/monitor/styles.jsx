@@ -1,9 +1,14 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 const DetailPlane = styled.div`
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
+`;
+
+const rotateAnimation = keyframes`
+    0% { transform: rotate(0deg) }
+    100% { transform: rotate(-360deg) }
 `;
 
 const TableTitle = styled.h3`
@@ -15,17 +20,8 @@ const TableTitle = styled.h3`
     margin: 0;
     display: flex;
     justify-content: space-between;
-
-
-    & > div:last-child {
-
-        cursor: pointer;
-    }
-    @keyframes loading {
-        0 { transform: rotate(0deg); }
-        100% { transform: rotate(-360deg); }
-    };
-    .loading { animation: loading 1.3s linear infinite; }
+    & > div:last-child { cursor: pointer }
+    .loading { animation: ${rotateAnimation} 1.3s linear infinite; }
 `;
 
 const Table = styled.table`
@@ -44,10 +40,26 @@ const Table = styled.table`
     }
     tbody tr:hover {
         cursor: pointer;
-        color: #fff;
         background: var(--tk-color-electricity-50);
+        & td { color: var(--tk-color-electricity-05) }
     }
 `;
+
+const Row = styled.tr`
+    background-color: ${props => props.selected ? 'var(--tk-color-electricity-40)' : ''};
+    td {
+        color: ${props => props.status === 'PENDING' ? 'var(--tk-color-green-30)' : ''};
+        color: ${props => props.status === 'FAILED' ? 'var(--tk-color-error, #ee3d3d)' : ''};
+        color: ${props => props.selected ? 'var(--tk-color-electricity-05)' : ''};
+
+        &.indicator:after {
+            color: ${props => props.selected ? 'var(--tk-color-electricity-05)' : 'transparent'};
+            font-family: 'tk-icons';
+            content: "";
+        }
+    }
+`;
+
 export {
-    DetailPlane, Table, TableTitle,
+    DetailPlane, Table, TableTitle, Row
 };
