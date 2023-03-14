@@ -35,10 +35,16 @@
   pointer-events: none;
   overflow: visible;
 }
+
+polyline {
+    stroke: var(--tk-input-default-inactive-color, #999) !important;
+    stroke-width: 2;
+}
+
 .react-flow__edge-path,
 .react-flow__connection-path {
-  stroke: #b1b1b7;
-  stroke-width: 1;
+  stroke: var(--tk-input-default-inactive-color, #999) !important;
+  stroke-width: 2;
   fill: none;
 }
 .react-flow__edge {
@@ -101,7 +107,7 @@
   cursor: -webkit-grab;
   cursor: grab;
   border: 0px solid #bbbbbb;
-  boarder-radius: 6px;
+  border-radius: 6px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 .react-flow__node-title {
@@ -126,7 +132,7 @@
 .react-flow__node-content {
     padding: 8px 0px;
     font-weight: 400;
-    background: #ffffff;
+    background-color: var(--tk-input-color-read-only-bg, #fff);
     border-radius: 0 0 6px 6px;
 }
 .react-flow__node-content-gateway {
@@ -232,11 +238,11 @@
   }
 }
 .react-flow__edge.updating .react-flow__edge-path {
-      stroke: #777;
-    }
+    stroke: #777;
+}
 .react-flow__edge-text {
     font-size: 10px;
-  }
+}
 .react-flow__node-default,
 .react-flow__node-input,
 .react-flow__node-output,

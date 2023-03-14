@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import { DetailPlane, TableTitle, Table } from './styles';
+import { DetailPlane, TableTitle, Table, Row } from './styles';
 import {
     Button, Modal, ModalBody, ModalFooter, ModalTitle,
 } from '@symphony-ui/uitoolkit-components/components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const ActivityDetail = styled.div`
     border: 1px solid #808080;
@@ -40,8 +40,11 @@ const ExpandActivityModal = ({ expandActivityModal, setExpandActivityModal, acti
 
 const ActivityList = ({ activityData, setCurrentVariables }) => {
     const [ activityDetails, setActivityDetails ] = useState();
+    const [ selectedRow, setSelectedRow ] = useState();
     const [ expandActivityModal, setExpandActivityModal ] = useState({ show: false });
     const regexType = /(.*)(_)/gm;
+
+    useEffect(() => setSelectedRow(undefined), [ activityData ]);
 
     const showActivityDetails = (outputs) => {
         setActivityDetails(outputs);
@@ -53,8 +56,9 @@ const ActivityList = ({ activityData, setCurrentVariables }) => {
         return diff > 0 && diff < 20;
     };
 
-    const loadVariables = (endDate) => {
-        const filtered = activityData?.variables.filter(v => isNear(v.updateTime, endDate));
+    const setSelected = (row) => {
+        setSelectedRow(row.nodeId);
+        const filtered = activityData?.variables.filter(v => isNear(v.updateTime, row.endDate));
         setCurrentVariables(filtered[0] || activityData?.variables[0]);
     };
 
@@ -63,23 +67,25 @@ const ActivityList = ({ activityData, setCurrentVariables }) => {
             <TableTitle>Activities</TableTitle>
             <Table>
                 <thead>
-                    <tr>
+                    <Row>
+                        <th></th>
                         <th>ID</th>
                         <th>Type</th>
                         <th>Start</th>
                         <th>End</th>
                         <th></th>
-                    </tr>
+                    </Row>
                 </thead>
                 <tbody>
                     {activityData?.activities?.nodes?.map((row, i) => (
-                        <tr key={i} onClick={() => loadVariables(row.endDate)}>
+                        <Row key={i} selected={row.nodeId === selectedRow} onClick={() => setSelected(row)}>
+                            <td className="indicator"></td>
                             <td>{row.nodeId.replace(regexType, '')}</td>
                             <td>{row.type}</td>
                             <td>{(new Date(row.startDate)).toLocaleString()}</td>
-                            <td>{(new Date(row.endDate)).toLocaleString()}</td>
+                            <td>{row.endDate ? (new Date(row.endDate)).toLocaleString() : ""}</td>
                             <td onClick={() => showActivityDetails(row.outputs) }>...</td>
-                        </tr>
+                        </Row>
                     ))}
                 </tbody>
             </Table>

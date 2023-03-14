@@ -3,10 +3,10 @@ import { Button } from '@symphony-ui/uitoolkit-components/components';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import WizardButton from './wizard-button';
-import DiscardButton from './discard-button';
 import DeleteButton from './delete-button';
 import DiagramButton from './diagram-button';
 import SaveButton from './save-button';
+import VersionsButton from './versions-button';
 
 const Root = styled.div`
     display: flex;
@@ -42,8 +42,9 @@ const ActionBar = ({ showConsole, setShowConsole }) => {
         <Root>
             <Section>
                 <SaveButton />
-                <DiscardButton />
                 <WizardButton />
+                <VersionsButton />
+                <DeleteButton />
             </Section>
             <Section>
                 <ActionButton
@@ -57,7 +58,6 @@ const ActionBar = ({ showConsole, setShowConsole }) => {
                     onClick={() => setShowConsole((old) => !old)}
                     disabled={!editMode}
                 />
-                <DeleteButton />
                 <ActionButton label="Help" onClick={() => openHelp()} />
             </Section>
         </Root>

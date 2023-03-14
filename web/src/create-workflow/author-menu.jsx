@@ -1,6 +1,6 @@
 import { atoms } from '../core/atoms';
 import {
-    Button, DropdownMenu, DropdownMenuItem, Modal, ModalTitle, ModalBody, ModalFooter, Dropdown,
+    Button, DropdownMenu, DropdownMenuItem, Modal, ModalTitle, ModalBody, ModalFooter, Dropdown, Icon,
 } from "@symphony-ui/uitoolkit-components/components";
 import { useEffect, useState, useRef } from 'react';
 import { useRecoilState } from 'recoil';
@@ -13,6 +13,18 @@ const FloatingMenu = styled(DropdownMenu)`
     left: ${props => props.x}px;
     top: ${props => props.y}px;
     width: ${props => props.w}px;
+`;
+
+const DropdownButton = styled(Button)`
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    :after {
+        font-family: tk-icons !important;
+        content: '';
+        font-size: 1rem;
+        color: var(--tk-main-text-color, #525760);
+    }
 `;
 
 const ReassignModal = ({ show, setShow }) => {
@@ -39,7 +51,7 @@ const ReassignModal = ({ show, setShow }) => {
     };
 
     const getPeople = async (input) => {
-        if (input.length < 3) {
+        if (input.length < 2) {
             return;
         }
         const data = (await searchUser(input))
@@ -100,14 +112,13 @@ const AuthorMenu = ({ uiService }) => {
 
     const AuthorButton = () => (
         <div ref={buttonRef}>
-            <Button
+            <DropdownButton
                 variant="secondary"
                 onClick={() => setShowMenu((show) => !show)}
                 loading={!authorUser}
-                style={{ width: '100%' }}
             >
                 @{authorUser?.displayName}
-            </Button>
+            </DropdownButton>
         </div>
     );
 
@@ -120,27 +131,18 @@ const AuthorMenu = ({ uiService }) => {
         };
     };
 
-    const launchIM = () => {
-        setShowMenu(false);
-        uiService.openIMbyUserIDs([ author ]);
-    };
-    const launchReassign = () => {
-        setShowMenu(false);
-        setShowModal(true);
-    };
-
-    const Menu = () => (
-        <FloatingMenu show={showMenu} { ...getBottomAnchor() }>
-            { author !== session.id && <DropdownMenuItem onClick={launchIM}>Chat with Author</DropdownMenuItem> }
+    const AuthorMenu = () => buttonRef.current && (
+        <FloatingMenu show={showMenu} { ...getBottomAnchor() } onClick={() => setShowMenu(false)}>
+            { author !== session.id && <DropdownMenuItem onClick={() => uiService.openIMbyUserIDs([ author ])}>Chat with Author</DropdownMenuItem> }
             { author === session.id && <DropdownMenuItem>You own this workflow</DropdownMenuItem> }
-            { session.isAdmin && <DropdownMenuItem onClick={launchReassign}>Reassign Owner</DropdownMenuItem> }
+            { session.isAdmin && <DropdownMenuItem onClick={() => setShowModal(true)}>Reassign Owner</DropdownMenuItem> }
         </FloatingMenu>
     );
 
     return !authorUser ? <Button loading disabled /> : (
         <div style={{ flex: 1 }}>
             <AuthorButton />
-            <Menu />
+            <AuthorMenu />
             <ReassignModal show={showModal} setShow={setShowModal} />
         </div>
     );

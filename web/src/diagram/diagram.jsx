@@ -4,22 +4,14 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import styled from 'styled-components';
-import './style.css';
 import api from '../core/api';
 import { atoms } from '../core/atoms';
 import { useRecoilState } from 'recoil';
+import './style.css';
 
 const Root = styled.div`
-    border: #8f959e 1px solid;
-    height: 400px;
-    background: #ffffff;
+    height: calc(100vh - 14rem);
 `;
-
-const reactFlowStyle = {
-    background: '#ffffff',
-    width: '100%',
-    height: 400,
-};
 
 var dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -53,12 +45,20 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([], []);
 
 const Diagram = () => {
+    const theme = useRecoilState(atoms.theme)[0];
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
     const selectedInstance = useRecoilState(atoms.selectedInstance)[0];
     const [ nodes, setNodes, onNodesChange ] = useNodesState(layoutedNodes);
     const [ edges, setEdges, onEdgesChange ] = useEdgesState(layoutedEdges);
     const [ activityData, setActivityData ] = useState();
     const { getInstanceData, getWorkflowDefinition } = api();
+
+    const reactFlowStyle = {
+        width: '100%',
+        height: '100%',
+        // background: theme === 'light' ? 'blue' : 'red',
+
+    };
 
     useEffect(() => {
         setNodes([]);
@@ -170,8 +170,9 @@ const Diagram = () => {
                 panOnDrag={true}
                 minZoom={0.3}
                 fitView
+                proOptions={{ hideAttribution: true }}
             >
-                <Background variant={"lines"} gap={50} size={1} />
+                <Background variant="dots" gap={50} size={1} />
             </ReactFlow>
         </Root>
     );
