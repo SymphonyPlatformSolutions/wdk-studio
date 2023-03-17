@@ -1,12 +1,12 @@
 import { atoms } from '../core/atoms';
-import { atom, useRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import {
     Button, DropdownMenu, DropdownMenuItem, Modal, ModalBody, ModalFooter, ModalTitle, TextField,
 } from '@symphony-ui/uitoolkit-components/components';
 import api from '../core/api';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import styled from 'styled-components';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 const SaveButtonRoot = styled.div`
     display: flex;
@@ -47,7 +47,7 @@ const ConfirmDiscardModal = ({ show, setShow }) => {
         <Modal size="medium" show={show}>
             <ModalTitle>Discard your changes</ModalTitle>
             <ModalBody>All changes will be lost. Are you sure?</ModalBody>
-            <ModalFooter style={{ gap: '.5rem' }}>
+            <ModalFooter>
                 <Button
                     variant="primary-destructive"
                     onClick={discardWorkflow}
@@ -67,12 +67,25 @@ const ConfirmDiscardModal = ({ show, setShow }) => {
 
 const SaveWithCommentModal = ({ show, setShow, saveWorkflow, loading }) => {
     const [ comment, setComment ] = useState('');
+    const commentRef = useRef();
+
+    const submitSaveWorkflow = () => {
+        saveWorkflow(comment);
+        setComment('');
+    };
+
+    useEffect(() => {
+        if (show && commentRef.current) {
+            commentRef.current.focus();
+        }
+    }, [ show ]);
 
     return (
         <Modal size="medium" show={show}>
             <ModalTitle>Save Workflow</ModalTitle>
             <ModalBody>
                 <TextField
+                    ref={commentRef}
                     label="Save Comment"
                     showRequired={true}
                     value={comment}
@@ -80,8 +93,8 @@ const SaveWithCommentModal = ({ show, setShow, saveWorkflow, loading }) => {
                     onChange={({ target }) => setComment(target.value)}
                 />
             </ModalBody>
-            <ModalFooter style={{ gap: '.5rem' }}>
-                <Button onClick={() => saveWorkflow(comment)} loading={loading}>
+            <ModalFooter>
+                <Button onClick={submitSaveWorkflow} loading={loading}>
                     Save
                 </Button>
                 <Button
@@ -106,15 +119,17 @@ const SaveButton = () => {
     const [ showMenu, setShowMenu ] = useState(false);
     const [ showDiscardModal, setShowDiscardModal ] = useState(false);
     const [ showSaveModal, setShowSaveModal ] = useState(false);
+    const setWorkflows = useRecoilState(atoms.workflows)[1];
 
-    const saveWorkflow = (description = "") => {
+    const saveWorkflow = (description) => {
         const swadl = editor.getModels()[0].getValue();
         setShowMenu(false);
         setLoading(true);
         addWorkflow({ swadl, author: session.id, description }, () => {
             setLoading(false);
-            setIsContentChanged('original');
-            setContents(swadl);
+            setWorkflows(undefined);
+            // setIsContentChanged('original');
+            // setContents(swadl);
             showStatus(false, 'Workflow saved');
             setShowSaveModal(false);
         });
@@ -149,7 +164,7 @@ const SaveButton = () => {
             <LeftButton
                 loading={loading}
                 disabled={isDisabled()}
-                onClick={saveWorkflow}
+                onClick={() => saveWorkflow('')}
             >
                 Save
             </LeftButton>

@@ -72,7 +72,7 @@ const ReassignModal = ({ show, setShow }) => {
                     isDisabled={loading}
                 />
             </ModalBody>
-            <ModalFooter style={{ gap: '.5rem' }}>
+            <ModalFooter>
                 <Button
                     variant="primary"
                     onClick={submitReassign}

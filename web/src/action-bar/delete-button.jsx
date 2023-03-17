@@ -30,7 +30,7 @@ const DeleteButton = () => {
             <Modal size="medium" show={show}>
                 <ModalTitle>Confirm Delete</ModalTitle>
                 <ModalBody>This will delete the workflow permanently. Are you sure?</ModalBody>
-                <ModalFooter style={{ gap: '.5rem' }}>
+                <ModalFooter>
                     <Button
                         variant="primary-destructive"
                         onClick={submitDeleteWorkflow}

@@ -28,7 +28,7 @@ const WizardButton = () => {
                 <ModalBody style={{overflowY: 'hidden'}}>
                     <Wizard {...{setCodeSnippet, eventCodeSnippet, setEventCodeSnippet, conditionCodeSnippet, setConditionCodeSnippet, activeStep }} />
                 </ModalBody>
-                <ModalFooter style={{ gap: '.5rem' }}>
+                <ModalFooter>
                     <Button
                         variant="secondary"
                         onClick={() => setActiveStep(activeStep-1)}

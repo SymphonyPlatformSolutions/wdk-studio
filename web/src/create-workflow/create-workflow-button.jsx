@@ -70,7 +70,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
                 />
                 <TemplateSelector {...{ setSwadlTemplate, pageLoading, setPageLoading, templateLoading, setTemplateLoading }} />
             </ModalBody>
-            <ModalFooter style={{ gap: '.5rem' }}>
+            <ModalFooter>
                 <Button
                     onClick={createWorkflow}
                     loading={createModal.loading}
