@@ -28,8 +28,11 @@ const WorkflowDropdown = ({ setActiveVersion }) => {
     const { listWorkflows } = api();
     const label = `Hello ${session.displayName}. Select a workflow:`;
 
-    useEffect(() => listWorkflows((response) => {
-        if (workflows === undefined) {
+    useEffect(() => {
+        if (workflows) {
+            return;
+        }
+        listWorkflows((response) => {
             const values = response
                 .map(({ id, version }) => ({ label: id, value: id, version }))
                 .sort((a, b) => a.label > b.label ? 1 : -1)
@@ -40,8 +43,8 @@ const WorkflowDropdown = ({ setActiveVersion }) => {
                 setCurrentWorkflow(newWorkflow);
                 setActiveVersion(newWorkflow.version);
             }
-        }
-    }), [ workflows ]);
+        });
+    }, [ workflows ]);
 
     return (
         <StyledDropdown
@@ -53,7 +56,7 @@ const WorkflowDropdown = ({ setActiveVersion }) => {
             isDisabled={!editMode || isContentChanged === 'modified'}
             onChange={({ target }) => {
                 setCurrentWorkflow(target.value);
-                setActiveVersion(target.version);
+                setActiveVersion(target.value.version);
                 setIsContentChanged('original');
             }}
             value={currentWorkflow}
@@ -70,7 +73,10 @@ const WorkflowSelector = ({ uiService }) => {
         if (!workflows) {
             return;
         }
-        if (
+        if (workflows.length === 0) {
+            setCurrentWorkflow(undefined);
+            setActiveVersion(undefined);
+        } else if (
             (!currentWorkflow && workflows.length > 0) ||
             (currentWorkflow && workflows.map((w) => w.value).indexOf(currentWorkflow.value) === -1)
         ) {

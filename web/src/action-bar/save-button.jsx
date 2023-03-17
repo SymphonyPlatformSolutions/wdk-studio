@@ -110,8 +110,7 @@ const SaveWithCommentModal = ({ show, setShow, saveWorkflow, loading }) => {
 
 const SaveButton = () => {
     const markers = useRecoilState(atoms.markers)[0];
-    const [ isContentChanged, setIsContentChanged ] = useRecoilState(atoms.isContentChanged);
-    const setContents = useRecoilState(atoms.contents)[1];
+    const isContentChanged = useRecoilState(atoms.isContentChanged)[0];
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const { addWorkflow, showStatus } = api();
     const session = useRecoilState(atoms.session)[0];
@@ -128,8 +127,6 @@ const SaveButton = () => {
         addWorkflow({ swadl, author: session.id, description }, () => {
             setLoading(false);
             setWorkflows(undefined);
-            // setIsContentChanged('original');
-            // setContents(swadl);
             showStatus(false, 'Workflow saved');
             setShowSaveModal(false);
         });

@@ -44,6 +44,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
             const newWorkflow = { label: id, value: id };
             setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : -1)));
             setCurrentWorkflow(newWorkflow);
+            setWorkflows(undefined);
         }, ({ message }) => {
             showToast(true, message);
         });

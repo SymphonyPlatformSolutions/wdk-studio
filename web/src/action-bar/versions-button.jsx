@@ -47,7 +47,7 @@ const VersionsButton = () => {
 
     return (
         <>
-            <Button variant="secondary" onClick={() => setShow(true)}>
+            <Button variant="secondary" onClick={() => setShow(true)} disabled={!activeVersion}>
                 Versions
             </Button>
             <Modal size="full-width" show={show} closeButton onClose={() => setShow(false)}>
