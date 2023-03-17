@@ -20,6 +20,7 @@ const DeleteButton = () => {
         const submitDeleteWorkflow = () => {
             setLoading(true);
             deleteWorkflow(currentWorkflow.value, () => {
+                setLoading(false);
                 setShow(false);
                 showStatus(false, 'Workflow deleted');
                 setWorkflows((old) => old.filter((w) => w.value !== currentWorkflow.value));
