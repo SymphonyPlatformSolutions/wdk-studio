@@ -26,7 +26,7 @@ const ExpandActivityModal = ({ expandActivityModal, setExpandActivityModal, acti
                 </pre>
             </ActivityDetail>
         </ModalBody>
-        <ModalFooter style={{ gap: '.5rem' }}>
+        <ModalFooter>
             <Button
                 variant="secondary"
                 onClick={() => setExpandActivityModal({ show: false })}

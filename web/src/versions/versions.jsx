@@ -59,13 +59,27 @@ const Version = styled.div`
 
 const VersionsExplorer = ({
     versions, setVersions, currentWorkflow, getLabel,
-    selectedVersion, setSelectedVersion, activeVersion,
+    selectedVersion, setSelectedVersion, activeVersion, editorMode,
 }) => {
     const theme = useRecoilState(atoms.theme)[0];
     const { readWorkflow } = api();
     const [ thisEditor, setThisEditor ] = useState();
     const contents = useRecoilState(atoms.contents)[0];
     const ref = useRef(null);
+
+    const cleanup = () => {
+        if (editor.getModels().length > 1) {
+            editor.getModels().forEach((e, i) => {
+                if (i > 0) {
+                    e.dispose();
+                }
+            });
+            const preserve = editorMode == 'Single' ? 0 : 1;
+            while (ref.current?.childNodes.length > preserve) {
+                ref.current.removeChild(ref.current.childNodes[0]);
+            }
+        }
+    };
 
     useEffect(() => readWorkflow(currentWorkflow.value, (r) => {
         const processed = r.map((w, i) => ({ ...w, i: i+1 })).sort((a, b) => b.version - a.version);
@@ -74,36 +88,42 @@ const VersionsExplorer = ({
     }), []);
 
     useEffect(() => {
-        if (versions.length > 0) {
-            setThisEditor(editor.createDiffEditor(ref.current, {
-                language: 'yaml',
-                theme: 'vs-' + theme,
-                readOnly: true,
-                scrollBeyondLastLine: false,
-            }));
+        if (versions.length === 0) {
+            return;
         }
-    }, [ versions ])
+        cleanup();
+        const opts = {
+            language: 'yaml',
+            theme: 'vs-' + theme,
+            readOnly: true,
+            scrollBeyondLastLine: false,
+        };
+
+        if (editorMode === 'Single') {
+            setThisEditor(editor.create(ref.current, opts));
+        } else {
+            if (ref.current?.childNodes.length > 0) {
+                ref.current.removeChild(ref.current.childNodes[0]);
+            }
+            const o = (editorMode === 'Unified') ? { ...opts, renderSideBySide: false, } : opts;
+            setThisEditor(editor.createDiffEditor(ref.current, o));
+        }
+    }, [ editorMode, versions ])
 
     useEffect(() => {
         if (!thisEditor || versions.length === 0 || !selectedVersion) {
             return;
         }
         const { swadl } = versions.filter(({ version }) => version === selectedVersion)[0];
-
-        if (editor.getModels().length > 1) {
-            editor.getModels().forEach((e, i) => {
-                if (i > 0) {
-                    e.dispose();
-                }
+        cleanup();
+        if (editorMode === 'Single') {
+            thisEditor.setModel(editor.createModel(swadl, 'yaml'));
+        } else {
+            thisEditor.setModel({
+                original: editor.createModel(contents, 'yaml'),
+                modified: editor.createModel(swadl, 'yaml')
             });
-            if (ref.current?.childNodes.length > 1) {
-                ref.current.removeChild(ref.current.childNodes[0]);
-            }
         }
-        thisEditor.setModel({
-            original: editor.createModel(contents, 'yaml'),
-            modified: editor.createModel(swadl, 'yaml')
-        });
     }, [ thisEditor, selectedVersion ]);
 
     const getVariant = (active, version) =>

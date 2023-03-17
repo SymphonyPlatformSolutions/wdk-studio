@@ -17,7 +17,7 @@ const DiagramButton = () => {
             <ModalBody>
                 <Diagram />
             </ModalBody>
-            <ModalFooter style={{ gap: '.5rem' }}>
+            <ModalFooter>
                 <Button
                     variant="secondary"
                     onClick={() => setDiagramModal({ show: false })}

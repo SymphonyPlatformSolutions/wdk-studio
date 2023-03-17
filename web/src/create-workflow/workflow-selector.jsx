@@ -29,11 +29,19 @@ const WorkflowDropdown = ({ setActiveVersion }) => {
     const label = `Hello ${session.displayName}. Select a workflow:`;
 
     useEffect(() => listWorkflows((response) => {
-        const values = response
-            .map(({ id, version }) => ({ label: id, value: id, version }))
-            .sort((a, b) => a.label > b.label ? 1 : -1)
-        setWorkflows(values);
-    }), [ setCurrentWorkflow, setWorkflows ]);
+        if (workflows === undefined) {
+            const values = response
+                .map(({ id, version }) => ({ label: id, value: id, version }))
+                .sort((a, b) => a.label > b.label ? 1 : -1)
+            setWorkflows(values);
+
+            if (currentWorkflow) {
+                const newWorkflow = values.filter(w => w.value === currentWorkflow.value)[0];
+                setCurrentWorkflow(newWorkflow);
+                setActiveVersion(newWorkflow.version);
+            }
+        }
+    }), [ workflows ]);
 
     return (
         <StyledDropdown
