@@ -45,7 +45,6 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([], []);
 
 const Diagram = () => {
-    const theme = useRecoilState(atoms.theme)[0];
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
     const selectedInstance = useRecoilState(atoms.selectedInstance)[0];
     const [ nodes, setNodes, onNodesChange ] = useNodesState(layoutedNodes);

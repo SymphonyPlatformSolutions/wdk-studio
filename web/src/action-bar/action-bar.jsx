@@ -2,11 +2,13 @@ import { atoms } from '../core/atoms';
 import { Button } from '@symphony-ui/uitoolkit-components/components';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
-import WizardButton from './wizard-button';
 import DeleteButton from './delete-button';
-import DiagramButton from './diagram-button';
+import DiagramModal from './diagram-modal';
 import SaveButton from './save-button';
-import VersionsButton from './versions-button';
+import VersionsModal from './versions-modal';
+import { DropdownMenu, DropdownMenuItem, Icon } from '@symphony-ui/uitoolkit-components/components';
+import { useState } from 'react';
+import WizardModal from './wizard-modal';
 
 const Root = styled.div`
     display: flex;
@@ -14,9 +16,26 @@ const Root = styled.div`
     justify-content: space-between;
 `;
 
+const OverflowButton = styled(Button)`
+    @media (min-width: 800px) {
+        display: none;
+    }
+`;
+
+const FloatingMenu = styled(DropdownMenu)`
+    position: absolute;
+    right: .5rem;
+    top: 6.25rem;
+    width: 8rem;
+`;
+
 const Section = styled.div`
     display: flex;
     gap: .5rem;
+    @media (max-width: 800px) {
+        &:not(:first-child) { display: none }
+        & > button { display: none }
+    }
 `;
 
 const ActionButton = (props) => (
@@ -27,9 +46,14 @@ const ActionButton = (props) => (
 
 const ActionBar = ({ showConsole, setShowConsole }) => {
     const markers = useRecoilState(atoms.markers)[0];
+    const activeVersion = useRecoilState(atoms.activeVersion)[0];
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
     const setSelectedInstance = useRecoilState(atoms.selectedInstance)[1];
     const [ editMode, setEditMode ] = useRecoilState(atoms.editMode);
+    const [ showMenu, setShowMenu ] = useState(false);
+    const [ showWizard, setShowWizard ] = useState(false);
+    const [ showDiagram, setShowDiagram ] = useState(false);
+    const [ showVersions, setShowVersions ] = useState(false);
 
     const toggleEditMode = () => {
         setEditMode(!editMode);
@@ -39,28 +63,62 @@ const ActionBar = ({ showConsole, setShowConsole }) => {
     const openHelp = () => window.open('//github.com/finos/symphony-wdk/blob/master/docs/reference.md', '_blank', false);
 
     return (
-        <Root>
-            <Section>
-                <SaveButton />
-                <WizardButton />
-                <VersionsButton />
-                <DeleteButton />
-            </Section>
-            <Section>
-                <ActionButton
-                    label={ editMode ? 'Monitor' : 'Edit' }
-                    disabled={!currentWorkflow || markers.length > 0}
-                    onClick={toggleEditMode}
-                />
-                <DiagramButton />
-                <ActionButton
-                    label={`${showConsole ? 'Hide' : 'Show'} Console`}
-                    onClick={() => setShowConsole((old) => !old)}
-                    disabled={!editMode}
-                />
-                <ActionButton label="Help" onClick={() => openHelp()} />
-            </Section>
-        </Root>
+        <>
+            <Root>
+                <Section>
+                    <SaveButton />
+                    <ActionButton
+                        label="Wizard"
+                        disabled={!currentWorkflow || !editMode}
+                        onClick={() => setShowWizard(true)}
+                    />
+                    <ActionButton
+                        label="Versions"
+                        disabled={!activeVersion}
+                        onClick={() => setShowVersions(true)}
+                    />
+                    <DeleteButton />
+                </Section>
+                <Section>
+                    <ActionButton
+                        label={ editMode ? 'Monitor' : 'Edit' }
+                        disabled={!currentWorkflow || markers.length > 0}
+                        onClick={toggleEditMode}
+                    />
+                    <ActionButton
+                        label="Diagram"
+                        disabled={!currentWorkflow || markers.length > 0}
+                        onClick={() => setShowDiagram(true)}
+                    />
+                    <ActionButton
+                        label={`${showConsole ? 'Hide' : 'Show'} Console`}
+                        onClick={() => setShowConsole((old) => !old)}
+                        disabled={!editMode}
+                    />
+                    <ActionButton label="Help" onClick={() => openHelp()} />
+                </Section>
+                <OverflowButton variant="secondary" onClick={() => setShowMenu((show) => !show)}>
+                    Menu
+                    <Icon iconName='drop-down' />
+                </OverflowButton>
+            </Root>
+
+            <WizardModal show={showWizard} setShow={setShowWizard} />
+            <VersionsModal show={showVersions} setShow={setShowVersions} />
+            <DiagramModal show={showDiagram} setShow={setShowDiagram} />
+            <FloatingMenu show={showMenu} onClick={() => setShowMenu(false)}>
+                { currentWorkflow && editMode && <DropdownMenuItem onClick={() => setShowWizard(true)}>Wizard</DropdownMenuItem> }
+                { activeVersion && <DropdownMenuItem onClick={() => setShowVersions(true)}>Versions</DropdownMenuItem> }
+                <DropdownMenuItem onClick={toggleEditMode}>{ editMode ? 'Monitor' : 'Edit' }</DropdownMenuItem>
+                { currentWorkflow && markers.length === 0 && <DropdownMenuItem onClick={() => setShowDiagram(true)}>Diagram</DropdownMenuItem> }
+                { editMode && (
+                    <DropdownMenuItem onClick={() => setShowConsole((old) => !old)}>
+                        {showConsole ? 'Hide' : 'Show'} Console
+                    </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => openHelp()}>Help</DropdownMenuItem>
+            </FloatingMenu>
+        </>
     );
 };
 export default ActionBar;

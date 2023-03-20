@@ -37,7 +37,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
             .replace(/newId/g, id)
             .replace(/id: ([\w\-]+)/, `id: ${id}`);
 
-        addWorkflow({ swadl: template, author: session.id, description: "New workflow" }, () => {
+        addWorkflow({ swadl: template, author: session.id, description: "New workflow" }).then(() => {
             showToast(false, 'New workflow added');
             setCreateModal({ show: false });
             setNewName('');
@@ -45,9 +45,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
             setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : -1)));
             setCurrentWorkflow(newWorkflow);
             setWorkflows(undefined);
-        }, ({ message }) => {
-            showToast(true, message);
-        });
+        }, () => showToast(true, 'Conflicting workflow ID. Please choose a different one.'));
     };
 
     const nameRef = useRef();

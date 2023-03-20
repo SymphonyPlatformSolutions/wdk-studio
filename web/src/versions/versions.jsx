@@ -10,7 +10,7 @@ import Spinner from '../core/spinner';
 const Root = styled.div`
     display: flex;
     flex: 1 1 1px;
-    height: calc(100vh - 14rem);
+    min-height: calc(100vh - 16rem);
 `;
 
 const VersionsPane = styled.div`
@@ -29,6 +29,11 @@ const EditorPane = styled.div`
 
 const Editor = styled.div`
     flex: 1 1 1px;
+`;
+
+const ContainedBadge = styled(Badge)`
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 const Labels = styled.div`
@@ -97,6 +102,7 @@ const VersionsExplorer = ({
             theme: 'vs-' + theme,
             readOnly: true,
             scrollBeyondLastLine: false,
+            automaticLayout: true,
         };
 
         if (editorMode === 'Single') {
@@ -135,12 +141,12 @@ const VersionsExplorer = ({
             selected={version === selectedVersion}
             onClick={() => setSelectedVersion(version)}
         >
-            <Badge variant={getVariant(active, version)}>
+            <ContainedBadge variant={getVariant(active, version)}>
                 v{i}
-            </Badge>
-            <Badge variant={getVariant(active, version)}>
+            </ContainedBadge>
+            <ContainedBadge variant={getVariant(active, version)}>
                 {(new Date(version / 1000)).toLocaleString()}
-            </Badge>
+            </ContainedBadge>
             {description === '' ? 'No comment' : description}
         </Version>
     ));
@@ -152,12 +158,12 @@ const VersionsExplorer = ({
             </VersionsPane>
             <EditorPane>
                 <Labels>
-                    <Badge variant="positive">
+                    <ContainedBadge variant="positive">
                         Active Version: v{getLabel(activeVersion)}
-                    </Badge>
-                    <Badge variant="neutral">
+                    </ContainedBadge>
+                    <ContainedBadge variant="neutral">
                         Selected Version: v{getLabel(selectedVersion)}
-                    </Badge>
+                    </ContainedBadge>
                 </Labels>
                 <Editor ref={ref} />
             </EditorPane>

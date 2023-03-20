@@ -55,6 +55,7 @@ const DeleteButton = () => {
     return (
         <>
             <Button
+                style={{ display: 'block'}}
                 variant="primary-destructive"
                 disabled={!currentWorkflow || !editMode}
                 onClick={() => setShow(true)}
