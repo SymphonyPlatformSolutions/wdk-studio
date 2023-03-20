@@ -11,15 +11,16 @@ import styled from 'styled-components';
 const GroupButton = styled(Button)`
     border-radius: 0;
     box-shadow: none;
-    border-width: .125rem;
-    border-color: ${props => props.variant === 'primary' ? 'var(--tk-button-color-primary-default, #0277d6)' : 'var(--tk-button-color-secondary-hover-text, #717681);'};
+    border-width: .125rem 0;
+    border-color: ${props => props.variant === 'primary' ? 'var(--tk-color-electricity-30)' : 'var(--tk-button-color-secondary-hover-text, #717681);'};
     border-style: solid;
     line-height: normal;
 
     &:hover { box-shadow: none }
-    &:first-child { border-radius: 1.75rem 0 0 1.75rem }
-    &:last-child  { border-radius: 0 1.75rem 1.75rem 0 }
-    & + *:not(.primary) { border-left-width: 0 }
+    &:first-child { border-radius: 1.75rem 0 0 1.75rem; border-left-width: .125rem }
+    &:last-child  { border-radius: 0 1.75rem 1.75rem 0; border-right-width: .125rem }
+    &.primary{ border-width: .125rem }
+    &:not(.primary) + *:not(.primary) { border-left-width: .125rem }
 `;
 
 const VersionsButton = () => {
