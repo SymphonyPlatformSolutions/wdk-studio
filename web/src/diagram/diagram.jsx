@@ -53,12 +53,7 @@ const Diagram = () => {
     const [ activityData, setActivityData ] = useState();
     const { getInstanceData, getWorkflowDefinition } = api();
 
-    const reactFlowStyle = {
-        width: '100%',
-        height: '100%',
-        // background: theme === 'light' ? 'blue' : 'red',
-
-    };
+    const reactFlowStyle = { width: '100%', height: '100%' };
 
     useEffect(() => {
         setNodes([]);
@@ -72,38 +67,39 @@ const Diagram = () => {
         }
     }, [ selectedInstance ]);
 
-    useEffect( () => {
-        setNodes((nds) => {
-            const edgeChanges = new Array();
-            nds.map((node) => {
-                const isNodeid = (currentNode) => {
-                    return currentNode.nodeId == node.id;
-                };
-                const existingActivity = activityData.activities.nodes.find(isNodeid);
-                if (existingActivity) {
-                    edges.map((edg) => {
-                        const isGateway = nodes.find(({ id, nodeType }) => id === edg.target && nodeType === 'GATEWAY');
-                        if (edg.target == node.id || (edg.source == node.id && isGateway)) {
-                            const endDate = new Date(existingActivity.endDate);
-                            edg.animated = true;
-                            edg.style = { stroke: '#03900b' };
-                            edg.label = endDate.getHours() + ':' + endDate.getMinutes() + ':' + endDate.getSeconds();
-                            edgeChanges.push({item: edg, type: 'reset'});
-                        }
-                    });
-                } else if (node.nodeType !== 'GATEWAY') {
-                    edges.map((edg) => {
-                        const isTargetGateway = nodes.find(({ id, nodeType }) => id === edg.target && nodeType === 'GATEWAY');
-                        if (edg.target == node.id || (edg.source == node.id && isTargetGateway )) {
-                            edgeChanges.push({item: edg, type: 'reset'});
-                        }
-                    });
-                }
-                return node;
-            })
-            setEdges((edgs) => applyEdgeChanges(edgeChanges, edgs));
+    useEffect(() => {
+        if (!activityData) {
+            return;
+        }
+        const dateFormat = Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric' });
+        const edgeChanges = [];
+        nodes.forEach((node) => {
+            const existingActivity = activityData.activities.nodes.find(({ nodeId }) => nodeId == node.id);
+            if (existingActivity) {
+                edges.map((edg) => {
+                    const isGateway = nodes.find(({ id, nodeType }) => id === edg.target && nodeType === 'GATEWAY');
+                    if (edg.target == node.id || (edg.source == node.id && isGateway)) {
+                        edgeChanges.push({ item: {
+                            ...edg,
+                            animated: true,
+                            style: { stroke: '#65c862' },
+                            markerEnd: { type: MarkerType.ArrowClosed, color: '#65c862' },
+                            label: dateFormat.format(new Date(existingActivity.endDate)),
+                        }, type: 'reset' });
+                    }
+                });
+            } else if (node.nodeType !== 'GATEWAY') {
+                edges.map((edg) => {
+                    const isTargetGateway = nodes.find(({ id, nodeType }) => id === edg.target && nodeType === 'GATEWAY');
+                    if (edg.target == node.id || (edg.source == node.id && isTargetGateway )) {
+                        edgeChanges.push({item: edg, type: 'reset'});
+                    }
+                });
+            }
         });
-    }, [activityData, setNodes]);
+        setEdges((existing) => applyEdgeChanges(edgeChanges, existing));
+
+    }, [ activityData ]);
 
     const loadDefinition = () => getWorkflowDefinition(currentWorkflow.value, (data) => {
         const nodes = new Array();
@@ -124,7 +120,7 @@ const Diagram = () => {
                                     <img src={'./gateway_icon.png'} style={{width: '18px'}} />
                                 </div>
                                 : <span>
-                                    <div className={'react-flow__node-title'} style={{background: isEvent ? '#4bd19b' : '#0098ff'}}>
+                                    <div className={'react-flow__node-title'} style={{background: isEvent ? 'var(--tk-color-green-50)' : 'var(--tk-color-electricity-50)'}}>
                                         <img src={(element.group=='EVENT') ? './event_icon.png' : './activity_icon.png'} style={{float: 'left', marginLeft: '4px', marginTop: '-4px', width: '12px'}} />
                                         <div style={{margin: '0 auto'}}>{element.type}</div>
                                     </div>
@@ -147,7 +143,7 @@ const Diagram = () => {
                 }
             });
             element.parents.map((edgeItem) => {
-                edges.push({ id: Math.floor(Math.random() * 10000), source: edgeItem, target: element.nodeId, type: edgeType, animated: false, markerEnd: {type: MarkerType.Arrow, color: '#383838'}, style: {stroke: '#383838'} })
+                edges.push({ id: Math.floor(Math.random() * 10000), source: edgeItem, target: element.nodeId, type: edgeType, animated: false, markerEnd: {type: MarkerType.ArrowClosed }})
             });
         });
         setNodes(nodes);

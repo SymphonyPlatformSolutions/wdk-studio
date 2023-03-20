@@ -32,7 +32,8 @@ const Template = styled.div`
     text-transform: capitalize;
     font-size: .9rem;
     padding: .5rem;
-    color: ${props => props.isSelected ? 'var(--tk-color-electricity-50)' : 'var(--tk-color-graphite-50)'};
+    color: ${props => props.isSelected ? '#fff' : 'var(--tk-main-text-color, #525760)'};
+    background-color: ${props => props.isSelected ? 'var(--tk-color-electricity-50)' : 'transparent'};
     font-weight: ${props => props.isSelected ? 600 : 400};
     border: ${props => props.isSelected ? 'var(--tk-color-electricity-40) 2px solid' : 'var(--tk-color-graphite-40) 2px solid'};
     border-radius: .3rem;
@@ -42,7 +43,9 @@ const Template = styled.div`
     user-select: none;
     cursor: pointer;
     &:hover {
-        background: var(--tk-color-electricity-10);
+        color: #fff;
+        background-color: var(--tk-color-electricity-40);
+        border: var(--tk-color-electricity-30) 2px solid;
     }
 `;
 
