@@ -1,5 +1,4 @@
 import { DetailPlane, TableTitle, Table, Row } from './styles';
-import { Icon } from '@symphony-ui/uitoolkit-components';
 
 const InstanceList = ({ instances, selectedInstance, setSelectedInstance, loadInstances, loading }) => {
     const formatDuration = (duration) => duration?.toString()

@@ -7,6 +7,9 @@ const VariablesList = ({ activityData, currentVariables, setCurrentVariables }) 
     }, [ activityData ]);
 
     const formatVariable = (variable) => {
+        if (!variable) {
+            return 'null';
+        }
         if (typeof variable === 'object') {
             // console.log(JSON.stringify(variable)); // todo pop dialog
         }

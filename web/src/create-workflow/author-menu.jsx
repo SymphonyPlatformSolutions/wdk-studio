@@ -1,6 +1,6 @@
 import { atoms } from '../core/atoms';
 import {
-    Button, DropdownMenu, DropdownMenuItem, Modal, ModalTitle, ModalBody, ModalFooter, Dropdown, Icon,
+    Button, DropdownMenu, DropdownMenuItem, Modal, ModalTitle, ModalBody, ModalFooter, Dropdown,
 } from "@symphony-ui/uitoolkit-components/components";
 import { useEffect, useState, useRef } from 'react';
 import { useRecoilState } from 'recoil';
@@ -13,6 +13,7 @@ const FloatingMenu = styled(DropdownMenu)`
     left: ${props => props.x}px;
     top: ${props => props.y}px;
     width: ${props => props.w}px;
+    min-width: 11rem;
 `;
 
 const DropdownButton = styled(Button)`
@@ -40,14 +41,14 @@ const ReassignModal = ({ show, setShow }) => {
         const swadl = editor.getModels()[0].getValue();
         const author = newOwner.value;
         const description = 'Owner changed';
-        addWorkflow({ swadl, author, description }, () => {
+        addWorkflow({ swadl, author, description }).then(() => {
             setLoading(false);
             setShow(false);
             setIsContentChanged('original');
             setAuthor(author);
             setContents(swadl);
             showStatus(false, 'Workflow owner reassigned');
-        });
+        }, ({ message }) => showToast(true, message));
     };
 
     const getPeople = async (input) => {

@@ -124,12 +124,12 @@ const SaveButton = () => {
         const swadl = editor.getModels()[0].getValue();
         setShowMenu(false);
         setLoading(true);
-        addWorkflow({ swadl, author: session.id, description }, () => {
+        addWorkflow({ swadl, author: session.id, description }).then(() => {
             setLoading(false);
             setWorkflows(undefined);
             showStatus(false, 'Workflow saved');
             setShowSaveModal(false);
-        });
+        }, ({ message }) => showToast(true, message));
     };
 
     const isDisabled = () => loading || markers.length > 0 || isContentChanged !== 'modified';

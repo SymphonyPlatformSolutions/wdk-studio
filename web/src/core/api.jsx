@@ -89,7 +89,7 @@ const api = () => {
     return {
         getProfile: (token, callback) => apiCall(GET, 'symphony/profile', null, callback, token),
         listWorkflows: (callback) => apiCall(GET, 'v1/workflows/', null, callback),
-        addWorkflow: (workflow, callback) => apiCall(POST, 'v1/management/workflows', workflow, callback),
+        addWorkflow: (workflow) => apiCall(POST, 'v1/management/workflows', workflow),
         editWorkflow: (workflow, callback) => apiCall(PUT, 'v1/management/workflows', workflow, callback),
         readWorkflow: (workflowId, callback) => apiCall(GET, `v1/management/workflows/${workflowId}`, null, callback),
         deleteWorkflow: (workflowId, callback) => apiCall(DELETE, `v1/management/workflows/${workflowId}`, null, callback),
@@ -101,7 +101,7 @@ const api = () => {
         getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/definitions`, null, callback),
         listWorkflowInstances: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/instances`, null, callback),
         getUser: (userId, callback) => apiCall(GET, `symphony/user/${userId}`, null, callback),
-        searchUser: (query) => apiCall(GET, `symphony/user?q=${query}`, null, null),
+        searchUser: (query) => apiCall(GET, `symphony/user?q=${query}`),
         parseJwt,
         showStatus,
         getInstanceData,
