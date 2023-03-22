@@ -10,7 +10,7 @@ const InstanceList = ({ instances, selectedInstance, setSelectedInstance, loadIn
     return (!instances || instances.length === 0) ? 'No instances yet' : (
         <DetailPlane>
             <TableTitle>
-                <div>Instances</div>
+                Instances
                 <div onClick={loadInstances} className={loading ? 'loading' : ''}>&#8634;</div>
             </TableTitle>
             <Table>

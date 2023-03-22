@@ -49,7 +49,14 @@ const Monitor = () => {
     useEffect(loadInstances, []);
 
     useEffect(() => {
+        if (instances.length > 0 && !selectedInstance) {
+            setSelectedInstance(instances[0]);
+        }
+    }, [ instances ]);
+
+    useEffect(() => {
         if (selectedInstance) {
+            setActivityData(undefined);
             getInstanceData(currentWorkflow.value, selectedInstance.instanceId, (r) => setActivityData(r));
         }
     }, [ selectedInstance ]);

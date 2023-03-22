@@ -12,15 +12,17 @@ const rotateAnimation = keyframes`
 `;
 
 const TableTitle = styled.h3`
+    z-index: 1;
     position: fixed;
     width: calc(100vw - 2.6rem);
     font-weight: 800;
-    background: var(--tk-table-hover-color, #cfd0d2);
-    padding: .3rem;
+    color: var(--tk-color-graphite-10);
+    background: var(--tk-color-electricity-70);
+    padding: .31rem .3rem;
     margin: 0;
     display: flex;
     justify-content: space-between;
-    & > div:last-child { cursor: pointer }
+    & > div:last-child { color: var(--tk-color-graphite-10); cursor: pointer }
     .loading { animation: ${rotateAnimation} 1.3s linear infinite; }
 `;
 
@@ -30,13 +32,16 @@ const Table = styled.table`
     margin-top: 2rem;
     align-self: flex-start;
 
-    th { text-align: left }
+    th { text-align: left; z-index: 1; }
     th, td {
         white-space: nowrap;
-        padding-right: 1.5rem;
+        padding: .3rem .8rem;
         max-width: 50vw;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    tbody {
+        margin-top: 2rem;
     }
     tbody tr:hover {
         cursor: pointer;
@@ -57,6 +62,11 @@ const Row = styled.tr`
             font-family: 'tk-icons';
             content: "";
         }
+    }
+    th {
+        background-color: var(--tk-background, #fff);
+        position: sticky;
+        top: 2rem;
     }
 `;
 

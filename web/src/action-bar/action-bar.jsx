@@ -45,6 +45,8 @@ const ActionButton = (props) => (
 );
 
 const ActionBar = ({ showConsole, setShowConsole }) => {
+    const session = useRecoilState(atoms.session)[0];
+    const author = useRecoilState(atoms.author)[0];
     const markers = useRecoilState(atoms.markers)[0];
     const activeVersion = useRecoilState(atoms.activeVersion)[0];
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
@@ -69,7 +71,7 @@ const ActionBar = ({ showConsole, setShowConsole }) => {
                     <SaveButton />
                     <ActionButton
                         label="Wizard"
-                        disabled={!currentWorkflow || !editMode}
+                        disabled={!currentWorkflow || !editMode || author !== session.id}
                         onClick={() => setShowWizard(true)}
                     />
                     <ActionButton
