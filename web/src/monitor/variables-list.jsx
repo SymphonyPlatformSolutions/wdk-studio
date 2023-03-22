@@ -1,5 +1,6 @@
 import { DetailPlane, TableTitle, Table } from './styles';
 import { useEffect } from 'react';
+import Spinner from '../core/spinner';
 
 const VariablesList = ({ activityData, currentVariables, setCurrentVariables }) => {
     useEffect(() => {
@@ -16,27 +17,31 @@ const VariablesList = ({ activityData, currentVariables, setCurrentVariables }) 
         return variable.toString();
     };
 
+    const Content = () => (
+        <Table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                    <th>Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {currentVariables && Object.keys(currentVariables.outputs).map((key, i) => (
+                    <tr key={i}>
+                        <td>{key}</td>
+                        <td>{formatVariable(currentVariables.outputs[key])}</td>
+                        <td>{(new Date(currentVariables.updateTime)).toLocaleString()}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </Table>
+    );
+
     return (
         <DetailPlane>
             <TableTitle>Variables</TableTitle>
-            <Table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Value</th>
-                        <th>Updated</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentVariables && Object.keys(currentVariables.outputs).map((key, i) => (
-                        <tr key={i}>
-                            <td>{key}</td>
-                            <td>{formatVariable(currentVariables.outputs[key])}</td>
-                            <td>{(new Date(currentVariables.updateTime)).toLocaleString()}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+            { !currentVariables ? <Spinner /> : <Content /> }
         </DetailPlane>
     );
 };

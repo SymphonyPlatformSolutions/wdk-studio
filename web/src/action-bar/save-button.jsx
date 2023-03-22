@@ -132,7 +132,7 @@ const SaveButton = () => {
         }, ({ message }) => showToast(true, message));
     };
 
-    const isDisabled = () => loading || markers.length > 0 || isContentChanged !== 'modified';
+    const isDisabled = () => markers.length > 0 || isContentChanged !== 'modified';
 
     const getBottomAnchor = () => {
         const rect = buttonRef.current?.parentNode.getBoundingClientRect();
@@ -159,7 +159,7 @@ const SaveButton = () => {
     return (
         <SaveButtonRoot>
             <LeftButton
-                loading={loading}
+                loading={!isDisabled() && loading}
                 disabled={isDisabled()}
                 onClick={() => saveWorkflow('')}
             >
