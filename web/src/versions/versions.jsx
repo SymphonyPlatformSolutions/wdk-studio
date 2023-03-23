@@ -21,6 +21,32 @@ const VersionsPane = styled.div`
     gap: .5rem;
 `;
 
+const Version = styled.div`
+    display: flex;
+    flex-direction: column;
+    border: var(--tk-color-graphite-40) 1px solid;
+    gap: .5rem;
+    border-radius: .3rem;
+    padding: .5rem;
+    margin-right: .5rem;
+
+    background-color: ${props => props.selected ? 'var(--tk-color-electricity-50)' : 'transparent'};
+    color: ${props => props.selected ? '#fff' : 'var(--tk-main-text-color, #525760)'};
+
+    :hover {
+        cursor: pointer;
+        color: #fff;
+        background-color: var(--tk-color-electricity-40);
+    }
+`;
+
+const Divider = styled.hr`
+    border-width: 1px 0 0 0;
+    border-color: var(--tk-color-graphite-10);
+    width: 70%;
+    margin: .3rem auto;
+`;
+
 const EditorPane = styled.div`
     display: flex;
     flex-direction: column;
@@ -41,25 +67,6 @@ const Labels = styled.div`
     justify-content: space-around;
     margin-bottom: .5rem;
     padding-right: 2rem;
-`;
-
-const Version = styled.div`
-    display: flex;
-    flex-direction: column;
-    border: var(--tk-color-graphite-40) 1px solid;
-    gap: .5rem;
-    border-radius: .3rem;
-    padding: .5rem;
-    margin-right: .5rem;
-
-    background-color: ${props => props.selected ? 'var(--tk-color-electricity-50)' : 'transparent'};
-    color: ${props => props.selected ? '#fff' : 'var(--tk-main-text-color, #525760)'};
-
-    :hover {
-        cursor: pointer;
-        color: #fff;
-        background-color: var(--tk-color-electricity-40);
-    }
 `;
 
 const VersionsExplorer = ({
@@ -86,9 +93,13 @@ const VersionsExplorer = ({
         }
     };
 
-    useEffect(() => readWorkflow(currentWorkflow.value, (r) => {
-        const processed = r.map((w, i) => ({ ...w, i: i+1 })).sort((a, b) => b.version - a.version);
-        setVersions(processed);
+    useEffect(() => readWorkflow(currentWorkflow.value, (response) => {
+        const sorted = response.map((w, i) => ({ ...w, i: i+1 }))
+            .sort((a, b) => b.version - a.version);
+        setVersions([
+            ...sorted.filter((v) => v.active),
+            ...sorted.filter((v) => !v.active),
+        ]);
         setSelectedVersion(activeVersion);
     }), []);
 
@@ -135,20 +146,23 @@ const VersionsExplorer = ({
     const getVariant = (active, version) =>
         active ? 'positive' : selectedVersion === version ? 'neutral' : 'default';
 
-    const VersionsList = () => versions.map(({ active, version, description, i }) => (
-        <Version
-            key={version}
-            selected={version === selectedVersion}
-            onClick={() => setSelectedVersion(version)}
-        >
-            <ContainedBadge variant={getVariant(active, version)}>
-                v{i}
-            </ContainedBadge>
-            <ContainedBadge variant={getVariant(active, version)}>
-                {(new Date(version / 1000)).toLocaleString()}
-            </ContainedBadge>
-            {description === '' ? 'No comment' : description}
-        </Version>
+    const VersionsList = () => versions.map(({ active, version, description, i }, index) => (
+        <>
+            <Version
+                key={version}
+                selected={version === selectedVersion}
+                onClick={() => setSelectedVersion(version)}
+            >
+                <ContainedBadge variant={getVariant(active, version)}>
+                    v{i}
+                </ContainedBadge>
+                <ContainedBadge variant={getVariant(active, version)}>
+                    {(new Date(version / 1000)).toLocaleString()}
+                </ContainedBadge>
+                {description === '' ? 'No comment' : description}
+            </Version>
+            { index === 0 && <Divider /> }
+        </>
     ));
 
     return versions.length === 0 ? <Root><Spinner /></Root> : (

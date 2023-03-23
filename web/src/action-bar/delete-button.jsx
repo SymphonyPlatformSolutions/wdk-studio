@@ -8,6 +8,8 @@ import api from '../core/api';
 
 const DeleteButton = () => {
     const editMode = useRecoilState(atoms.editMode)[0];
+    const session = useRecoilState(atoms.session)[0];
+    const author = useRecoilState(atoms.author)[0];
     const [ show, setShow ]  = useState(false);
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
@@ -57,7 +59,7 @@ const DeleteButton = () => {
             <Button
                 style={{ display: 'block'}}
                 variant="primary-destructive"
-                disabled={!currentWorkflow || !editMode}
+                disabled={!currentWorkflow || !editMode || author !== session.id}
                 onClick={() => setShow(true)}
             >
                 Delete
