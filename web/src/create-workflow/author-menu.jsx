@@ -2,7 +2,7 @@ import { atoms } from '../core/atoms';
 import {
     Button, DropdownMenu, DropdownMenuItem, Modal, ModalTitle, ModalBody, ModalFooter, Dropdown,
 } from "@symphony-ui/uitoolkit-components/components";
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import api from '../core/api';
 import styled from 'styled-components';
@@ -28,7 +28,20 @@ const DropdownButton = styled(Button)`
     }
 `;
 
-const ReassignModal = ({ show, setShow }) => {
+const debounce = (fn, time) => {
+    let timeoutId;
+    return (...args) => {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+        timeoutId = setTimeout(() => {
+            timeoutId = null;
+            fn(...args);
+        }, time);
+    };
+};
+
+const ReassignModal = ({ setShow }) => {
     const { addWorkflow, searchUser, showStatus } = api();
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const [ newOwner, setNewOwner ] = useState();
@@ -39,35 +52,40 @@ const ReassignModal = ({ show, setShow }) => {
     const submitReassign = () => {
         setLoading(true);
         const swadl = editor.getModels()[0].getValue();
-        const author = newOwner.value;
+        const createdBy = newOwner.value;
         const description = 'Owner changed';
-        addWorkflow({ swadl, author, description }).then(() => {
+        addWorkflow({ swadl, createdBy, description }).then(() => {
             setLoading(false);
             setShow(false);
             setIsContentChanged('original');
-            setAuthor(author);
+            setAuthor(createdBy);
             setContents(swadl);
             showStatus(false, 'Workflow owner reassigned');
-        }, ({ message }) => showToast(true, message));
+        }, ({ message }) => showStatus(true, message));
     };
 
-    const getPeople = async (input) => {
-        if (input.length < 2) {
-            return;
+    const searchPeople = (input) => new Promise((resolve) => searchActual(input, resolve));
+    const searchActual = debounce((input, resolve) => {
+        const term = input.trim();
+        if (term.length < 2) {
+            resolve([]);
         }
-        const data = (await searchUser(input))
-            .map(({ id, displayName }) => ({ label: displayName, value: id }));
-        return new Promise((resolve) => resolve(data));
-    };
+        searchUser(term).then(data => resolve(
+            data.map(({ id, displayName }) => ({ label: displayName, value: id }))
+        ));
+    }, 300);
 
     return (
-        <Modal size="small" show={show}>
+        <Modal size="small" show>
             <ModalTitle>Reassign Workflow Owner</ModalTitle>
             <ModalBody style={{ minHeight: '17rem' }}>
                 <Dropdown
                     blurInputOnSelect
                     label="Select the new owner"
-                    asyncOptions={getPeople}
+                    defaultOptions={false}
+                    isInputClearable
+                    noOptionMessage="No results available"
+                    asyncOptions={searchPeople}
                     onChange={({ target }) => setNewOwner(target.value)}
                     value={newOwner}
                     isDisabled={loading}
@@ -133,7 +151,7 @@ const AuthorMenu = ({ uiService }) => {
     };
 
     const AuthorMenu = () => buttonRef.current && (
-        <FloatingMenu show={showMenu} { ...getBottomAnchor() } onClick={() => setShowMenu(false)}>
+        <FloatingMenu show { ...getBottomAnchor() } onClick={() => setShowMenu(false)}>
             { author !== session.id && <DropdownMenuItem onClick={() => uiService.openIMbyUserIDs([ author ])}>Chat with Author</DropdownMenuItem> }
             { author === session.id && <DropdownMenuItem>You own this workflow</DropdownMenuItem> }
             { session.isAdmin && <DropdownMenuItem onClick={() => setShowModal(true)}>Reassign Owner</DropdownMenuItem> }
@@ -143,8 +161,8 @@ const AuthorMenu = ({ uiService }) => {
     return !authorUser ? <Button loading disabled /> : (
         <div style={{ flex: 1 }}>
             <AuthorButton />
-            <AuthorMenu />
-            <ReassignModal show={showModal} setShow={setShowModal} />
+            { showMenu && <AuthorMenu /> }
+            { showModal && <ReassignModal setShow={setShowModal} /> }
         </div>
     );
 };

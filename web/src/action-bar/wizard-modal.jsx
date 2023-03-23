@@ -6,7 +6,7 @@ import { useRecoilState } from 'recoil';
 import { useState } from 'react';
 import Wizard from '../wizard/wizard';
 
-const WizardModal = ({ show, setShow }) => {
+const WizardModal = ({ setShow }) => {
     const [ codeSnippet, setCodeSnippet ] = useState(null);
     const [ eventCodeSnippet, setEventCodeSnippet ] = useState(null);
     const [ conditionCodeSnippet, setConditionCodeSnippet ] = useState(null);
@@ -18,7 +18,7 @@ const WizardModal = ({ show, setShow }) => {
     };
 
     return (
-        <Modal size="large" show={show}>
+        <Modal size="large" show closeButton onClose={() => setShow(false)}>
             <ModalTitle>SWADL Code generation wizard</ModalTitle>
             <ModalBody style={{overflowY: 'hidden'}}>
                 <Wizard {...{setCodeSnippet, eventCodeSnippet, setEventCodeSnippet, conditionCodeSnippet, setConditionCodeSnippet, activeStep }} />

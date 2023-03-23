@@ -1,6 +1,6 @@
 import { atoms } from '../core/atoms';
 import { setDiagnosticsOptions } from 'monaco-yaml';
-import { editor, Uri } from 'monaco-editor';
+import { editor, Uri, KeyCode, KeyMod } from 'monaco-editor';
 import { useRecoilState } from 'recoil';
 import React, { lazy, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -62,17 +62,21 @@ const EmptyRoot = styled.div`
 
 const Editor = () => {
     const ref = useRef(null);
-    const { readWorkflow } = api();
+    const { readWorkflow, addWorkflow, showStatus } = api();
     const [ thisEditor, setThisEditor ] = useState();
     const theme = useRecoilState(atoms.theme)[0];
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
+    const [ init, setInit ] = useState(false);
+    const [ model, setModel ] = useState();
     const [ markers, setMarkers ] = useRecoilState(atoms.markers);
-    const setIsContentChanged = useRecoilState(atoms.isContentChanged)[1];
+    const [ isContentChanged, setIsContentChanged ] = useRecoilState(atoms.isContentChanged);
+    const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const snippet = useRecoilState(atoms.snippet)[0];
     const [ contents, setContents ] = useRecoilState(atoms.contents);
     const [ author, setAuthor ] = useRecoilState(atoms.author);
     const activeVersion = useRecoilState(atoms.activeVersion)[0];
     const session = useRecoilState(atoms.session)[0];
+    const setWorkflows = useRecoilState(atoms.workflows)[1];
 
     useEffect(() => {
         if (!currentWorkflow) {
@@ -81,9 +85,9 @@ const Editor = () => {
             return;
         }
         readWorkflow(currentWorkflow?.value, (response) => {
-            const current = response.filter(i => i.active)[0];
+            const current = response[0];
             setContents(current.swadl);
-            setAuthor(parseInt(current.lastUpdatedBy));
+            setAuthor(current.createdBy);
         });
     }, [ currentWorkflow, activeVersion ]);
 
@@ -108,29 +112,57 @@ const Editor = () => {
             thisEditor.setValue(contents);
             thisEditor.updateOptions({ readOnly: author !== session.id });
         } else {
-            if (editor.getModels().length > 0) {
-                editor.getModels().forEach((e) => e.dispose());
+            let yamlModel;
+            if (!model) {
+                if (editor.getModels().length > 0) {
+                    editor.getModels().forEach((e) => e.dispose());
+                }
+                yamlModel = editor.createModel(contents, 'yaml', modelUri);
+                setModel(yamlModel);
+            } else {
+                yamlModel = model;
             }
             const newEditor = editor.create(ref.current, {
                 language: 'yaml',
                 automaticLayout: true,
-                model: editor.createModel(contents, 'yaml', modelUri),
+                model: yamlModel,
                 theme: 'vs-' + theme,
                 scrollbar: { vertical: 'hidden' },
                 readOnly: author !== session.id,
             });
+
             newEditor.onDidChangeModelContent((e) => {
-                const modifiedContents = editor.getModels()[0].getValue();
-                if (modifiedContents != contents && !e.isFlush) {
+                const modifiedContents = yamlModel.getValue();
+                if (modifiedContents !== contents && !e.isFlush) {
                     setIsContentChanged('modified');
                 } else {
-                    setIsContentChanged('pristine');
+                    setIsContentChanged('original');
                 }
             });
             editor.onDidChangeMarkers(({ resource }) => setMarkers(editor.getModelMarkers({ resource })));
             setThisEditor(newEditor);
         }
     }, [ contents, author ]);
+
+    useEffect(() => {
+        if (thisEditor && !init) {
+            thisEditor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyS, () => saveWorkflow());
+            setInit(true);
+        }
+    }, [ thisEditor, loading, isContentChanged ]);
+
+    const saveWorkflow = () => {
+        if (loading || isContentChanged === 'original' || author !== session.id) {
+            return;
+        }
+        const swadl = editor.getModels()[0].getValue();
+        setLoading(true);
+        addWorkflow({ swadl, createdBy: session.id, description: 'Quick Save' }).then(() => {
+            setLoading(false);
+            setWorkflows(undefined);
+            showStatus(false, 'Workflow saved');
+        }, ({ message }) => showStatus(true, message));
+    };
 
     const goto = (lineNumber, column) => {
         thisEditor.revealLineInCenter(lineNumber);
