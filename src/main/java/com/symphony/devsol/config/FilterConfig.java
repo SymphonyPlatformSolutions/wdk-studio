@@ -21,7 +21,7 @@ public class FilterConfig {
     public FilterRegistrationBean<OncePerRequestFilter> accessFilterRegistration(AccessFilter filter) {
         FilterRegistrationBean<OncePerRequestFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(filter);
-        registration.addUrlPatterns("/v1/management/workflows", "/v1/management/workflows/*");
+        registration.addUrlPatterns("/v1/workflows", "/v1/workflows/*");
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
         return registration;
     }

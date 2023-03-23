@@ -1,7 +1,7 @@
 package com.symphony.devsol.config;
 
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
+import com.symphony.devsol.client.ExtAppClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,7 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 public class AuthFilter extends OncePerRequestFilter {
     @Value("${wdk.properties.management-token}")
     private String managementToken;
-    private final ExtensionAppAuthenticator extAppAuth;
+    private final ExtAppClient extAppClient;
     private final Pattern execPattern = Pattern.compile("/wdk/v1/workflows/[\\w\\-]+/execute");
 
     @Override
@@ -31,25 +31,27 @@ public class AuthFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain chain
     ) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String managementTokenHeader = request.getHeader("X-Management-Token");
-        UserClaim userClaim = new UserClaim();
+        if (!request.getMethod().equals("OPTIONS")) {
+            String authHeader = request.getHeader("Authorization");
+            String managementTokenHeader = request.getHeader("X-Management-Token");
+            UserClaim userClaim = new UserClaim();
 
-        if (managementToken.equals(managementTokenHeader)) {
-            userClaim.setUsername("mgmt-token");
-        } else if (execPattern.matcher(request.getRequestURI()).matches()) {
-            userClaim.setUsername("webhook");
-        } else {
-            try {
-                String jwt = authHeader.substring(7);
-                userClaim = extAppAuth.validateJwt(jwt);
-            } catch (Exception e) {
-                response.sendError(SC_UNAUTHORIZED, "Invalid Credentials");
-                return;
+            if (managementToken.equals(managementTokenHeader)) {
+                userClaim.setUsername("mgmt-token");
+            } else if (execPattern.matcher(request.getRequestURI()).matches()) {
+                userClaim.setUsername("webhook");
+            } else {
+                try {
+                    String jwt = authHeader.substring(7);
+                    userClaim = extAppClient.validate(jwt);
+                } catch (Exception e) {
+                    response.sendError(SC_UNAUTHORIZED, "Invalid Credentials");
+                    return;
+                }
             }
-        }
-        if (userClaim.getUsername() != null) {
-            request.setAttribute("user", userClaim);
+            if (userClaim.getUsername() != null) {
+                request.setAttribute("user", userClaim);
+            }
         }
         chain.doFilter(request, response);
     }

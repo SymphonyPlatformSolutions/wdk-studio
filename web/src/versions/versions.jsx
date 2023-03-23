@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { Badge } from '@symphony-ui/uitoolkit-components';
 import api from '../core/api';
 import { atoms } from '../core/atoms';
@@ -74,7 +74,7 @@ const VersionsExplorer = ({
     selectedVersion, setSelectedVersion, activeVersion, editorMode,
 }) => {
     const theme = useRecoilState(atoms.theme)[0];
-    const { readWorkflow } = api();
+    const { readWorkflowVersions } = api();
     const [ thisEditor, setThisEditor ] = useState();
     const contents = useRecoilState(atoms.contents)[0];
     const ref = useRef(null);
@@ -93,7 +93,7 @@ const VersionsExplorer = ({
         }
     };
 
-    useEffect(() => readWorkflow(currentWorkflow.value, (response) => {
+    useEffect(() => readWorkflowVersions(currentWorkflow.value, (response) => {
         const sorted = response.map((w, i) => ({ ...w, i: i+1 }))
             .sort((a, b) => b.version - a.version);
         setVersions([
@@ -147,9 +147,8 @@ const VersionsExplorer = ({
         active ? 'positive' : selectedVersion === version ? 'neutral' : 'default';
 
     const VersionsList = () => versions.map(({ active, version, description, i }, index) => (
-        <>
+        <Fragment key={version}>
             <Version
-                key={version}
                 selected={version === selectedVersion}
                 onClick={() => setSelectedVersion(version)}
             >
@@ -162,7 +161,7 @@ const VersionsExplorer = ({
                 {description === '' ? 'No comment' : description}
             </Version>
             { index === 0 && <Divider /> }
-        </>
+        </Fragment>
     ));
 
     return versions.length === 0 ? <Root><Spinner /></Root> : (
