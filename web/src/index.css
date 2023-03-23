@@ -17,5 +17,5 @@ html, body  {
     font-size: 1rem;
 }
 div { color: var(--tk-main-text-color, #525760); }
-button[disabled] { cursor: not-allowed; }
+button.tk-button[disabled] { cursor: not-allowed; }
 .tk-dialog__footer { gap: .5rem; }
