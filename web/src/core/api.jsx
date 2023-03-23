@@ -49,7 +49,7 @@ const api = () => {
         }
         const config = { method, headers };
         if (body) {
-            if (uri === 'v1/management/workflows') {
+            if (uri === 'v1/workflows') {
                 const formData  = new FormData();
                 Object.keys(body).forEach((key) => formData.append(key, body[key]));
                 config.body = formData;
@@ -70,7 +70,7 @@ const api = () => {
         if (session?.token) {
             headers.Authorization = `Bearer ${session.token}`;
         }
-        const es = new EventSourcePolyfill(`${apiRoot}/v1/management/workflows/logs`, { headers });
+        const es = new EventSourcePolyfill(`${apiRoot}/v1/workflows/logs`, { headers });
         es.onmessage = callback;
         es.addEventListener()
     };
@@ -89,16 +89,17 @@ const api = () => {
     return {
         getProfile: (token, callback) => apiCall(GET, 'symphony/profile', null, callback, token),
         listWorkflows: (callback) => apiCall(GET, 'v1/workflows/', null, callback),
-        addWorkflow: (workflow) => apiCall(POST, 'v1/management/workflows', workflow),
-        editWorkflow: (workflow, callback) => apiCall(PUT, 'v1/management/workflows', workflow, callback),
-        readWorkflow: (workflowId, callback) => apiCall(GET, `v1/management/workflows/${workflowId}`, null, callback),
-        deleteWorkflow: (workflowId, callback) => apiCall(DELETE, `v1/management/workflows/${workflowId}`, null, callback),
-        rollbackWorkflow: (workflowId, version, callback) => apiCall(POST, `v1/management/workflows/${workflowId}/versions/${version}`, null, callback),
+        addWorkflow: (workflow) => apiCall(POST, 'v1/workflows', workflow),
+        editWorkflow: (workflow, callback) => apiCall(PUT, 'v1/workflows', workflow, callback),
+        readWorkflow: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}`, null, callback),
+        readWorkflowVersions: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}?all_versions=true`, null, callback),
+        deleteWorkflow: (workflowId, callback) => apiCall(DELETE, `v1/workflows/${workflowId}`, null, callback),
+        rollbackWorkflow: (workflowId, version, callback) => apiCall(PUT, `v1/workflows/${workflowId}?version=${version}`, null, callback),
         listGalleryCategories: (callback) => apiCall(GET, 'gallery/categories', null, callback),
         listGalleryWorkflows: (category, callback) => apiCall(GET, `gallery/${category}/workflows`, null, callback),
         readGalleryWorkflow: (category, workflow, callback) => apiCall(GET, `gallery/${category}/workflows/${workflow}`, null, callback),
         getReadme: (path, callback) => apiCall(GET, `gallery/readme/${path}`, null, callback),
-        getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/definitions`, null, callback),
+        getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/nodes`, null, callback),
         listWorkflowInstances: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/instances`, null, callback),
         getUser: (userId, callback) => apiCall(GET, `symphony/user/${userId}`, null, callback),
         searchUser: (query) => apiCall(GET, `symphony/user?q=${query}`),

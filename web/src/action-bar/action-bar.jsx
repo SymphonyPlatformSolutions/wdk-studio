@@ -105,21 +105,23 @@ const ActionBar = ({ showConsole, setShowConsole }) => {
                 </OverflowButton>
             </Root>
 
-            <WizardModal show={showWizard} setShow={setShowWizard} />
-            <VersionsModal show={showVersions} setShow={setShowVersions} />
-            <DiagramModal show={showDiagram} setShow={setShowDiagram} />
-            <FloatingMenu show={showMenu} onClick={() => setShowMenu(false)}>
-                { currentWorkflow && editMode && <DropdownMenuItem onClick={() => setShowWizard(true)}>Wizard</DropdownMenuItem> }
-                { activeVersion && <DropdownMenuItem onClick={() => setShowVersions(true)}>Versions</DropdownMenuItem> }
-                <DropdownMenuItem onClick={toggleEditMode}>{ editMode ? 'Monitor' : 'Edit' }</DropdownMenuItem>
-                { currentWorkflow && markers.length === 0 && <DropdownMenuItem onClick={() => setShowDiagram(true)}>Diagram</DropdownMenuItem> }
-                { editMode && (
-                    <DropdownMenuItem onClick={() => setShowConsole((old) => !old)}>
-                        {showConsole ? 'Hide' : 'Show'} Console
-                    </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => openHelp()}>Help</DropdownMenuItem>
-            </FloatingMenu>
+            { showWizard &&<WizardModal setShow={setShowWizard} /> }
+            { showVersions && <VersionsModal setShow={setShowVersions} readOnly={author !== session.id} /> }
+            { showDiagram && <DiagramModal setShow={setShowDiagram} /> }
+            { showMenu && (
+                <FloatingMenu show onClick={() => setShowMenu(false)}>
+                    { currentWorkflow && editMode && <DropdownMenuItem onClick={() => setShowWizard(true)}>Wizard</DropdownMenuItem> }
+                    { activeVersion && <DropdownMenuItem onClick={() => setShowVersions(true)}>Versions</DropdownMenuItem> }
+                    <DropdownMenuItem onClick={toggleEditMode}>{ editMode ? 'Monitor' : 'Edit' }</DropdownMenuItem>
+                    { currentWorkflow && markers.length === 0 && <DropdownMenuItem onClick={() => setShowDiagram(true)}>Diagram</DropdownMenuItem> }
+                    { editMode && (
+                        <DropdownMenuItem onClick={() => setShowConsole((old) => !old)}>
+                            {showConsole ? 'Hide' : 'Show'} Console
+                        </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={() => openHelp()}>Help</DropdownMenuItem>
+                </FloatingMenu>
+            )}
         </>
     );
 };

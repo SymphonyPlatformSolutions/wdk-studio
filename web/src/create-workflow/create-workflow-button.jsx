@@ -7,7 +7,8 @@ import api from '../core/api';
 import { atoms } from '../core/atoms';
 import { useRecoilState } from 'recoil';
 
-const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
+const CreateWorkflowModal = ({ setShow }) => {
+    const [ loading, setLoading ] = useState(false);
     const setWorkflows = useRecoilState(atoms.workflows)[1];
     const setCurrentWorkflow = useRecoilState(atoms.currentWorkflow)[1];
     const [ newName, setNewName ] = useState('');
@@ -19,7 +20,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
 
     const showToast = (error, msg) => {
         showStatus(error, msg);
-        setCreateModal((old) => ({ ...old, loading: false }));
+        setLoading(false);
     };
 
     const createWorkflow = () => {
@@ -32,14 +33,14 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
             return;
         }
         const id = newName.trim().toLowerCase();
-        setCreateModal({ show: true, loading: true });
+        setLoading(true);
         const template = swadlTemplate
             .replace(/newId/g, id)
             .replace(/id: ([\w\-]+)/, `id: ${id}`);
 
-        addWorkflow({ swadl: template, author: session.id, description: "New workflow" }).then(() => {
+        addWorkflow({ swadl: template, createdBy: session.id, description: "New workflow" }).then(() => {
             showToast(false, 'New workflow added');
-            setCreateModal({ show: false });
+            setShow(false);
             setNewName('');
             const newWorkflow = { label: id, value: id };
             setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : -1)));
@@ -53,10 +54,10 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
         if (nameRef.current) {
             nameRef?.current?.focus();
         }
-    }, [ createModal?.show ]);
+    }, []);
 
     return (
-        <Modal size="large" show={createModal.show}>
+        <Modal size="large" show>
             <ModalTitle>Create Workflow</ModalTitle>
             <ModalBody style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <TextField
@@ -64,7 +65,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
                     label="Name"
                     showRequired={true}
                     value={newName}
-                    disabled={createModal.loading}
+                    disabled={loading}
                     onChange={({ target }) => setNewName(target.value)}
                 />
                 <TemplateSelector {...{ setSwadlTemplate, pageLoading, setPageLoading, templateLoading, setTemplateLoading }} />
@@ -72,15 +73,15 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
             <ModalFooter>
                 <Button
                     onClick={createWorkflow}
-                    loading={createModal.loading}
-                    disabled={newName==='' || createModal.loading || pageLoading || templateLoading}
+                    loading={loading}
+                    disabled={newName==='' || loading || pageLoading || templateLoading}
                 >
                     Create
                 </Button>
                 <Button
                     variant="secondary"
-                    onClick={() => setCreateModal({ show: false })}
-                    disabled={createModal.loading || pageLoading || templateLoading}
+                    onClick={() => setShow(false)}
+                    disabled={loading || pageLoading || templateLoading}
                 >
                     Cancel
                 </Button>
@@ -90,7 +91,7 @@ const CreateWorkflowModal = ({ createModal, setCreateModal }) => {
 };
 
 const CreateWorkflowButton = () => {
-    const [ createModal, setCreateModal ] = useState({ show: false });
+    const [ show, setShow ] = useState(false);
     const editMode = useRecoilState(atoms.editMode)[0];
     const isContentChanged = useRecoilState(atoms.isContentChanged)[0];
 
@@ -99,12 +100,12 @@ const CreateWorkflowButton = () => {
             <Button
                 variant="primary"
                 disabled={!editMode || isContentChanged === 'modified'}
-                onClick={() => setCreateModal({ show: true })}
+                onClick={() => setShow(true)}
                 iconLeft={<Icon iconName="plus" />}
             >
                 Workflow
             </Button>
-            <CreateWorkflowModal {...{ createModal, setCreateModal }} />
+            { show && <CreateWorkflowModal setShow={setShow} /> }
         </>
     );
 };

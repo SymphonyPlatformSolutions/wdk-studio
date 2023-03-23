@@ -124,15 +124,15 @@ const SaveButton = () => {
         const swadl = editor.getModels()[0].getValue();
         setShowMenu(false);
         setLoading(true);
-        addWorkflow({ swadl, author: session.id, description }).then(() => {
+        addWorkflow({ swadl, createdBy: session.id, description }).then(() => {
             setLoading(false);
             setWorkflows(undefined);
             showStatus(false, 'Workflow saved');
             setShowSaveModal(false);
-        }, ({ message }) => showToast(true, message));
+        }, ({ message }) => showStatus(true, message));
     };
 
-    const isDisabled = () => markers.length > 0 || isContentChanged !== 'modified';
+    const isDisabled = () => markers.length > 0 || isContentChanged === 'original';
 
     const getBottomAnchor = () => {
         const rect = buttonRef.current?.parentNode.getBoundingClientRect();

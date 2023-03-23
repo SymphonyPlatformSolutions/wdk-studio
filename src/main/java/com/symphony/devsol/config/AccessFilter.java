@@ -27,7 +27,7 @@ public class AccessFilter extends OncePerRequestFilter {
     private List<Long> admins;
     private final WdkClient wdkClient;
     private final Pattern idPattern = Pattern.compile("^id: ([\\w\\-]+)");
-    private final Pattern wfPattern = Pattern.compile("/v1/management/workflows/([\\w\\-]+)");
+    private final Pattern wfPattern = Pattern.compile("/v1/workflows/([\\w\\-]+)");
 
     @Override
     protected void doFilterInternal(
@@ -46,7 +46,7 @@ public class AccessFilter extends OncePerRequestFilter {
 
             if (workflowId == null && List.of("POST", "PUT").contains(request.getMethod())) {
                 // Check that caller matches declared author, or is an admin
-                byte[] authorBytes = request.getPart("author").getInputStream().readAllBytes();
+                byte[] authorBytes = request.getPart("createdBy").getInputStream().readAllBytes();
                 long authorId = Long.parseLong(new String(authorBytes, UTF_8));
                 if (!admins.contains(userId) && userId != authorId) {
                     response.sendError(SC_UNAUTHORIZED, "Your identity does not match the provided author");

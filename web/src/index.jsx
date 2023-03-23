@@ -5,10 +5,10 @@ import FadeToast from './core/fade-toast';
 import React, { Suspense, useState, useEffect, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import Spinner from './core/spinner';
+import Console from './console/console';
 import './index.css';
 
 const Editor = lazy(() => import('./editor/editor'));
-const Console = lazy(() => import('./console/console'));
 const WorkflowSelector = lazy(() => import('./create-workflow/workflow-selector'));
 const ActionBar = lazy(() => import('./action-bar/action-bar'));
 const Monitor = lazy(() => import('./monitor/monitor'));

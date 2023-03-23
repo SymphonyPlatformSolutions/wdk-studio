@@ -29,12 +29,12 @@ public class WdkClient {
 
     public long getWorkflowOwner(String workflowId) {
         List<Workflow> workflows = restTemplate.exchange(
-            baseUri + "/v1/management/workflows/" + workflowId, HttpMethod.GET,
+            baseUri + "/v1/workflows/" + workflowId, HttpMethod.GET,
             null, new ParameterizedTypeReference<List<Workflow>>() {}).getBody();
         if (workflows == null) {
             return 0L;
         }
         return workflows.stream().filter(Workflow::isActive)
-            .findFirst().map(w -> Long.parseLong(w.getLastUpdatedBy())).orElse(0L);
+            .findFirst().map(Workflow::getCreatedBy).orElse(0L);
     }
 }

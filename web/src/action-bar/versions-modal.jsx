@@ -23,14 +23,13 @@ const GroupButton = styled(Button)`
     &:not(.primary) + *:not(.primary) { border-left-width: .125rem }
 `;
 
-const VersionsModal = ({ show, setShow }) => {
+const VersionsModal = ({ setShow, readOnly }) => {
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const [ versions, setVersions ] = useState([]);
     const [ activeVersion, setActiveVersion ] = useRecoilState(atoms.activeVersion);
     const [ selectedVersion, setSelectedVersion ] = useState();
     const [ editorMode, setEditorMode ] = useState('Side-by-Side');
-
     const { rollbackWorkflow, showStatus } = api();
 
     const getLabel = (version) => versions.filter(v => v.version === version)[0]?.i;
@@ -46,7 +45,7 @@ const VersionsModal = ({ show, setShow }) => {
     };
 
     return (
-        <Modal size="full-width" show={show} closeButton onClose={() => setShow(false)}>
+        <Modal size="full-width" show closeButton onClose={() => setShow(false)}>
             <ModalTitle>Versions Explorer</ModalTitle>
             <ModalBody style={{ display: 'flex' }}>
                 <VersionsExplorer {...{
@@ -63,7 +62,7 @@ const VersionsModal = ({ show, setShow }) => {
             <ModalFooter style={{ justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', gap: '.5rem' }}>
                     <Button
-                        disabled={activeVersion === selectedVersion}
+                        disabled={readOnly || activeVersion === selectedVersion}
                         onClick={submitRevert}
                         loading={loading}
                     >

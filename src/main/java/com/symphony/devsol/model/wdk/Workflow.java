@@ -7,5 +7,5 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Workflow {
     private boolean active;
-    private String lastUpdatedBy;
+    private long createdBy;
 }
