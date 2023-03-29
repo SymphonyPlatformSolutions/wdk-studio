@@ -9,7 +9,7 @@ import { useRecoilState } from 'recoil';
 
 const CreateWorkflowModal = ({ setShow }) => {
     const [ loading, setLoading ] = useState(false);
-    const setWorkflows = useRecoilState(atoms.workflows)[1];
+    const [ workflows, setWorkflows ] = useRecoilState(atoms.workflows);
     const setCurrentWorkflow = useRecoilState(atoms.currentWorkflow)[1];
     const [ newName, setNewName ] = useState('');
     const [ swadlTemplate, setSwadlTemplate ] = useState();
@@ -28,11 +28,15 @@ const CreateWorkflowModal = ({ setShow }) => {
             showToast(true, 'Workflow name needs to be at least 3 characters long');
             return;
         }
-        if (newName.indexOf(' ') > -1) {
+        if (newName.trim().indexOf(' ') > -1) {
             showToast(true, 'Workflow name cannot contain spaces');
             return;
         }
         const id = newName.trim().toLowerCase();
+        if (workflows.map(w => w.value).indexOf(id) > -1) {
+            showToast(true, 'Another workflow with this ID already exists');
+            return;
+        }
         setLoading(true);
         const template = swadlTemplate
             .replace(/newId/g, id)
@@ -46,7 +50,7 @@ const CreateWorkflowModal = ({ setShow }) => {
             setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : -1)));
             setCurrentWorkflow(newWorkflow);
             setWorkflows(undefined);
-        }, () => showToast(true, 'Invalid workflow ID. Please choose a different one.'));
+        }, () => setLoading(false));
     };
 
     const nameRef = useRef();

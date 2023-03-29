@@ -42,7 +42,11 @@ const Console = ({ show }) => {
         setLogs((old) => `${old}${lastEventId} ${data}\n`);
         const errorMatch = data.match(/Internal server error: \[(.*)\]/);
         if (errorMatch) {
-            showStatus(true, errorMatch[1]);
+            let errorMsg = errorMatch[1];
+            if (errorMsg.indexOf('ENGINE-') === 0) {
+                errorMsg = errorMsg.split(':')[1];
+            }
+            showStatus(true, errorMsg);
         }
     }), []);
 
