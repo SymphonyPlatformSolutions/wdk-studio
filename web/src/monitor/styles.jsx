@@ -47,6 +47,11 @@ const Table = styled.table`
         cursor: pointer;
         background: var(--tk-color-electricity-50);
         & td { color: var(--tk-color-electricity-05) }
+
+        & button.inspect {
+            color: #fff;
+            border-color: #fff;
+        }
     }
 `;
 
@@ -61,6 +66,15 @@ const Row = styled.tr`
             color: ${props => props.selected ? 'var(--tk-color-electricity-05)' : 'transparent'};
             font-family: 'tk-icons';
             content: "";
+        }
+
+        & button.inspect {
+            &:hover { background-color: var(--tk-color-electricity-30) }
+            color: ${props => props.selected ? '#fff' : 'var(--tk-main-text-color, #525760)'};
+            border-width: 1px;
+            border-style: solid;
+            border-color: ${props => props.selected ? '#fff' : 'var(--tk-main-text-color, #525760)'};
+            box-shadow: none;
         }
     }
     th {
