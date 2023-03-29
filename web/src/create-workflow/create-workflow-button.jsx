@@ -46,7 +46,7 @@ const CreateWorkflowModal = ({ setShow }) => {
             setWorkflows((old) => ([ ...old, newWorkflow ].sort((a, b) => (a.value > b.value) ? 1 : -1)));
             setCurrentWorkflow(newWorkflow);
             setWorkflows(undefined);
-        }, () => showToast(true, 'Conflicting workflow ID. Please choose a different one.'));
+        }, () => showToast(true, 'Invalid workflow ID. Please choose a different one.'));
     };
 
     const nameRef = useRef();

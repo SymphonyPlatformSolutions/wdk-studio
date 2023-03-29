@@ -1,6 +1,6 @@
 import { atoms } from '../core/atoms';
 import { setDiagnosticsOptions } from 'monaco-yaml';
-import { editor, Uri, KeyCode, KeyMod } from 'monaco-editor';
+import { editor, Uri } from 'monaco-editor';
 import { useRecoilState } from 'recoil';
 import React, { lazy, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -143,26 +143,6 @@ const Editor = () => {
             setThisEditor(newEditor);
         }
     }, [ contents, author ]);
-
-    useEffect(() => {
-        if (thisEditor && !init) {
-            thisEditor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyS, () => saveWorkflow());
-            setInit(true);
-        }
-    }, [ thisEditor, loading, isContentChanged ]);
-
-    const saveWorkflow = () => {
-        if (loading || isContentChanged === 'original' || author !== session.id) {
-            return;
-        }
-        const swadl = editor.getModels()[0].getValue();
-        setLoading(true);
-        addWorkflow({ swadl, createdBy: session.id, description: 'Quick Save' }).then(() => {
-            setLoading(false);
-            setWorkflows(undefined);
-            showStatus(false, 'Workflow saved');
-        }, ({ message }) => showStatus(true, message));
-    };
 
     const goto = (lineNumber, column) => {
         thisEditor.revealLineInCenter(lineNumber);

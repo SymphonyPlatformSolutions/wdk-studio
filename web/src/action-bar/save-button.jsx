@@ -120,6 +120,15 @@ const SaveButton = () => {
     const [ showSaveModal, setShowSaveModal ] = useState(false);
     const setWorkflows = useRecoilState(atoms.workflows)[1];
 
+    document.onkeydown = (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            if (!isDisabled() && !loading) {
+                saveWorkflow('Quick Save');
+            }
+        }
+    };
+
     const saveWorkflow = (description) => {
         const swadl = editor.getModels()[0].getValue();
         setShowMenu(false);
@@ -129,7 +138,7 @@ const SaveButton = () => {
             setWorkflows(undefined);
             showStatus(false, 'Workflow saved');
             setShowSaveModal(false);
-        }, ({ message }) => showStatus(true, message));
+        }, () => setLoading(false));
     };
 
     const isDisabled = () => markers.length > 0 || isContentChanged === 'original';
