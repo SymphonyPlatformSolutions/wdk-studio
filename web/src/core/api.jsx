@@ -19,7 +19,8 @@ const api = () => {
     const session = useRecoilState(atoms.session)[0];
     const showStatus = (error, content) => {
         setStatus({ show: true, error, content });
-        setTimeout(() => setStatus({ show: false }), 3000);
+        const duration = error ? 10 : 3;
+        setTimeout(() => setStatus({ show: false }), duration * 1000);
     };
 
     const process = async (response) => {

@@ -7,6 +7,7 @@ import { atoms } from '../core/atoms';
 import ResizeBar from './resize-bar';
 
 const ConsoleRoot = styled.div`
+    display: ${props => props.show ? 'block' : 'none'};
     position: fixed;
     bottom: 0;
     left: 0;
@@ -29,22 +30,28 @@ const ActionBar = styled.div`
     margin: .5rem;
 `;
 
-const Console = () => {
+const Console = ({ show }) => {
     const logsRef = useRef();
     const theme = useRecoilState(atoms.theme)[0];
     const [ logs, setLogs ] = useRecoilState(atoms.logs);
     const [ tail, setTail ] = useState(true);
     const [ consoleHeight, setConsoleHeight ] = useState(200);
-    const { initLogs } = api();
+    const { initLogs, showStatus } = api();
 
-    useEffect(() => initLogs((event) => event && setLogs((old) => `${old}${event.data}\n`)), []);
+    useEffect(() => initLogs(({ lastEventId, data }) => {
+        setLogs((old) => `${old}${lastEventId} ${data}\n`);
+        const errorMatch = data.match(/Internal server error: \[(.*)\]/);
+        if (errorMatch) {
+            showStatus(true, errorMatch[1]);
+        }
+    }), []);
 
     useEffect(() => {
         tail && (logsRef.current.scrollTop = logsRef.current.scrollHeight);
     }, [ logs, tail ]);
 
     return (
-        <ConsoleRoot theme={theme}>
+        <ConsoleRoot theme={theme} show={show}>
             <ResizeBar {...{ consoleHeight, setConsoleHeight }} />
             <LogsRoot ref={logsRef} height={consoleHeight}>
                 {logs}

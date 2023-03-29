@@ -76,7 +76,7 @@ const App = () => {
             <ActionBar {...{ showConsole, setShowConsole }} />
             { editMode && <Editor /> }
             { !editMode && <Monitor /> }
-            { editMode && showConsole && <Console /> }
+            <Console show={editMode && showConsole} />
             <FadeToast />
         </Suspense>
     );
