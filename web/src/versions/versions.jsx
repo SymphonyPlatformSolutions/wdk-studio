@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useState, useEffect, useRef, Fragment } from 'react';
-import { Badge } from '@symphony-ui/uitoolkit-components';
+import { Badge, Button, Modal, ModalBody, ModalFooter, ModalTitle } from '@symphony-ui/uitoolkit-components';
 import api from '../core/api';
 import { atoms } from '../core/atoms';
 import { useRecoilState } from 'recoil';
@@ -25,7 +25,7 @@ const Version = styled.div`
     display: flex;
     flex-direction: column;
     border: var(--tk-color-graphite-40) 1px solid;
-    gap: .5rem;
+    gap: .3em;
     border-radius: .3rem;
     padding: .5rem;
     margin-right: .5rem;
@@ -74,7 +74,10 @@ const VersionsExplorer = ({
     selectedVersion, setSelectedVersion, activeVersion, editorMode,
 }) => {
     const theme = useRecoilState(atoms.theme)[0];
-    const { readWorkflowVersions } = api();
+    const [ authors, setAuthors ] = useState();
+    const [ showDeleteModal, setShowDeleteModal ] = useState(false);
+    const [ loading, setLoading ] = useRecoilState(atoms.loading);
+    const { readWorkflowVersions, deleteWorkflowVersion, showStatus, getUsers } = api();
     const [ thisEditor, setThisEditor ] = useState();
     const contents = useRecoilState(atoms.contents)[0];
     const ref = useRef(null);
@@ -94,7 +97,10 @@ const VersionsExplorer = ({
     };
 
     useEffect(() => readWorkflowVersions(currentWorkflow.value, (response) => {
-        const sorted = response.map((w, i) => ({ ...w, i: i+1 }))
+        const userIds = [ ...new Set(response.map((w) => w.createdBy).filter((u) => u)) ];
+        getUsers(userIds, (users) => setAuthors(users));
+
+        const sorted = response.map((v, i) => ({ ...v, i: i+1 }))
             .sort((a, b) => b.version - a.version);
         setVersions([
             ...sorted.filter((v) => v.active),
@@ -146,28 +152,81 @@ const VersionsExplorer = ({
     const getVariant = (active, version) =>
         active ? 'positive' : selectedVersion === version ? 'neutral' : 'default';
 
-    const VersionsList = () => versions.map(({ active, version, description, i }, index) => (
-        <Fragment key={version}>
-            <Version
-                selected={version === selectedVersion}
-                onClick={() => setSelectedVersion(version)}
-            >
-                <ContainedBadge variant={getVariant(active, version)}>
-                    v{i}
-                </ContainedBadge>
-                <ContainedBadge variant={getVariant(active, version)}>
-                    {(new Date(version / 1000)).toLocaleString()}
-                </ContainedBadge>
-                {description === '' ? 'No comment' : description}
-            </Version>
-            { index === 0 && <Divider /> }
-        </Fragment>
-    ));
+    const deleteVersion = () => {
+        setLoading(true);
+        deleteWorkflowVersion(currentWorkflow.value, selectedVersion, () => {
+            setLoading(false);
+            setShowDeleteModal(false);
+            const newVersions = versions.filter(v => v.version !== selectedVersion);
+            setSelectedVersion(newVersions[0].version);
+            setVersions(newVersions);
+            showStatus(false, "Workflow version deleted");
+        });
+    };
+
+    const ConfirmDeleteModdal = () => (
+        <Modal size="medium" show>
+            <ModalTitle>Confirm Delete</ModalTitle>
+            <ModalBody>This will delete this version of the workflow permanently. Are you sure?</ModalBody>
+            <ModalFooter>
+                <Button
+                    variant="primary-destructive"
+                    onClick={deleteVersion}
+                    disabled={loading}
+                    loading={loading}
+                >
+                    Delete
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => setShowDeleteModal(false)}
+                    disabled={loading}
+                >
+                    Cancel
+                </Button>
+            </ModalFooter>
+        </Modal>
+    );
+
+    const VersionsList = () => versions.map(({ active, version, description, createdBy, i }, index) => {
+        const variant = getVariant(active, version);
+        const isSelected = version === selectedVersion;
+        return (
+            <Fragment key={version}>
+                <Version
+                    selected={isSelected}
+                    onClick={() => setSelectedVersion(version)}
+                >
+                    <ContainedBadge variant={variant}>
+                        v{i}
+                    </ContainedBadge>
+                    <ContainedBadge variant={variant}>
+                        {(new Date(version / 1000)).toLocaleString()}
+                    </ContainedBadge>
+                    <ContainedBadge variant={variant} title={!authors ? 'Loading..' : authors[createdBy]}>
+                        {!authors ? 'Loading..' : authors[createdBy]}
+                    </ContainedBadge>
+                    { description === '' ? 'No comment' : description }
+                    { !active && isSelected && (
+                        <Button
+                            size="small"
+                            variant="destructive"
+                            onClick={() => setShowDeleteModal(true)}
+                        >
+                            Delete
+                        </Button>
+                    )}
+                </Version>
+                { index === 0 && <Divider /> }
+            </Fragment>
+        );
+    });
 
     return versions.length === 0 ? <Root><Spinner /></Root> : (
         <Root>
             <VersionsPane>
                 <VersionsList />
+                { showDeleteModal && <ConfirmDeleteModdal /> }
             </VersionsPane>
             <EditorPane>
                 <Labels>

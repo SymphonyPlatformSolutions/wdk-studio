@@ -56,6 +56,7 @@ const api = () => {
                 config.body = formData;
             } else {
                 config.body = JSON.stringify(body);
+                headers['Content-Type'] = 'application/json';
             }
         }
         const promise = fetch(`${apiRoot}/${uri}`, config).then(process);
@@ -95,6 +96,7 @@ const api = () => {
         readWorkflow: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}`, null, callback),
         readWorkflowVersions: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}?all_versions=true`, null, callback),
         deleteWorkflow: (workflowId, callback) => apiCall(DELETE, `v1/workflows/${workflowId}`, null, callback),
+        deleteWorkflowVersion: (workflowId, version, callback) => apiCall(DELETE, `v1/workflows/${workflowId}?version=${version}`, null, callback),
         rollbackWorkflow: (workflowId, version, callback) => apiCall(PUT, `v1/workflows/${workflowId}?version=${version}`, null, callback),
         listGalleryCategories: (callback) => apiCall(GET, 'gallery/categories', null, callback),
         listGalleryWorkflows: (category, callback) => apiCall(GET, `gallery/${category}/workflows`, null, callback),
@@ -103,6 +105,7 @@ const api = () => {
         getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/nodes`, null, callback),
         listWorkflowInstances: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/instances`, null, callback),
         getUser: (userId, callback) => apiCall(GET, `symphony/user/${userId}`, null, callback),
+        getUsers: (userIds, callback) => apiCall(POST, `symphony/users`, userIds, callback),
         searchUser: (query) => apiCall(GET, `symphony/user?q=${query}`),
         parseJwt,
         showStatus,
