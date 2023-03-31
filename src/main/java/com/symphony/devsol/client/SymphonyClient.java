@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
@@ -49,5 +51,11 @@ public class SymphonyClient {
             .limit(10)
             .map(u -> new SimpleUser(u.getId(), u.getDisplayName()))
             .toList();
+    }
+
+    @PostMapping("symphony/users")
+    public Map<Long, String> getSymphonyUsers(@RequestBody List<Long> userIds) {
+        return users.listUsersByIds(userIds).stream()
+            .collect(Collectors.toMap(UserV2::getId, UserV2::getDisplayName));
     }
 }
