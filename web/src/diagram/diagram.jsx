@@ -70,34 +70,21 @@ const Diagram = () => {
         if (!activityData) {
             return;
         }
-        const dateFormat = Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric' });
-        const edgeChanges = [];
-        nodes.forEach((node) => {
-            const existingActivity = activityData.activities.nodes.find(({ nodeId }) => nodeId == node.id);
-            if (existingActivity) {
-                edges.map((edg) => {
-                    const isGateway = nodes.find(({ id, nodeType }) => id === edg.target && nodeType === 'GATEWAY');
-                    if (edg.target == node.id || (edg.source == node.id && isGateway)) {
-                        edgeChanges.push({ item: {
-                            ...edg,
-                            animated: true,
-                            style: { stroke: '#65c862' },
-                            markerEnd: { type: MarkerType.ArrowClosed, color: '#65c862' },
-                            label: dateFormat.format(new Date(existingActivity.endDate)),
-                        }, type: 'reset' });
-                    }
-                });
-            } else if (node.nodeType !== 'GATEWAY') {
-                edges.map((edg) => {
-                    const isTargetGateway = nodes.find(({ id, nodeType }) => id === edg.target && nodeType === 'GATEWAY');
-                    if (edg.target == node.id || (edg.source == node.id && isTargetGateway )) {
-                        edgeChanges.push({item: edg, type: 'reset'});
-                    }
-                });
+        const dateParams = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        const dateFormat = (d) => Intl.DateTimeFormat('en-US', dateParams).format(new Date(d));
+        const greenProps = {
+            animated: true,
+            style: { stroke: '#65c862' },
+            markerEnd: { type: MarkerType.ArrowClosed, color: '#65c862' },
+        };
+        const runPath = Object.fromEntries(activityData.activities.nodes.map((n) =>[ n.nodeId, dateFormat(n.endDate) ]));
+        const edgeChanges = edges.map((edge) => {
+            if (runPath[edge.source] && runPath[edge.target]) {
+                return { item: { ...edge, ...greenProps, label: runPath[edge.source], }, type: 'reset' };
             }
+            return { item: { ...edge, style: { opacity: .3 } }, type: 'reset' };
         });
         setEdges((existing) => applyEdgeChanges(edgeChanges, existing));
-
     }, [ activityData ]);
 
     const loadDefinition = () => getWorkflowDefinition(currentWorkflow.value, (data) => {
