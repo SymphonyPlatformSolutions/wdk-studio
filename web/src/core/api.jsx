@@ -79,15 +79,6 @@ const api = () => {
 
     const [ GET, POST, PUT, DELETE ] = [ 'GET', 'POST', 'PUT', 'DELETE' ];
 
-    const getInstanceData = (workflowId, instanceId, callback) => {
-        const uriRoot = `v1/workflows/${workflowId}/instances/${instanceId}`;
-        const activities = apiCall(GET, `${uriRoot}/states`, null, null);
-        const variables = apiCall(GET, `${uriRoot}/variables`, null, null);
-        Promise.all([ activities, variables ])
-            .then((response) => callback({ activities: response[0], variables: response[1] }))
-            .catch(handleError);
-    };
-
     return {
         getProfile: (token, callback) => apiCall(GET, 'symphony/profile', null, callback, token),
         listWorkflows: (callback) => apiCall(GET, 'v1/workflows/', null, callback),
@@ -104,12 +95,13 @@ const api = () => {
         getReadme: (path, callback) => apiCall(GET, `gallery/readme/${path}`, null, callback),
         getWorkflowDefinition: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/nodes`, null, callback),
         listWorkflowInstances: (workflowId, callback) => apiCall(GET, `v1/workflows/${workflowId}/instances`, null, callback),
+        listWorkflowInstanceActivities: (workflowId, instanceId, callback) => apiCall(GET, `v1/workflows/${workflowId}/instances/${instanceId}/states`, null, callback),
+        listWorkflowInstanceVariables: (workflowId, instanceId, callback) => apiCall(GET, `v1/workflows/${workflowId}/instances/${instanceId}/variables`, null, callback),
         getUser: (userId, callback) => apiCall(GET, `symphony/user/${userId}`, null, callback),
         getUsers: (userIds, callback) => apiCall(POST, `symphony/users`, userIds, callback),
         searchUser: (query) => apiCall(GET, `symphony/user?q=${query}`),
         parseJwt,
         showStatus,
-        getInstanceData,
         initLogs,
     };
 };

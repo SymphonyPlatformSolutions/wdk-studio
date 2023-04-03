@@ -1,39 +1,57 @@
+import { atoms } from '../core/atoms';
+import { Button } from '@symphony-ui/uitoolkit-components/components';
 import { DetailPlane, TableTitle, Table } from './styles';
-import { useEffect } from 'react';
+import { useRecoilState } from 'recoil';
+import { useState, useEffect } from 'react';
+import api from '../core/api';
 import Spinner from '../core/spinner';
 
-const VariablesList = ({ activityData, currentVariables, setCurrentVariables }) => {
-    useEffect(() => {
-        setCurrentVariables(activityData?.variables.pop());
-    }, [ activityData ]);
+const VariablesList = ({ selectedInstance, setInspectorPayload }) => {
+    const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
+    const [ variables, setVariables ] = useState();
+    const { listWorkflowInstanceVariables } = api();
 
-    const formatVariable = (variable) => {
-        if (!variable) {
-            return 'null';
+    useEffect(() => {
+        if (selectedInstance) {
+            listWorkflowInstanceVariables(currentWorkflow.value, selectedInstance.instanceId,
+                (response) => setVariables(response));
         }
-        if (typeof variable === 'object') {
-            // console.log(JSON.stringify(variable)); // todo pop dialog
-        }
-        return variable.toString();
-    };
+    }, [ selectedInstance ]);
+
+    const InspectButton = ({ payload }) => (
+        <Button
+            className="inspect"
+            size="small"
+            variant="secondary"
+            onClick={() => setInspectorPayload(payload) }
+        >
+            Inspect
+        </Button>
+    );
+
+    const formatVariable = (variable) => !variable ? 'null'
+        : (typeof variable === 'object') ? <InspectButton payload={variable} />
+        : variable.toString();
 
     const Content = () => (
         <Table>
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Value</th>
                     <th>Updated</th>
+                    <th>Variable</th>
+                    <th>Value</th>
                 </tr>
             </thead>
             <tbody>
-                {currentVariables && Object.keys(currentVariables.outputs).map((key, i) => (
-                    <tr key={i}>
-                        <td>{key}</td>
-                        <td>{formatVariable(currentVariables.outputs[key])}</td>
-                        <td>{(new Date(currentVariables.updateTime)).toLocaleString()}</td>
-                    </tr>
-                ))}
+                { variables.map(({ outputs, updateTime }) =>
+                    Object.keys(outputs).map((key, i) => (
+                        <tr key={i}>
+                            <td>{(new Date(updateTime)).toLocaleString()}</td>
+                            <td>{key}</td>
+                            <td>{formatVariable(outputs[key])}</td>
+                        </tr>
+                    ))
+                )}
             </tbody>
         </Table>
     );
@@ -41,7 +59,7 @@ const VariablesList = ({ activityData, currentVariables, setCurrentVariables }) 
     return (
         <DetailPlane>
             <TableTitle>Variables</TableTitle>
-            { !currentVariables ? <Spinner /> : <Content /> }
+            { !variables ? <Spinner /> : <Content /> }
         </DetailPlane>
     );
 };

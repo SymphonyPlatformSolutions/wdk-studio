@@ -7,7 +7,7 @@ const InstanceList = ({ instances, selectedInstance, setSelectedInstance, loadIn
         .replaceAll(/([\d]+)\.(\d)([\d]+)/g, "$1.$2")
         .toLowerCase();
 
-    return (!instances || instances.length === 0) ? 'No instances yet' : (
+    return (
         <DetailPlane>
             <TableTitle>
                 Instances

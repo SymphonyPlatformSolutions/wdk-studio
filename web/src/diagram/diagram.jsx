@@ -49,8 +49,8 @@ const Diagram = () => {
     const selectedInstance = useRecoilState(atoms.selectedInstance)[0];
     const [ nodes, setNodes, onNodesChange ] = useNodesState(layoutedNodes);
     const [ edges, setEdges, onEdgesChange ] = useEdgesState(layoutedEdges);
-    const [ activityData, setActivityData ] = useState();
-    const { getInstanceData, getWorkflowDefinition } = api();
+    const [ activities, setActivities ] = useState();
+    const { listWorkflowInstanceActivities, getWorkflowDefinition } = api();
 
     const reactFlowStyle = { width: '100%', height: '100%' };
 
@@ -62,12 +62,12 @@ const Diagram = () => {
 
     useEffect(() => {
         if (selectedInstance) {
-            getInstanceData(selectedInstance.id, selectedInstance.instanceId, (r) => setActivityData(r));
+            listWorkflowInstanceActivities(selectedInstance.id, selectedInstance.instanceId, (r) => setActivities(r));
         }
     }, [ selectedInstance ]);
 
     useEffect(() => {
-        if (!activityData) {
+        if (!activities) {
             return;
         }
         const dateParams = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
@@ -77,7 +77,7 @@ const Diagram = () => {
             style: { stroke: '#65c862' },
             markerEnd: { type: MarkerType.ArrowClosed, color: '#65c862' },
         };
-        const runPath = Object.fromEntries(activityData.activities.nodes.map((n) =>[ n.nodeId, dateFormat(n.endDate) ]));
+        const runPath = Object.fromEntries(activities.nodes.map((n) =>[ n.nodeId, dateFormat(n.endDate) ]));
         const edgeChanges = edges.map((edge) => {
             if (runPath[edge.source] && runPath[edge.target]) {
                 return { item: { ...edge, ...greenProps, label: runPath[edge.source], }, type: 'reset' };
@@ -85,7 +85,7 @@ const Diagram = () => {
             return { item: { ...edge, style: { opacity: .3 } }, type: 'reset' };
         });
         setEdges((existing) => applyEdgeChanges(edgeChanges, existing));
-    }, [ activityData ]);
+    }, [ activities ]);
 
     const loadDefinition = () => getWorkflowDefinition(currentWorkflow.value, (data) => {
         const nodes = new Array();

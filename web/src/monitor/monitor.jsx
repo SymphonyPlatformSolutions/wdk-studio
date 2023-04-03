@@ -8,6 +8,7 @@ import InstanceList from './instance-list';
 import ActivityList from './activity-list';
 import VariablesList from './variables-list';
 import Spinner from '../core/spinner';
+import Inspector from './inspector';
 
 const MonitorRoot = styled.div`
     flex: 1 1 1px;
@@ -31,12 +32,12 @@ const Center = styled.div`
 
 const Monitor = () => {
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
-    const [ selectedInstance, setSelectedInstance ]= useRecoilState(atoms.selectedInstance);
-    const [ currentVariables, setCurrentVariables ] = useState();
-    const [ instances, setInstances ] = useState([]);
-    const [ activityData, setActivityData ] = useState();
-    const { getInstanceData, listWorkflowInstances } = api();
+    const [ selectedInstance, setSelectedInstance ] = useRecoilState(atoms.selectedInstance);
+    const [ instances, setInstances ] = useState();
+    const { listWorkflowInstances } = api();
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
+    const [ showInspector, setShowInspector ] = useState(false);
+    const [ inspectorPayload, setInspectorPayload ] = useState();
 
     const loadInstances = () => {
         setLoading(true);
@@ -49,19 +50,24 @@ const Monitor = () => {
     useEffect(loadInstances, []);
 
     useEffect(() => {
-        if (instances.length > 0 && !selectedInstance) {
+        if (instances && instances.length > 0 && !selectedInstance) {
             setSelectedInstance(instances[0]);
         }
     }, [ instances ]);
 
-    useEffect(() => {
-        if (selectedInstance) {
-            setActivityData(undefined);
-            getInstanceData(currentWorkflow.value, selectedInstance.instanceId, (r) => setActivityData(r));
-        }
-    }, [ selectedInstance ]);
-
     const Empty = () => <Center>No instances yet</Center>;
+
+    useEffect(() => {
+        if (inspectorPayload) {
+            setShowInspector(true);
+        }
+    }, [ inspectorPayload ]);
+
+    useEffect(() => {
+        if (!showInspector) {
+            setInspectorPayload(undefined);
+        }
+    }, [ showInspector ]);
 
     return (
         <MonitorRoot>
@@ -70,9 +76,10 @@ const Monitor = () => {
                     <InstanceMetrics {...{ instances }} />
                     <TriPlane>
                         <InstanceList {...{ instances, selectedInstance, setSelectedInstance, loadInstances, loading }} />
-                        <ActivityList {...{ activityData, setCurrentVariables }} />
-                        <VariablesList {...{ activityData, currentVariables, setCurrentVariables }} />
+                        <ActivityList {...{ selectedInstance, setInspectorPayload }} />
+                        <VariablesList {...{ selectedInstance, setInspectorPayload }} />
                     </TriPlane>
+                    { showInspector && <Inspector setShow={setShowInspector} payload={inspectorPayload} /> }
                 </>
             )}
         </MonitorRoot>
