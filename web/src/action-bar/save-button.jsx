@@ -112,13 +112,15 @@ const SaveButton = () => {
     const markers = useRecoilState(atoms.markers)[0];
     const isContentChanged = useRecoilState(atoms.isContentChanged)[0];
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
-    const { addWorkflow, showStatus } = api();
+    const { addWorkflow, listWorkflows, showStatus } = api();
     const session = useRecoilState(atoms.session)[0];
     const buttonRef = useRef();
     const [ showMenu, setShowMenu ] = useState(false);
     const [ showDiscardModal, setShowDiscardModal ] = useState(false);
     const [ showSaveModal, setShowSaveModal ] = useState(false);
     const setWorkflows = useRecoilState(atoms.workflows)[1];
+    const [ currentWorkflow, setCurrentWorkflow ] = useRecoilState(atoms.currentWorkflow);
+    const setActiveVersion = useRecoilState(atoms.activeVersion)[1];
 
     document.onkeydown = (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -133,12 +135,22 @@ const SaveButton = () => {
         const swadl = editor.getModels()[0].getValue();
         setShowMenu(false);
         setLoading(true);
-        addWorkflow({ swadl, createdBy: session.id, description }).then(() => {
-            setLoading(false);
-            setWorkflows(undefined);
-            showStatus(false, 'Workflow saved');
-            setShowSaveModal(false);
-        }, () => setLoading(false));
+        addWorkflow({ swadl, createdBy: session.id, description }).then(
+            () => listWorkflows((response) => {
+                setLoading(false);
+                showStatus(false, 'Workflow saved');
+                setShowSaveModal(false);
+
+                const values = response
+                    .map(({ id, version }) => ({ label: id, value: id, version }))
+                    .sort((a, b) => a.label > b.label ? 1 : -1);
+                setWorkflows(values);
+                const newWorkflow = values.find(w => w.value === currentWorkflow.value);
+                setCurrentWorkflow(newWorkflow);
+                setActiveVersion(newWorkflow.version);
+            }),
+            () => setLoading(false)
+        );
     };
 
     const isDisabled = () => markers.length > 0 || isContentChanged === 'original';

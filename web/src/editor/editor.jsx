@@ -62,21 +62,18 @@ const EmptyRoot = styled.div`
 
 const Editor = () => {
     const ref = useRef(null);
-    const { readWorkflow, addWorkflow, showStatus } = api();
+    const { readWorkflow } = api();
     const [ thisEditor, setThisEditor ] = useState();
     const theme = useRecoilState(atoms.theme)[0];
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
-    const [ init, setInit ] = useState(false);
+    const activeVersion = useRecoilState(atoms.activeVersion)[0];
     const [ model, setModel ] = useState();
     const [ markers, setMarkers ] = useRecoilState(atoms.markers);
-    const [ isContentChanged, setIsContentChanged ] = useRecoilState(atoms.isContentChanged);
-    const [ loading, setLoading ] = useRecoilState(atoms.loading);
+    const setIsContentChanged = useRecoilState(atoms.isContentChanged)[1];
     const snippet = useRecoilState(atoms.snippet)[0];
     const [ contents, setContents ] = useRecoilState(atoms.contents);
     const [ author, setAuthor ] = useRecoilState(atoms.author);
-    const activeVersion = useRecoilState(atoms.activeVersion)[0];
     const session = useRecoilState(atoms.session)[0];
-    const setWorkflows = useRecoilState(atoms.workflows)[1];
 
     useEffect(() => {
         if (!currentWorkflow) {
@@ -106,6 +103,8 @@ const Editor = () => {
 
     useEffect(() => {
         if (!contents) {
+            setThisEditor(undefined);
+            setModel(undefined);
             return;
         }
         if (thisEditor) {
