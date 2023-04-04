@@ -37,12 +37,6 @@ const WorkflowDropdown = ({ setActiveVersion }) => {
                 .map(({ id, version }) => ({ label: id, value: id, version }))
                 .sort((a, b) => a.label > b.label ? 1 : -1)
             setWorkflows(values);
-
-            if (currentWorkflow) {
-                const newWorkflow = values.filter(w => w.value === currentWorkflow.value)[0];
-                setCurrentWorkflow(newWorkflow);
-                setActiveVersion(newWorkflow.version);
-            }
         });
     }, [ workflows ]);
 
@@ -83,7 +77,7 @@ const WorkflowSelector = ({ uiService }) => {
             setCurrentWorkflow(workflows[0]);
             setActiveVersion(workflows[0].version);
         }
-    }, [ workflows, currentWorkflow, setCurrentWorkflow ]);
+    }, [ workflows, currentWorkflow ]);
 
     return (
         <Root>
