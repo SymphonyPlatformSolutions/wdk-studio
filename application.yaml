@@ -38,6 +38,9 @@ management:
 server:
   error.include-message: always
   servlet.contextPath: /
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,application/javascript,text/css,image/jpeg
 
 logging.level:
   org:
@@ -57,3 +60,5 @@ logging.level:
         engine.executor.DebugExecutor: debug
       spring.config: error
   springfox: error
+
+springfox.documentation.auto-startup: false
