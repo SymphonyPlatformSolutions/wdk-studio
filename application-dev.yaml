@@ -14,3 +14,4 @@ management:
   server.port: 8081
 
 spring.web.resources.static-locations: file:web/public
+springfox.documentation.auto-startup: true

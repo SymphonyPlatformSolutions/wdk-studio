@@ -65,13 +65,7 @@ spec:
           name: data
         - mountPath: /data/symphony/lib
           name: lib
-        - mountPath: /data/symphony/application-prod.yaml
-          name: config
-          subPath: application-prod.yaml
       volumes:
-      - configMap:
-          name: wdk-studio-config
-        name: config
       - name: data
         persistentVolumeClaim:
           claimName: wdk-studio-data-pvc
