@@ -1,7 +1,8 @@
 package com.symphony.devsol.config;
 
 import com.symphony.bdk.core.auth.jwt.UserClaim;
-import com.symphony.devsol.client.WdkClient;
+import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
+import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +26,11 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 public class AccessFilter extends OncePerRequestFilter {
     @Value("${wdk.studio.admins:}")
     private List<Long> admins;
-    private final WdkClient wdkClient;
     private final Pattern idPattern = Pattern.compile("^id: ([\\w\\-]+)");
     private final Pattern wfPattern = Pattern.compile("/v1/workflows/([\\w\\-]+)");
+    private final WorkflowsMgtApi managementApi;
+    @Value("${wdk.properties.management-token}")
+    private String managementToken;
 
     @Override
     protected void doFilterInternal(
@@ -62,7 +65,8 @@ public class AccessFilter extends OncePerRequestFilter {
             }
 
             // Check that caller owns the workflow
-            long ownerId = wdkClient.getWorkflowOwner(workflowId);
+            List<VersionedWorkflowView> workflows = managementApi.getVersionedWorkflow(managementToken, workflowId, null, false).getBody();
+            long ownerId = workflows == null || workflows.isEmpty() ? 0L : workflows.get(0).getCreatedBy();
             if (ownerId > 0L && !admins.contains(userId) && ownerId != userId) {
                 response.sendError(SC_UNAUTHORIZED, "You are not allowed to modify this workflow");
                 return;
