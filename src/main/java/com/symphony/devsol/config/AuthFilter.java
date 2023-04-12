@@ -23,7 +23,7 @@ public class AuthFilter extends OncePerRequestFilter {
     @Value("${wdk.properties.management-token}")
     private String managementToken;
     private final ExtAppClient extAppClient;
-    private final Pattern execPattern = Pattern.compile("/wdk/v1/workflows/[\\w\\-]+/execute");
+    private final Pattern execPattern = Pattern.compile("/v1/workflows/[\\w\\-]+/execute");
 
     @Override
     protected void doFilterInternal(
