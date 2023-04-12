@@ -38,8 +38,12 @@ public class AccessFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain chain
     ) throws ServletException, IOException {
-        if (!List.of("GET", "OPTIONS").contains(request.getMethod())) {
-            long userId = ((UserClaim) request.getAttribute("user")).getId();
+        UserClaim user = (UserClaim) request.getAttribute("user");
+        if (
+            !List.of("GET", "OPTIONS").contains(request.getMethod()) &&
+            !List.of("mgmt-token", "webhook").contains(user.getUsername())
+        ) {
+            long userId = user.getId();
             String workflowId = null;
 
             Matcher matcher = wfPattern.matcher(request.getServletPath());
