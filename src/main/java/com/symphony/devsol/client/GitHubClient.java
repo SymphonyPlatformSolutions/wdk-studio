@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import java.util.Base64;
 import java.util.List;
+import static java.util.stream.Collectors.toList;
 
 @RestController
 public class GitHubClient {
@@ -38,7 +39,7 @@ public class GitHubClient {
             .filter(p -> p.startsWith("categories/"))
             .map(p -> p.substring(11))
             .filter(p -> p.indexOf('/') == -1)
-            .toList();
+            .collect(toList());
     }
 
     @Cacheable("gallery-workflows")
@@ -51,7 +52,7 @@ public class GitHubClient {
             .filter(p -> p.startsWith(subPath))
             .map(p -> p.substring(subPath.length()))
             .filter(p -> p.endsWith(".swadl.yaml"))
-            .toList();
+            .collect(toList());
     }
 
     @Cacheable("gallery-workflow-content")
