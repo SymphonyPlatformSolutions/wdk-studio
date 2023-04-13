@@ -1,7 +1,9 @@
 package com.symphony.devsol.client;
 
 import com.symphony.bdk.core.auth.jwt.UserClaim;
+import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.gen.api.model.ApplicationInfo;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.devsol.model.wdk.Profile;
@@ -11,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +23,17 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RestController
 @RequiredArgsConstructor
 public class SymphonyClient {
+    @Value("${bdk.app.appId}")
+    private String appId;
     @Value("${wdk.studio.admins:}")
     private List<Long> admins;
     private final UserService users;
+    private final ApplicationService app;
+
+    @GetMapping("bdk/v1/app/info")
+    public ApplicationInfo getAppId() {
+        return app.getApplication(appId).getApplicationInfo();
+    }
 
     @GetMapping("symphony/profile")
     public Profile getProfile(@RequestAttribute("user") UserClaim user) {
