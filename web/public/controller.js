@@ -18,6 +18,9 @@ const bootstrap = () => {
     let modulesService = SYMPHONY.services.subscribe("modules");
     let navService = SYMPHONY.services.subscribe("applications-nav");
 
+    console.log(SYMPHONY.application);
+    console.log(controller);
+
     const meta = { title: appName, icon: appUri + '/icon-16.png' };
     navService.add(appId, meta, controllerId);
     controller.implement({
@@ -31,7 +34,7 @@ const bootstrap = () => {
 
 getAppId().then(r => r.json()).then((appInfo) => {
     appId = appInfo.appId;
-    appName = appInfo.name;
+    appName = `WDK Studio: ${appInfo.name}`;
     controllerId = `${appId}:controller`;
     controller = SYMPHONY.services.register(controllerId);
     SYMPHONY.remote.hello().then(auth).then(register).then(bootstrap);

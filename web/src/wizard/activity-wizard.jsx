@@ -1,113 +1,33 @@
 import React from 'react';
-import { useState } from 'react';
-import styled from "styled-components";
-import SendMessageForm from "./activities/send-message-form";
-import UpdateMessageForm from "./activities/update-message-form";
+import SendMessageForm from './activities/send-message-form';
+import UpdateMessageForm from './activities/update-message-form';
+import { Items, Item } from './styles';
 
-const Root = styled.div`
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-`;
+const ComingSoon = () => "Coming Soon..";
 
-const Title = styled.div`
-    padding: 10px;
-`;
+const ActivityWizard = ({ setCodeSnippet, eventCodeSnippet, selectedForm, setSelectedForm }) => {
+    const formProps = {...{ setCodeSnippet, eventCodeSnippet }};
 
-const ItemsBody = styled.div`
-    padding: 10px;
-    margin: 10px;
-    display: grid;
-    grid-gap: 10px;
-`;
+    const forms = [
+        { label: 'Send a message', component: <SendMessageForm {...formProps} /> },
+        { label: 'Update a message', component: <UpdateMessageForm {...formProps} /> },
+        { label: 'Create a room', component: <ComingSoon {...formProps} /> },
+        { label: 'Call an API', component: <ComingSoon {...formProps} /> },
+        { label: 'Execute a script', component: <ComingSoon {...formProps} /> },
+    ];
 
-const ItemsBodyContent = styled.div`
-    padding: 10px;
-    padding-right: 0px;
-    display: grid;
-    line-height: 24px;
-    grid-template-columns: 10fr 1fr;
-    font-size: 13px;
-    grid-gap: 10px;
-    border: 1px solid transparent;
-    cursor: pointer;
-    &:hover {
-        border-radius: 15px;
-        border: 1px solid #dddddd;
-    }
-    & > i {
-        line-height: 24px;
-    }
-`;
-
-const Chevron = styled.i`
-    line-height: 24px;
-`;
-
-const ActivityWizard = ({ setCodeSnippet, eventCodeSnippet }) => {
-    const [ selectedType, setSelectedType ] = useState(0);
-    const [ selectedActivityForm, setSelectedActivityForm ] = useState({});
-
-    const forms = {
-        'SendMessageForm': SendMessageForm,
-        'UpdateMessageForm': UpdateMessageForm
-    }
-
-    const addForm = (name) => {
-        return (selectedActivityForm.name) ? React.createElement( forms[selectedActivityForm.name], {setCodeSnippet: setCodeSnippet, eventCodeSnippet: eventCodeSnippet}, [] ) : null;
-    }
-
-    return (
-        <Root>
-            {!selectedActivityForm.name && selectedType === 0 &&
-            <>
-                <Title>Select a type of activity to execute:</Title>
-                <ItemsBody>
-                    <ItemsBodyContent onClick={() => setSelectedType(1)}>
-                        <span>Send or update a message</span>
-                        <Chevron className="fa fa-angle-right"></Chevron>
-                    </ItemsBodyContent>
-                    <ItemsBodyContent>
-                        <span>Create and configure rooms</span>
-                        <Chevron className="fa fa-angle-right"></Chevron>
-                    </ItemsBodyContent>
-                    <ItemsBodyContent>
-                        <span>Search and manage users</span>
-                        <Chevron className="fa fa-angle-right"></Chevron>
-                    </ItemsBodyContent>
-                    <ItemsBodyContent>
-                        <span>Call an API</span>
-                        <Chevron className="fa fa-angle-right"></Chevron>
-                    </ItemsBodyContent>
-                    <ItemsBodyContent>
-                        <span>Execute a script</span>
-                        <Chevron className="fa fa-angle-right"></Chevron>
-                    </ItemsBodyContent>
-                </ItemsBody>
-            </>
-            }
-            {!selectedActivityForm.name && selectedType===1 &&
-                <>
-                    <Title>Select a message based activity:</Title>
-                    <ItemsBody>
-                        <ItemsBodyContent onClick={() => setSelectedActivityForm({name: 'SendMessageForm'} )}>
-                            <span>Send a message</span>
-                            <Chevron className="fa fa-angle-right"></Chevron>
-                        </ItemsBodyContent>
-                        <ItemsBodyContent onClick={() => setSelectedActivityForm({name: 'UpdateMessageForm'} )}>
-                            <span>Update a message</span>
-                            <Chevron className="fa fa-angle-right"></Chevron>
-                        </ItemsBodyContent>
-                        <ItemsBodyContent onClick={() => setSelectedType(0)}>
-                            <span>Back</span>
-                            <Chevron className="fa fa-angle-left"></Chevron>
-                        </ItemsBodyContent>
-                    </ItemsBody>
-                </>
-            }
-            { selectedActivityForm.name && addForm(selectedActivityForm.name) }
-        </Root>
+    const Menu = () => (
+        <>
+            Select a type of activity to execute
+            <Items>
+                { forms.map((form) => (
+                    <Item key={form.label} onClick={() => setSelectedForm(form)}>
+                        { form.label }
+                    </Item>
+                )) }
+            </Items>
+        </>
     );
+    return !selectedForm ? <Menu /> : selectedForm.component;
 };
-
 export default ActivityWizard;

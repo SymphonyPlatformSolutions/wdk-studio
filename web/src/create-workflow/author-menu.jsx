@@ -154,7 +154,7 @@ const AuthorMenu = ({ uiService }) => {
         <FloatingMenu show { ...getBottomAnchor() } onClick={() => setShowMenu(false)}>
             { author !== session.id && <DropdownMenuItem onClick={() => uiService.openIMbyUserIDs([ author ])}>Chat with Author</DropdownMenuItem> }
             { author === session.id && <DropdownMenuItem>You own this workflow</DropdownMenuItem> }
-            { session.isAdmin && <DropdownMenuItem onClick={() => setShowModal(true)}>Reassign Owner</DropdownMenuItem> }
+            { session.admin && <DropdownMenuItem onClick={() => setShowModal(true)}>Reassign Owner</DropdownMenuItem> }
         </FloatingMenu>
     );
 
