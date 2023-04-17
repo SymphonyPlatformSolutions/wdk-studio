@@ -1,73 +1,16 @@
-import styled from 'styled-components';
-import { useState, useEffect, useRef, Fragment } from 'react';
-import { Badge, Button, Modal, ModalBody, ModalFooter, ModalTitle } from '@symphony-ui/uitoolkit-components';
+
+import { useState, useEffect, useRef } from 'react';
+import {
+    Button, Modal, ModalBody, ModalFooter, ModalTitle,
+} from '@symphony-ui/uitoolkit-components';
 import api from '../core/api';
 import { atoms } from '../core/atoms';
 import { useRecoilState } from 'recoil';
 import { editor } from 'monaco-editor';
 import Spinner from '../core/spinner';
-
-const Root = styled.div`
-    display: flex;
-    flex: 1 1 1px;
-    min-height: calc(100vh - 16rem);
-`;
-
-const VersionsPane = styled.div`
-    flex: 1 1 1px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
-`;
-
-const Version = styled.div`
-    display: flex;
-    flex-direction: column;
-    border: var(--tk-color-graphite-40) 1px solid;
-    gap: .3em;
-    border-radius: .3rem;
-    padding: .5rem;
-    margin-right: .5rem;
-
-    background-color: ${props => props.selected ? 'var(--tk-color-electricity-50)' : 'transparent'};
-    color: ${props => props.selected ? '#fff' : 'var(--tk-main-text-color, #525760)'};
-
-    :hover {
-        cursor: pointer;
-        color: #fff;
-        background-color: var(--tk-color-electricity-40);
-    }
-`;
-
-const Divider = styled.hr`
-    border-width: 1px 0 0 0;
-    border-color: var(--tk-color-graphite-10);
-    width: 70%;
-    margin: .3rem auto;
-`;
-
-const EditorPane = styled.div`
-    display: flex;
-    flex-direction: column;
-    flex: 3 1 1px;
-`;
-
-const Editor = styled.div`
-    flex: 1 1 1px;
-`;
-
-const ContainedBadge = styled(Badge)`
-    overflow: hidden;
-    text-overflow: ellipsis;
-`;
-
-const Labels = styled.div`
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: .5rem;
-    padding-right: 2rem;
-`;
+import {
+    Root, VersionsPane, Version, EditorPane, Editor, ContainedBadge, Labels,
+} from  './styles';
 
 const VersionsExplorer = ({
     versions, setVersions, currentWorkflow, getLabel,
@@ -188,37 +131,35 @@ const VersionsExplorer = ({
         </Modal>
     );
 
-    const VersionsList = () => versions.map(({ active, version, description, createdBy, i }, index) => {
+    const VersionsList = () => versions.map(({ active, version, description, createdBy, i }) => {
         const variant = getVariant(active, version);
         const isSelected = version === selectedVersion;
         return (
-            <Fragment key={version}>
-                <Version
-                    selected={isSelected}
-                    onClick={() => setSelectedVersion(version)}
-                >
-                    <ContainedBadge variant={variant}>
-                        v{i}
-                    </ContainedBadge>
-                    <ContainedBadge variant={variant}>
-                        {(new Date(version / 1000)).toLocaleString()}
-                    </ContainedBadge>
-                    <ContainedBadge variant={variant} title={!authors ? 'Loading..' : authors[createdBy]}>
-                        {!authors ? 'Loading..' : authors[createdBy]}
-                    </ContainedBadge>
-                    { description === '' ? 'No comment' : description }
-                    { !active && isSelected && (
-                        <Button
-                            size="small"
-                            variant="destructive"
-                            onClick={() => setShowDeleteModal(true)}
-                        >
-                            Delete
-                        </Button>
-                    )}
-                </Version>
-                { index === 0 && <Divider /> }
-            </Fragment>
+            <Version
+                key={version}
+                selected={isSelected}
+                onClick={() => setSelectedVersion(version)}
+            >
+                <ContainedBadge variant={variant}>
+                    v{i}
+                </ContainedBadge>
+                <ContainedBadge variant={variant}>
+                    {(new Date(version / 1000)).toLocaleString()}
+                </ContainedBadge>
+                <ContainedBadge variant={variant} title={!authors ? 'Loading..' : authors[createdBy]}>
+                    {!authors ? 'Loading..' : authors[createdBy]}
+                </ContainedBadge>
+                { description === '' ? 'No comment' : description }
+                { !active && isSelected && (
+                    <Button
+                        size="small"
+                        variant="destructive"
+                        onClick={() => setShowDeleteModal(true)}
+                    >
+                        Delete
+                    </Button>
+                )}
+            </Version>
         );
     });
 

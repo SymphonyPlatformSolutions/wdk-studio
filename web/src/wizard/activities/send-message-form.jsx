@@ -1,30 +1,20 @@
-import {useEffect, useState} from "react";
-import styled from "styled-components";
+import {useEffect, useState} from 'react';
+import styled from 'styled-components';
 import {
     TextField, TextArea
-} from "@symphony-ui/uitoolkit-components/components";
-import MessageMLTemplates from "./messageml-templates";
-
-const Root = styled.div`
-    height: 400px;
-    padding: 10px;
-    & * { margin-bottom: 10px }
-`;
-
-const Field = styled.div`
-    margin-top: 10px;
-`;
-
-const Title = styled.div`
-    margin-bottom: 10px;
-`;
+} from '@symphony-ui/uitoolkit-components/components';
+import MessageMLTemplates from './messageml-templates';
 
 const Templates = styled.div`
     display: flex;
-    flex-direction: row;
-    align-items: start;
-    & > a {
-        margin-left: 3px;
+    gap: .3rem;
+    font-size: .9rem;
+`;
+
+const Template = styled.div`
+    :hover {
+        cursor: pointer;
+        text-decoration: underline;
     }
 `;
 
@@ -43,9 +33,9 @@ const getStreamTemplate = (streamId) => !streamId ? '' : `
 `;
 
 const SendMessageForm = ({ setCodeSnippet, eventCodeSnippet }) => {
-    const [ identifier, setIdentifier ] = useState();
-    const [ streamId, setStreamId ] = useState();
-    const [ content, setContent ] = useState();
+    const [ identifier, setIdentifier ] = useState('');
+    const [ streamId, setStreamId ] = useState('');
+    const [ content, setContent ] = useState('');
 
     useEffect(() => {
         let snippet = null;
@@ -63,23 +53,21 @@ const SendMessageForm = ({ setCodeSnippet, eventCodeSnippet }) => {
     const handleChangeIdentifier = ({ target }) => setIdentifier(target.value);
     const handleChangeStreamId = ({ target }) => setStreamId(target.value);
     const handleChangeContent = ({ target }) => setContent(target.value);
-    const handleCopyFrom = (template) => setContent( content + MessageMLTemplates[template] );
+    const handleCopyFrom = (template) => setContent((c) => `${c}\n${MessageMLTemplates[template]}`.trim());
 
-    const links = [ 'simple', 'complex', 'table', 'form', 'card', '@mention' ];
+    const links = [ 'simple', 'table', 'form', 'card', 'mention' ];
 
     return (
-        <Root>
-            <Title>Messages &gt; Send a Message:</Title>
-            <Field><TextField label={'Identifier'} showRequired={true} value={identifier} onChange={handleChangeIdentifier} /></Field>
-            <Field><TextField label={'StreamId'} showRequired={false} value={streamId} onChange={handleChangeStreamId} /></Field>
-            <Field>
-                <TextArea label={'Content'} showRequired={true} value={content} onChange={handleChangeContent} />
-                <Templates>
-                    <span className={'tk-label'}>Copy from:</span>
-                    { links.map((link) => <a key={link} className={'tk-label'} href={'#'} onClick={() => handleCopyFrom(link)}>{link}</a>) }
-                </Templates>
-            </Field>
-        </Root>
+        <>
+            Messages &gt; Send a Message:
+            <TextField label="Identifier" showRequired value={identifier} onChange={handleChangeIdentifier} />
+            <TextField label="StreamId" value={streamId} onChange={handleChangeStreamId} />
+            <TextArea label="Content" showRequired value={content} onChange={handleChangeContent} />
+            <Templates>
+                Copy from:
+                { links.map((link) => <Template key={link} onClick={() => handleCopyFrom(link)}>{link}</Template>) }
+            </Templates>
+        </>
     );
 };
 export default SendMessageForm;

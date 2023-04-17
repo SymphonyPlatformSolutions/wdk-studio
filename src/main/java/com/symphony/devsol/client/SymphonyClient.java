@@ -1,9 +1,8 @@
 package com.symphony.devsol.client;
 
 import com.symphony.bdk.core.auth.jwt.UserClaim;
-import com.symphony.bdk.core.service.application.ApplicationService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.user.UserService;
-import com.symphony.bdk.gen.api.model.ApplicationInfo;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.devsol.model.wdk.Profile;
@@ -28,11 +27,11 @@ public class SymphonyClient {
     @Value("${wdk.studio.admins:}")
     private List<Long> admins;
     private final UserService users;
-    private final ApplicationService app;
+    private final SessionService session;
 
     @GetMapping("bdk/v1/app/info")
-    public ApplicationInfo getAppId() {
-        return app.getApplication(appId).getApplicationInfo();
+    public Map<String, ?> getAppId() {
+        return Map.of("appId", appId, "name", session.getSession().getDisplayName());
     }
 
     @GetMapping("symphony/profile")

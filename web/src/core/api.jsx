@@ -74,7 +74,6 @@ const api = () => {
         }
         const es = new EventSourcePolyfill(`${apiRoot}/v1/workflows/logs`, { headers });
         es.onmessage = callback;
-        es.addEventListener()
     };
 
     const [ GET, POST, PUT, DELETE ] = [ 'GET', 'POST', 'PUT', 'DELETE' ];
