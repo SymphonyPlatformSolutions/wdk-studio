@@ -7,10 +7,10 @@ jdk.management,jdk.net,jdk.unsupported,jdk.crypto.ec
 
 FROM debian:bullseye-slim
 WORKDIR /data/symphony
-ENV GH_URI=https://github.com/SymphonyPlatformSolutions/wdk-federation-client/releases/download/
-RUN mkdir staging && wget $GH_URI/1.0.1/wdk-federation-client.jar -P staging && wget $GH_URI/1.0.1/java-jwt-4.4.0.jar -P staging
 COPY --from=0 /jre /jre
 COPY workflow-bot-app.jar app.jar
+COPY federation/java-jwt-4.4.0.jar staging/java-jwt-4.4.0.jar
+COPY federation/wdk-federation-client.jar staging/wdk-federation-client.jar
 COPY lib/wdk-studio.jar staging/wdk-studio.jar
 COPY lib/symphony-bdk-app-spring-boot-starter*.jar staging/bdk-app-starter.jar
 COPY application.yaml application.yaml
