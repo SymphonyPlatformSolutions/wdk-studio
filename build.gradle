@@ -25,9 +25,9 @@ configurations {
 
 dependencies {
     implementation 'org.finos.symphony.bdk:symphony-bdk-app-spring-boot-starter:2.13.0'
-    compileOnly 'org.finos.symphony.wdk:workflow-language:1.6.0-SNAPSHOT'
-    compileOnly 'org.finos.symphony.wdk:workflow-bot-app:1.6.0-SNAPSHOT'
-    botJar 'org.finos.symphony.wdk:workflow-bot-app:1.6.0-SNAPSHOT:boot'
+    compileOnly 'org.finos.symphony.wdk:workflow-language:1.5.1'
+    compileOnly 'org.finos.symphony.wdk:workflow-bot-app:1.5.1'
+    botJar 'org.finos.symphony.wdk:workflow-bot-app:1.5.1:boot'
 }
 
 tasks.register('botJar', Copy) {
