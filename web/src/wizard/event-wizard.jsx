@@ -1,29 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Dropdown, TextField } from "@symphony-ui/uitoolkit-components/components";
 
-const EventWizard = ({ setEventCodeSnippet, conditionCodeSnippet }) => {
+const EventWizard = () => {
     const events = [
-        { label: 'message-received', value: 1, field: 'content', fieldLabel: 'Content' },
-        { label: 'form-replied', value: 2, field: 'form-id', fieldLabel: 'Form ID' },
-        { label: 'activity-completed', value: 3, field: 'activity-id', fieldLabel: 'Activity ID' },
-        { label: 'activity-expired', value: 4, field: 'activity-id', fieldLabel: 'Activity ID' }
+        { label: 'Message Received', value: 'message-received', fieldLabel: 'Content' },
+        { label: 'Form Replied', value: 'form-replied', fieldLabel: 'Form ID' },
+        { label: 'Activity Completed', value: 'activity-completed', fieldLabel: 'Activity ID' },
+        { label: 'Activity Expired', value: 'activity-expired', fieldLabel: 'Activity ID' }
     ];
 
     const [ selectedEvent, setSelectedEvent ] = useState(events[0]);
-    const [ fieldData, setFieldData ] = useState('');
-
-    useEffect(() => {
-        setEventCodeSnippet(`on:
-        ${selectedEvent.label}:
-          ${selectedEvent.field}: ${fieldData}
-      ${conditionCodeSnippet && ('if: ${' + conditionCodeSnippet + '}')}`.trim());
-    }, [ selectedEvent, conditionCodeSnippet, fieldData ]);
 
     return (
         <>
             Define the event that will trigger the activity
-            <Dropdown label="Select an event" options={events} value={selectedEvent} onChange={(e) => setSelectedEvent(e.target.value)} />
-            <TextField label={selectedEvent.fieldLabel} value={fieldData} onChange={({ target }) => setFieldData(target.value)} />
+            <Dropdown label="Select an event" options={events} name="event" value={selectedEvent} onChange={(e) => setSelectedEvent(e.target.value)} />
+            <TextField label={selectedEvent.fieldLabel} name="eventValue" />
         </>
     );
 };

@@ -6,19 +6,14 @@ import {
 } from './styles';
 
 const Wizard = ({
-    setCodeSnippet,
-    eventCodeSnippet,
-    setEventCodeSnippet,
-    conditionCodeSnippet,
-    setConditionCodeSnippet,
     activeStep,
     selectedForm,
     setSelectedForm,
 }) => {
     const wizards = [
-        <ActivityWizard {...{ setCodeSnippet, eventCodeSnippet, selectedForm, setSelectedForm }} />,
-        <EventWizard {...{ setEventCodeSnippet, conditionCodeSnippet }} />,
-        <ConditionWizard {...{ setConditionCodeSnippet }} />,
+        <ActivityWizard {...{ selectedForm, setSelectedForm }} />,
+        <EventWizard />,
+        <ConditionWizard />,
     ];
     return (
         <WizardRoot>
@@ -33,11 +28,13 @@ const Wizard = ({
                     </Step>
                 ))}
             </Stepper>
-            { wizards.map((wizard, index) => (
-                <SubWizardRoot key={index} show={activeStep === (index + 1)}>
-                    { wizard }
-                </SubWizardRoot>
-            ))}
+            <form id="wizard">
+                { wizards.map((wizard, index) => (
+                    <SubWizardRoot key={index} show={activeStep === (index + 1)}>
+                        { wizard }
+                    </SubWizardRoot>
+                ))}
+            </form>
         </WizardRoot>
     );
 };

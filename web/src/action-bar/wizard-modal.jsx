@@ -3,27 +3,65 @@ import {
     Button, Modal, ModalBody, ModalFooter, ModalTitle
 } from '@symphony-ui/uitoolkit-components/components';
 import { useRecoilState } from 'recoil';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Wizard from '../wizard/wizard';
 
+const eventFields = {
+    'message-received': 'content',
+    'form-replied': 'form-id',
+    'activity-completed': 'activity-id',
+    'activity-expired': 'activity-id',
+};
+
+const kebabCase = (string) => string
+    .replace(/([a-z])([A-Z])/g, "$1-$2")
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase();
+
 const WizardModal = ({ setShow }) => {
-    const [ codeSnippet, setCodeSnippet ] = useState(null);
-    const [ eventCodeSnippet, setEventCodeSnippet ] = useState(null);
-    const [ conditionCodeSnippet, setConditionCodeSnippet ] = useState(null);
+    const [ isNextDisabled, setNextDisabled ] = useState(true);
     const [ selectedForm, setSelectedForm ] = useState();
     const [ activeStep, setActiveStep ] = useState(1);
     const setSnippet = useRecoilState(atoms.snippet)[1];
 
     const addCodeSnippet = () => {
-        setSnippet({ content: codeSnippet, ts: Date.now() });
-        resetWizard();
+        const data = Object.fromEntries(new FormData(document.querySelector('#wizard')).entries());
+        const swadlBuilder = [
+            `- ${selectedForm.activity}:`,
+            ...selectedForm.fields
+                .filter(({ key }) => data[key].trim().length > 0)
+                .map(({ key }) => `      ${kebabCase(key)}: ${data[key].trim()}`),
+        ];
+        if (data.condition.trim().length > 0) {
+            swadlBuilder.splice(2, 0, `      if: \${${data.condition.trim()}}`);
+        }
+        if (data.eventValue.trim().length > 0) {
+            swadlBuilder.splice(2, 0, ...[
+                '      on:',
+                `        ${data.event}:`,
+                `          ${eventFields[data.event]}: ${data.eventValue.trim()}`,
+            ]);
+        }
+        setSnippet(swadlBuilder.join('\n'));
+        setShow(false);
     };
 
-    const resetWizard = () => {
-        setShow(false);
-        setCodeSnippet(null);
-        setEventCodeSnippet(null);
-        setActiveStep(1);
+    useEffect(() => {
+        if (selectedForm) {
+            document.querySelector('#wizard').onkeyup =
+                () => setNextDisabled(shouldNextBeDisabled());
+        }
+    }, [ selectedForm ]);
+
+    const shouldNextBeDisabled = () => {
+        if (activeStep === 1) {
+            const data = Object.fromEntries(new FormData(document.querySelector('#wizard')).entries());
+            const emptyValues = selectedForm.fields
+                .filter(({ props }) => props.showRequired)
+                .find(({ key }) => data[key]?.trim() === '');
+            return !!emptyValues;
+        }
+        return false;
     };
 
     return (
@@ -31,11 +69,6 @@ const WizardModal = ({ setShow }) => {
             <ModalTitle>SWADL Generator Wizard</ModalTitle>
             <ModalBody>
                 <Wizard {...{
-                    setCodeSnippet,
-                    eventCodeSnippet,
-                    setEventCodeSnippet,
-                    conditionCodeSnippet,
-                    setConditionCodeSnippet,
                     activeStep,
                     selectedForm,
                     setSelectedForm,
@@ -52,14 +85,21 @@ const WizardModal = ({ setShow }) => {
                 <Button
                     variant="secondary"
                     onClick={() => setActiveStep((a) => a + 1)}
-                    disabled={!codeSnippet || activeStep >= 3}
+                    disabled={!selectedForm || activeStep >= 3 || isNextDisabled}
                 >
                     Next
                 </Button>
-                <Button variant="primary" onClick={addCodeSnippet} disabled={!codeSnippet}>
+                <Button
+                    variant="primary"
+                    onClick={addCodeSnippet}
+                    disabled={isNextDisabled}
+                >
                     Get Code
                 </Button>
-                <Button variant="secondary" onClick={resetWizard}>
+                <Button
+                    variant="secondary"
+                    onClick={() => setShow(false)}
+                >
                     Cancel
                 </Button>
             </ModalFooter>
