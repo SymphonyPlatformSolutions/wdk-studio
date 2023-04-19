@@ -70,7 +70,7 @@ const Editor = () => {
     const [ model, setModel ] = useState();
     const [ markers, setMarkers ] = useRecoilState(atoms.markers);
     const setIsContentChanged = useRecoilState(atoms.isContentChanged)[1];
-    const snippet = useRecoilState(atoms.snippet)[0];
+    const [ snippet, setSnippet ] = useRecoilState(atoms.snippet);
     const [ contents, setContents ] = useRecoilState(atoms.contents);
     const [ author, setAuthor ] = useRecoilState(atoms.author);
     const session = useRecoilState(atoms.session)[0];
@@ -89,15 +89,16 @@ const Editor = () => {
     }, [ currentWorkflow, activeVersion ]);
 
     useEffect(() => {
-        if (!snippet.content) {
+        if (!snippet) {
             return;
         }
         if (thisEditor) {
-            let id = { major: 1, minor: 1 };
-            let range = thisEditor.getSelection();
-            let op = { identifier: id, range: range, text: snippet.content, forceMoveMarkers: true };
-            thisEditor.executeEdits("wizard", [op]);
+            const identifier = { major: 1, minor: 1 };
+            const range = thisEditor.getSelection();
+            let op = { identifier, range, text: snippet, forceMoveMarkers: true };
+            thisEditor.executeEdits("wizard", [ op ]);
             thisEditor.focus();
+            setSnippet(undefined);
         }
     }, [ snippet ]);
 

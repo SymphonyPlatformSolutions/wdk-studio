@@ -12,6 +12,12 @@ const SubWizardRoot = styled.div`
     margin: 1rem;
 `;
 
+const ActivityRoot = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+`;
+
 const Stepper = styled.div`
     display: flex;
     justify-content: center;
@@ -59,6 +65,7 @@ const StepTitle = styled.div`
 
 const StepSubtitle = styled.div`
     font-size: .8rem;
+    min-height: 1rem;
 `;
 
 const Items = styled.div`
@@ -79,5 +86,6 @@ const Item = styled.div`
 `;
 
 export {
-    WizardRoot, SubWizardRoot, Stepper, Step, StepInner, StepCircle, StepTitle, StepSubtitle, Items, Item,
+    WizardRoot, SubWizardRoot, ActivityRoot, Stepper, Step, StepInner,
+    StepCircle, StepTitle, StepSubtitle, Items, Item,
 }
