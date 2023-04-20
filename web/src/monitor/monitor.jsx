@@ -70,7 +70,7 @@ const Monitor = () => {
     }, [ showInspector ]);
 
     return (
-        <MonitorRoot show={show}>
+        <MonitorRoot>
             { !instances ? <Spinner /> : instances.length === 0 ? <Empty /> : (
                 <>
                     <InstanceMetrics {...{ instances }} />
