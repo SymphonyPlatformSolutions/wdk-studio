@@ -1,11 +1,11 @@
 import { atoms } from './core/atoms';
 import { RecoilRoot, useRecoilState } from 'recoil';
 import api from './core/api';
+import Console from './console/console';
 import FadeToast from './core/fade-toast';
 import React, { Suspense, useState, useEffect, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import Spinner from './core/spinner';
-import Console from './console/console';
 import './index.css';
 
 const Editor = lazy(() => import('./editor/editor'));
@@ -14,6 +14,7 @@ const ActionBar = lazy(() => import('./action-bar/action-bar'));
 const Monitor = lazy(() => import('./monitor/monitor'));
 
 const App = () => {
+    const [ thisEditor, setThisEditor ] = useState();
     const [ showConsole, setShowConsole ] = useState(false);
     const editMode = useRecoilState(atoms.editMode)[0];
     const setTheme = useRecoilState(atoms.theme)[1];
@@ -73,8 +74,8 @@ const App = () => {
         : (!window.SYMPHONY && !session.isDev) ? 'Please launch Symphony to use WDK Studio' : (
         <Suspense fallback={<Spinner />}>
             <WorkflowSelector {...{ uiService }} />
-            <ActionBar {...{ showConsole, setShowConsole }} />
-            { editMode && <Editor /> }
+            <ActionBar {...{ showConsole, setShowConsole, thisEditor }} />
+            <Editor show={editMode} {...{ thisEditor, setThisEditor }} />
             { !editMode && <Monitor /> }
             <Console show={editMode && showConsole} />
             <FadeToast />

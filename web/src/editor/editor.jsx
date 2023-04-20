@@ -26,7 +26,7 @@ setDiagnosticsOptions({
 const Root = styled.div`
     border: #8f959e 1px solid;
     flex: 1 1 1px;
-    display: flex;
+    display: ${props => props.show ? 'flex' : 'none'};
     flex-direction: column;
     justify-content: space-between;
     max-height: calc(100vh - 7rem);
@@ -60,11 +60,11 @@ const EmptyRoot = styled.div`
     align-items: center;
 `;
 
-const Editor = () => {
+const Editor = ({ show, thisEditor, setThisEditor }) => {
     const ref = useRef(null);
     const { readWorkflow } = api();
-    const [ thisEditor, setThisEditor ] = useState();
     const theme = useRecoilState(atoms.theme)[0];
+    const [ position, setPosition ] = useRecoilState(atoms.position);
     const currentWorkflow = useRecoilState(atoms.currentWorkflow)[0];
     const activeVersion = useRecoilState(atoms.activeVersion)[0];
     const [ model, setModel ] = useState();
@@ -85,14 +85,18 @@ const Editor = () => {
             const current = response[0];
             setContents(current.swadl);
             setAuthor(current.createdBy);
+            if (position) {
+                setTimeout(() => {
+                    thisEditor.setPosition(position);
+                    thisEditor.focus();
+                    setPosition(undefined);
+                }, 100);
+            }
         });
     }, [ currentWorkflow, activeVersion ]);
 
     useEffect(() => {
-        if (!snippet) {
-            return;
-        }
-        if (thisEditor) {
+        if (snippet && thisEditor) {
             const identifier = { major: 1, minor: 1 };
             const range = thisEditor.getSelection();
             let op = { identifier, range, text: snippet, forceMoveMarkers: true };
@@ -165,7 +169,7 @@ const Editor = () => {
     );
 
     return (
-        <Root>
+        <Root show={show}>
             { !contents ? <Empty /> : <EditorRoot ref={ref} large={markers.length === 0} /> }
             { markers.length > 0 && (
                 <ProblemsRoot {...{ theme }}>

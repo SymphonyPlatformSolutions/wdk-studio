@@ -12,6 +12,7 @@ export const atoms = {
     activeVersion: atom({ key: 'activeVersion', default: undefined }),
     contents: atom({ key: 'contents', default: undefined }),
     author: atom({ key: 'author', default: undefined }),
+    position: atom({ key: 'position', default: undefined }),
     snippet: atom({ key: 'snippet', default: {} }),
     markers: atom({ key: 'markers', default: [] }),
     logs: atom({ key: 'logs', default: '' }),
