@@ -18,6 +18,13 @@ const kebabCase = (string) => string
     .replace(/[\s_]+/g, '-')
     .toLowerCase();
 
+const formatValue = (value) => {
+    if (value.indexOf('\n') === -1) {
+        return value;
+    }
+    return value.split('\n').map((line) => `        ${line}`).join('\n');
+};
+
 const WizardModal = ({ setShow }) => {
     const [ isNextDisabled, setNextDisabled ] = useState(true);
     const [ selectedForm, setSelectedForm ] = useState();
@@ -29,8 +36,8 @@ const WizardModal = ({ setShow }) => {
         const swadlBuilder = [
             `- ${selectedForm.activity}:`,
             ...selectedForm.fields
-                .filter(({ key }) => data[key].trim().length > 0)
-                .map(({ key }) => `      ${kebabCase(key)}: ${data[key].trim()}`),
+                .filter(({ key }) => data[key]?.trim().length > 0)
+                .map(({ key }) => `      ${kebabCase(key)}: ${data[key].indexOf('\n') > -1 ? '|\n' : ''}${formatValue(data[key])}`),
         ];
         if (data.condition.trim().length > 0) {
             swadlBuilder.splice(2, 0, `      if: \${${data.condition.trim()}}`);
@@ -42,7 +49,7 @@ const WizardModal = ({ setShow }) => {
                 `          ${eventFields[data.event]}: ${data.eventValue.trim()}`,
             ]);
         }
-        setSnippet(swadlBuilder.join('\n'));
+        setSnippet(swadlBuilder.join('\n') + '\n\n  ');
         setShow(false);
     };
 

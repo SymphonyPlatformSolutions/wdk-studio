@@ -17,10 +17,6 @@ const register = ({ appToken }) => SYMPHONY.application.register(
 const bootstrap = () => {
     let modulesService = SYMPHONY.services.subscribe("modules");
     let navService = SYMPHONY.services.subscribe("applications-nav");
-
-    console.log(SYMPHONY.application);
-    console.log(controller);
-
     const meta = { title: appName, icon: appUri + '/icon-16.png' };
     navService.add(appId, meta, controllerId);
     controller.implement({

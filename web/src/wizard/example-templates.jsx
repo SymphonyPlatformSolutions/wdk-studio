@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 
 const templates = {
-    Simple: '<div>Hello <b>World!</b></div>',
-    Table: `<table>
+Simple: `<div>Hello <b>World!</b></div>`,
+Table: `
+<table>
   <thead>
     <tr>
       <td>Header 1</td>
@@ -18,7 +19,7 @@ const templates = {
       <td>Content 4.1</td>
     </tr>
     <tr>
-    <td rowspan="2">Content 1.2 with rowspan</td>
+      <td rowspan="2">Content 1.2 with rowspan</td>
       <td>Content 2.2</td>
       <td>Content 3.2</td>
       <td>Content 4.2</td>
@@ -38,21 +39,23 @@ const templates = {
     </tr>
   </tfoot>
 </table>`,
-    Form: `<form id="AddressForm">
+Form: `
+<form id="AddressForm">
   <text-field name="address" placeholder="Type your address..." required="true" />
   <select name="city">
     <option selected="true" value="ny">New York</option>
     <option value="van">Vancouver</option>
     <option value="par">Paris</option>
-    </select>
-    <button name="submit" type="action">Submit</button>
-    <button type="reset">Reset</button>
+  </select>
+  <button name="submit" type="action">Submit</button>
+  <button type="reset">Reset</button>
 </form>`,
-    Card: `<card accent="tempo-bg-color--blue" iconSrc="./images/favicon.png">
+Card: `
+<card accent="tempo-bg-color--blue" iconSrc="./images/favicon.png">
   <header>Card Header. Always visible.</header>
   <body>Card Body. User must click to view it.</body>
 </card>`,
-    Mention: `<mention uid="12345678" />`,
+Mention: `<mention uid="12345678" />`,
 };
 
 const ExampleTemplatesRoot = styled.div`
@@ -69,7 +72,7 @@ const Example = styled.div`
 const insertTemplate = (content) => {
     const contentArea = document.querySelector('textarea[name=content]');
     contentArea.value += ('\n' + content).trim();
-    contentArea.value.scrollTop = 999999999999;
+    contentArea.scrollTop = 999999999999;
 };
 
 const ExampleTemplates = () => {
@@ -77,7 +80,7 @@ const ExampleTemplates = () => {
         <ExampleTemplatesRoot>
             Examples:
             { Object.keys(templates).map((key) => (
-                <Example onClick={() => insertTemplate(templates[key])}>
+                <Example key={key} onClick={() => insertTemplate(templates[key])}>
                     {key}
                 </Example>
             ))}

@@ -108,13 +108,14 @@ const SaveWithCommentModal = ({ show, setShow, saveWorkflow, loading }) => {
     );
 };
 
-const SaveButton = () => {
+const SaveButton = ({ thisEditor }) => {
     const markers = useRecoilState(atoms.markers)[0];
     const isContentChanged = useRecoilState(atoms.isContentChanged)[0];
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const { addWorkflow, listWorkflows, showStatus } = api();
     const session = useRecoilState(atoms.session)[0];
     const buttonRef = useRef();
+    const setPosition = useRecoilState(atoms.position)[1];
     const [ showMenu, setShowMenu ] = useState(false);
     const [ showDiscardModal, setShowDiscardModal ] = useState(false);
     const [ showSaveModal, setShowSaveModal ] = useState(false);
@@ -132,6 +133,7 @@ const SaveButton = () => {
     };
 
     const saveWorkflow = (description) => {
+        setPosition(thisEditor.getPosition());
         const swadl = editor.getModels()[0].getValue();
         setShowMenu(false);
         setLoading(true);
