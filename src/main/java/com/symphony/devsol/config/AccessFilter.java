@@ -1,8 +1,8 @@
 package com.symphony.devsol.config;
 
 import com.symphony.bdk.core.auth.jwt.UserClaim;
-import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
+import com.symphony.bdk.workflow.management.WorkflowManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,9 +28,7 @@ public class AccessFilter extends OncePerRequestFilter {
     private List<Long> admins;
     private final Pattern idPattern = Pattern.compile("^id: ([\\w\\-]+)");
     private final Pattern wfPattern = Pattern.compile("/v1/workflows/([\\w\\-]+)");
-    private final WorkflowsMgtApi managementApi;
-    @Value("${wdk.properties.management-token}")
-    private String managementToken;
+    private final WorkflowManagementService managementService;
 
     @Override
     protected void doFilterInternal(
@@ -41,7 +39,7 @@ public class AccessFilter extends OncePerRequestFilter {
         UserClaim user = (UserClaim) request.getAttribute("user");
         if (
             !List.of("GET", "OPTIONS").contains(request.getMethod()) &&
-            !List.of("mgmt-token", "webhook").contains(user.getUsername())
+                !List.of("mgmt-token", "webhook").contains(user.getUsername())
         ) {
             long userId = user.getId();
             String workflowId = null;
@@ -69,8 +67,8 @@ public class AccessFilter extends OncePerRequestFilter {
             }
 
             // Check that caller owns the workflow
-            List<VersionedWorkflowView> workflows = managementApi.getVersionedWorkflow(managementToken, workflowId, null, false).getBody();
-            long ownerId = workflows == null || workflows.isEmpty() ? 0L : workflows.get(0).getCreatedBy();
+            VersionedWorkflowView workflow = managementService.get(workflowId).orElse(null);
+            long ownerId = workflow == null ? 0L : workflow.getCreatedBy();
             if (ownerId > 0L && !admins.contains(userId) && ownerId != userId) {
                 response.sendError(SC_UNAUTHORIZED, "You are not allowed to modify this workflow");
                 return;
