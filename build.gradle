@@ -25,6 +25,7 @@ configurations {
 
 dependencies {
     implementation 'org.finos.symphony.bdk:symphony-bdk-app-spring-boot-starter:2.13.0'
+    compileOnly 'org.springframework:spring-tx'
     compileOnly 'org.finos.symphony.wdk:workflow-language:1.5.1'
     compileOnly 'org.finos.symphony.wdk:workflow-bot-app:1.5.1'
     botJar 'org.finos.symphony.wdk:workflow-bot-app:1.5.1:boot'
@@ -45,5 +46,17 @@ tasks.register('customActivityLibs', Copy) {
     into "lib"
 }
 
-tasks.build.dependsOn tasks.customActivityLibs
+tasks.register('cleanLib', Delete) {
+    delete 'lib'
+}
+
+tasks.register('removeExtraLibs', Delete) {
+    delete fileTree('lib').matching {
+        exclude 'wdk-studio.jar', 'symphony-bdk-app*'
+    }
+}
+
+tasks.customActivityLibs.dependsOn tasks.cleanLib
+tasks.removeExtraLibs.dependsOn tasks.customActivityLibs
+tasks.build.dependsOn tasks.removeExtraLibs
 tasks.botJar.dependsOn tasks.build

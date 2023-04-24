@@ -29,7 +29,8 @@ const api = () => {
                 return new Promise((r) => r(""));
             }
             const contentType = response.headers.get('Content-type').split(';')[0];
-            return contentType === 'text/plain' ? response.text() : response.json();
+            return contentType === 'text/plain' ? response.text() :
+                contentType === 'application/json' ? response.json() : response.blob();
         } else {
             const error = await response.json();
             throw new Error(error.detail || error.message);
@@ -99,6 +100,7 @@ const api = () => {
         getUser: (userId, callback) => apiCall(GET, `symphony/user/${userId}`, null, callback),
         getUsers: (userIds, callback) => apiCall(POST, `symphony/users`, userIds, callback),
         searchUser: (query) => apiCall(GET, `symphony/user?q=${query}`),
+        exportWorkflows: () => apiCall(GET, 'v1/export'),
         parseJwt,
         showStatus,
         initLogs,
