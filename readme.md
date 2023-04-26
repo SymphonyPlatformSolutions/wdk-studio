@@ -41,7 +41,7 @@ of Symphony's Workflow Developer Kit right into the Symphony interface.
         --mount type=bind,source="$(pwd)"/application-prod.yaml,target=/data/symphony/application-prod.yaml,readonly \
         --mount type=bind,source="$(pwd)"/privatekey.pem,target=/data/symphony/privatekey.pem,readonly \
         -v $(pwd)/data:/data/symphony/data \
-        ghcr.io/symphonyplatformsolutions/wdk-studio:2.0.71
+        ghcr.io/symphonyplatformsolutions/wdk-studio:2.1.3
     ```
 4. This command exposes the deployment on the current host on port `8080`,
 which then needs to be fronted with an ingress controller or load balancer
