@@ -51,7 +51,7 @@ const api = () => {
         }
         const config = { method, headers };
         if (body) {
-            if (uri === 'v1/workflows') {
+            if (uri === 'v1/workflows' || uri === 'v1/import') {
                 const formData  = new FormData();
                 Object.keys(body).forEach((key) => formData.append(key, body[key]));
                 config.body = formData;
@@ -101,6 +101,7 @@ const api = () => {
         getUsers: (userIds, callback) => apiCall(POST, `symphony/users`, userIds, callback),
         searchUser: (query) => apiCall(GET, `symphony/user?q=${query}`),
         exportWorkflows: () => apiCall(GET, 'v1/export'),
+        importWorkflows: (data, callback) => apiCall(POST, 'v1/import', data, callback),
         parseJwt,
         showStatus,
         initLogs,
