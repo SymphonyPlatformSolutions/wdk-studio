@@ -18,6 +18,7 @@ bdk-app:
 
 wdk:
   workflows.path: ""
+  encrypt.passphrase: ${ENCRYPT_PASSPHRASE}
   properties:
     monitoring-token: ${MONITORING_TOKEN}
     management-token: ${MANAGEMENT_TOKEN}
