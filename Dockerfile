@@ -1,9 +1,16 @@
-FROM finos/symphony-wdk:1.5.1
+FROM amazoncorretto:17
+RUN jlink --verbose --strip-java-debug-attributes --no-man-pages \
+--no-header-files --compress=2 --output /jre \
+--add-modules java.base,java.compiler,java.desktop,java.instrument,java.prefs,java.rmi,java.scripting,\
+java.security.jgss,java.security.sasl,java.sql.rowset,jdk.attach,jdk.httpserver,jdk.jdi,jdk.jfr,\
+jdk.management,jdk.net,jdk.unsupported,jdk.crypto.ec
+
+FROM debian:bullseye-slim
 WORKDIR /data/symphony
-COPY federation/java-jwt-4.4.0.jar staging/java-jwt-4.4.0.jar
-COPY federation/wdk-federation-client.jar staging/wdk-federation-client.jar
-COPY lib/wdk-studio.jar staging/wdk-studio.jar
-COPY lib/symphony-bdk-app-spring-boot-starter*.jar staging/bdk-app-starter.jar
+COPY --from=0 /jre /custom/jre
+COPY workflow-bot-app.jar /wdk.jar
+COPY federation/* staging/
+COPY lib/* staging/
 COPY application.yaml application.yaml
 EXPOSE 8080
 ENTRYPOINT [ \
