@@ -46,7 +46,7 @@ const Console = ({ show }) => {
     const { initLogs, showStatus } = api();
 
     useEffect(() => initLogs(({ lastEventId, data }) => {
-        setLogs((old) => `${old}${lastEventId} ${data}\n`);
+        setLogs((old) => `${old}${lastEventId} ${data.replace(/\t/g, '\n')}\n`);
         const errorMatch = data.match(/Internal server error: \[(.*)\]/);
         if (errorMatch) {
             let errorMsg = errorMatch[1];
