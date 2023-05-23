@@ -56,10 +56,12 @@ const ActivityList = ({ selectedInstance, setInspectorPayload }) => {
     );
 
     return (
-        <DetailPlane>
+        <>
             <TableTitle>Activities</TableTitle>
-            { !activities ? <Spinner /> : <Content /> }
-        </DetailPlane>
+            <DetailPlane>
+                { !activities ? <Spinner /> : <Content /> }
+            </DetailPlane>
+        </>
     );
 };
 export default ActivityList;

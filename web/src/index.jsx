@@ -7,6 +7,18 @@ import React, { Suspense, useState, useEffect, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import Spinner from './core/spinner';
 import './index.css';
+import styled from 'styled-components';
+
+const AppRoot = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 1px;
+    gap: .5rem;
+    font-family: SymphonyLato, serif;
+    font-size: 1rem;
+    padding: .5rem;
+    width: calc(100vw - 1rem);
+`;
 
 const Editor = lazy(() => import('./editor/editor'));
 const WorkflowSelector = lazy(() => import('./create-workflow/workflow-selector'));
@@ -73,12 +85,14 @@ const App = () => {
     return !session ? 'Loading'
         : (!window.SYMPHONY && !session.isDev) ? 'Please launch Symphony to use WDK Studio' : (
         <Suspense fallback={<Spinner />}>
-            <WorkflowSelector {...{ uiService }} />
-            <ActionBar {...{ showConsole, setShowConsole, thisEditor }} />
-            <Editor show={editMode} {...{ thisEditor, setThisEditor }} />
-            { !editMode && <Monitor /> }
-            <Console show={editMode && showConsole} />
-            <FadeToast />
+            <AppRoot>
+                <WorkflowSelector {...{ uiService }} />
+                <ActionBar {...{ showConsole, setShowConsole, thisEditor }} />
+                <Editor show={editMode} {...{ thisEditor, setThisEditor }} />
+                { !editMode && <Monitor /> }
+                <Console show={editMode && showConsole} />
+                <FadeToast />
+            </AppRoot>
         </Suspense>
     );
 };

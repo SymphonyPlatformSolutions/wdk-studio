@@ -4,10 +4,10 @@ import styled from 'styled-components';
 const LoadingRoot = styled.div`
     font-size: 6rem;
     display: flex;
+    flex: 1 1 1px;
+    align-items: center;
     align-self: center;
     justify-content: center;
-    width: 100%;
-    margin: auto;
 `;
 
 const Spinner = () => (

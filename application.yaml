@@ -52,6 +52,7 @@ logging.level:
     hibernate: error
     camunda.commons: error
     camunda.feel: error
+    camunda.bpm: error
   com:
     zaxxer: error
     symphony: info

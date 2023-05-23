@@ -10,17 +10,10 @@ import VariablesList from './variables-list';
 import Spinner from '../core/spinner';
 import Inspector from './inspector';
 
-const MonitorRoot = styled.div`
+const Container = styled.div`
     flex: 1 1 1px;
     display: flex;
     flex-direction: column;
-`;
-
-const TriPlane = styled.div`
-    flex: 1 1 1px;
-    overflow: auto;
-    display: grid;
-    grid-template-rows: repeat(3, 1fr);
     gap: .5rem;
 `;
 
@@ -55,8 +48,6 @@ const Monitor = () => {
         }
     }, [ instances ]);
 
-    const Empty = () => <Center>No instances yet</Center>;
-
     useEffect(() => {
         if (inspectorPayload) {
             setShowInspector(true);
@@ -69,20 +60,22 @@ const Monitor = () => {
         }
     }, [ showInspector ]);
 
-    return (
-        <MonitorRoot>
-            { !instances ? <Spinner /> : instances.length === 0 ? <Empty /> : (
-                <>
-                    <InstanceMetrics {...{ instances }} />
-                    <TriPlane>
-                        <InstanceList {...{ instances, selectedInstance, setSelectedInstance, loadInstances, loading }} />
-                        <ActivityList {...{ selectedInstance, setInspectorPayload }} />
-                        <VariablesList {...{ selectedInstance, setInspectorPayload }} />
-                    </TriPlane>
-                    { showInspector && <Inspector setShow={setShowInspector} payload={inspectorPayload} /> }
-                </>
-            )}
-        </MonitorRoot>
-    )
+    if (!instances) {
+        return <Spinner />;
+    } else if (instances.length === 0) {
+        return <Center>No instances yet</Center>;
+    } else {
+        return (
+            <>
+                <InstanceMetrics {...{ instances }} />
+                <Container>
+                    <InstanceList {...{ instances, selectedInstance, setSelectedInstance, loadInstances, loading }} />
+                    <ActivityList {...{ selectedInstance, setInspectorPayload }} />
+                    <VariablesList {...{ selectedInstance, setInspectorPayload }} />
+                </Container>
+                { showInspector && <Inspector setShow={setShowInspector} payload={inspectorPayload} /> }
+            </>
+        );
+    }
 };
 export default Monitor;
