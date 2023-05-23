@@ -57,10 +57,12 @@ const VariablesList = ({ selectedInstance, setInspectorPayload }) => {
     );
 
     return (
-        <DetailPlane>
+        <>
             <TableTitle>Variables</TableTitle>
-            { !variables ? <Spinner /> : <Content /> }
-        </DetailPlane>
+            <DetailPlane>
+                { !variables ? <Spinner /> : <Content /> }
+            </DetailPlane>
+        </>
     );
 };
 export default VariablesList;

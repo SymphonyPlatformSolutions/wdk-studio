@@ -1,20 +1,9 @@
-html, body  {
-    width: 100vw;
-    height: 100vh;
+html, body, #root {
+    height: 100%;
     margin: 0;
     padding: 0;
     display: flex;
-    overflow: hidden;
-}
-#root {
-    display: flex;
-    flex-direction: column;
     flex: 1 1 1px;
-    width: 100vw;
-    padding: .5rem;
-    gap: .5rem;
-    font-family: SymphonyLato, serif;
-    font-size: 1rem;
 }
 .tk-dark div { color: var(--tk-main-text-color, #525760); }
 button.tk-button[disabled] { cursor: not-allowed; }

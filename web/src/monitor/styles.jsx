@@ -4,6 +4,7 @@ const DetailPlane = styled.div`
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
+    flex: 1 1 1px;
 `;
 
 const rotateAnimation = keyframes`
@@ -12,13 +13,10 @@ const rotateAnimation = keyframes`
 `;
 
 const TableTitle = styled.h3`
-    z-index: 1;
-    position: fixed;
-    width: calc(100vw - 2.6rem);
     font-weight: 800;
     color: var(--tk-color-graphite-10);
     background: var(--tk-color-electricity-70);
-    padding: .31rem .3rem;
+    padding: .4rem 1rem;
     margin: 0;
     display: flex;
     justify-content: space-between;
@@ -29,25 +27,25 @@ const TableTitle = styled.h3`
 const Table = styled.table`
     font-weight: 300;
     border-collapse: collapse;
-    margin-top: 2rem;
-    align-self: flex-start;
+    width: fit-content;
 
-    th { text-align: left; z-index: 1; }
+    th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        text-align: left;
+        background-color: var(--tk-background, #fff);
+    }
     th, td {
         white-space: nowrap;
         padding: .3rem .8rem;
-        max-width: 50vw;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-    tbody {
-        margin-top: 2rem;
     }
     tbody tr:hover {
         cursor: pointer;
         background: var(--tk-color-electricity-50);
         & td { color: var(--tk-color-electricity-05) }
-
         & button.inspect {
             color: #fff;
             border-color: #fff;
@@ -76,11 +74,6 @@ const Row = styled.tr`
             border-color: ${props => props.selected ? '#fff' : 'var(--tk-main-text-color, #525760)'};
             box-shadow: none;
         }
-    }
-    th {
-        background-color: var(--tk-background, #fff);
-        position: sticky;
-        top: 2rem;
     }
 `;
 

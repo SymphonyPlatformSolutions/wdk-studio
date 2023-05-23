@@ -12,6 +12,7 @@ of Symphony's Workflow Developer Kit right into the Symphony interface.
 1. Create a deployment configuration file `application-yaml`
     - The service account username and app id need to match the entries created above
     - The `monitoring-token` and `management-token` values should be random strings
+    - The `encrypt.passphrase` value should be a random string at least 16 characters long
     - The `github-token` can be created on [GitHub](https://github.com/settings/tokens) using `Tokens (classic)` and the `public_repo` scope
     - The `admins` field is a comma-separated list of Symphony User IDs who will be granted rights within WDK Studio to reassign workflow ownership
    ```yaml
@@ -24,6 +25,7 @@ of Symphony's Workflow Developer Kit right into the Symphony interface.
        appId: my-app-id
        privateKey.path: privatekey.pem
    wdk:
+     encrypt.passphrase: random_string
      properties:
        monitoring-token: random_string
        management-token: random_string
@@ -41,7 +43,7 @@ of Symphony's Workflow Developer Kit right into the Symphony interface.
         --mount type=bind,source="$(pwd)"/application-prod.yaml,target=/data/symphony/application-prod.yaml,readonly \
         --mount type=bind,source="$(pwd)"/privatekey.pem,target=/data/symphony/privatekey.pem,readonly \
         -v $(pwd)/data:/data/symphony/data \
-        ghcr.io/symphonyplatformsolutions/wdk-studio:2.1.3
+        ghcr.io/symphonyplatformsolutions/wdk-studio:2.1.5
     ```
 4. This command exposes the deployment on the current host on port `8080`,
 which then needs to be fronted with an ingress controller or load balancer
