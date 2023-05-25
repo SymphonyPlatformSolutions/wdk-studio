@@ -5,7 +5,7 @@ const ResizeContainer = styled.div`
     position: fixed;
     left: 0;
     bottom: ${props => props.height + 50 - 40}px;
-    width: 100%;
+    width: calc(100% - 1rem);
     height: 80px;
     z-index: 99;
     user-select: none;

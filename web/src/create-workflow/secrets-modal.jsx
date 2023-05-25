@@ -57,10 +57,10 @@ const SecretsModal = ({ setShow }) => {
         const processDelete = (secretKey) => {
             setDeleteLoading(true);
             deleteSecret(secretKey, () => {
-                setDeleteLoading(false);
                 setSecrets((old) => old.filter((s) => s.secretKey !== secretKey));
-                setSelectedKey(undefined);
                 showStatus(false, `Secret ${newSecret.key} deleted`);
+                setDeleteLoading(false);
+                setSelectedKey(undefined);
             });
         };
 
@@ -125,7 +125,7 @@ const SecretsModal = ({ setShow }) => {
     return (
         <Modal size="large" show closeButton onClose={() => setShow(false)}>
             <ModalTitle>Manage Secrets</ModalTitle>
-            <ModalBody style={{ minHeight: '17rem', display: 'flex' }}>
+            <ModalBody style={{ minHeight: '17rem', display: 'flex', alignItems: 'flex-start' }}>
                 { !secrets ? <Spinner /> : <SecretsGrid /> }
             </ModalBody>
             <ModalFooter style={{ justifyContent: 'flex-start', alignItems: 'flex-end' }}>
