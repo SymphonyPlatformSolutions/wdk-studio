@@ -1,6 +1,6 @@
 import { atoms } from '../core/atoms';
 import {
-    Button, Modal, ModalTitle, ModalBody, ModalFooter, TextField,
+    Button, Modal, ModalTitle, ModalBody, ModalFooter, TextField, Icon,
 } from "@symphony-ui/uitoolkit-components/components";
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -21,6 +21,16 @@ const Table = styled.table`
     }
     tr:nth-child(even) {
         background-color: rgba(150, 150, 150, .2);
+    }
+    td[data-copy]:hover {
+        cursor: pointer;
+        :after {
+            font-family: tk-icons !important;
+            content: '';
+            font-size: .9rem;
+            padding-left: .5rem;
+            display: inline;
+        }
     }
 `;
 
@@ -48,6 +58,11 @@ const SecretsModal = ({ setShow }) => {
             showStatus(false, `New secret ${newSecret.key} added`);
             setNewSecret({ key: '', secret: '' });
         });
+    };
+
+    const copy = (key) => {
+        navigator.clipboard.writeText(`\${secret('${key}')}`);
+        showStatus(false, 'Copied to clipboard');
     };
 
     const SecretsGrid = () => {
@@ -80,7 +95,9 @@ const SecretsModal = ({ setShow }) => {
                     <tbody>
                         { secrets.map(({ createdAt, secretKey }) => (
                             <tr key={secretKey}>
-                                <td>{secretKey}</td>
+                                <td data-copy onClick={() => copy(secretKey)}>
+                                    {secretKey}
+                                </td>
                                 <td>{(new Date(createdAt)).toLocaleString()}</td>
                                 <td>
                                     <Button
