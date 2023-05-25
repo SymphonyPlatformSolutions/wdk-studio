@@ -6,7 +6,7 @@ workflow-bot-app*.jar
 rsa/
 *.mv.db
 application-private.y*ml
-./data
+data/
 src/main/resources/static
 
 ##############################

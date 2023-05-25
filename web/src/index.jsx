@@ -72,18 +72,17 @@ const App = () => {
     });
 
     useEffect(() => {
-        const isDev = window.location.hostname === 'localhost';
-        const appId = isDev ? 'localhost-10443' : 'wdk-studio';
-
         if (window.SYMPHONY) {
-            initSymphony(appId);
-        } else {
-            setSession({ isDev });
+            const origin = window.origin === 'http://localhost:5173' ?
+                'https://localhost:10443' : window.origin;
+            fetch(`${origin}/bdk/v1/app/info`)
+                .then(r => r.json())
+                .then(({ appId }) => initSymphony(appId));
         }
     }, []);
 
     return !session ? 'Loading'
-        : (!window.SYMPHONY && !session.isDev) ? 'Please launch Symphony to use WDK Studio' : (
+        : !window.SYMPHONY ? 'Please launch Symphony to use WDK Studio' : (
         <Suspense fallback={<Spinner />}>
             <AppRoot>
                 <WorkflowSelector {...{ uiService }} />
