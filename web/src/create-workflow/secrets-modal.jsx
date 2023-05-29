@@ -1,6 +1,6 @@
 import { atoms } from '../core/atoms';
 import {
-    Button, Modal, ModalTitle, ModalBody, ModalFooter, TextField, Icon,
+    Button, Modal, ModalTitle, ModalBody, ModalFooter, TextField,
 } from "@symphony-ui/uitoolkit-components/components";
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -22,7 +22,7 @@ const Table = styled.table`
     tr:nth-child(even) {
         background-color: rgba(150, 150, 150, .2);
     }
-    td[data-copy]:hover {
+    td[data-copy] {
         cursor: pointer;
         :after {
             font-family: tk-icons !important;
@@ -30,7 +30,11 @@ const Table = styled.table`
             font-size: .9rem;
             padding-left: .5rem;
             display: inline;
+            visibility: hidden;
         }
+    }
+    td[data-copy]:hover:after {
+        visibility: visible;
     }
 `;
 

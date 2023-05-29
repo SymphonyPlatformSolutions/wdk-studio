@@ -81,8 +81,10 @@ const App = () => {
         }
     }, []);
 
-    return !session ? 'Loading'
-        : !window.SYMPHONY ? 'Please launch Symphony to use WDK Studio' : (
+    if (!window.SYMPHONY) {
+        return 'Please launch Symphony to use WDK Studio';
+    }
+    return !session ? 'Loading..' : (
         <Suspense fallback={<Spinner />}>
             <AppRoot>
                 <WorkflowSelector {...{ uiService }} />
