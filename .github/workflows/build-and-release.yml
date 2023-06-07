@@ -8,34 +8,49 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
-        cache: 'yarn'
-        cache-dependency-path: web/yarn.lock
-
-    - run: cd web && yarn install && yarn build && cp -r dist ../src/main/resources/static/
-
     - uses: actions/setup-java@v3
       with:
         distribution: corretto
         java-version: 11
 
+    - uses: actions/checkout@v3
+      with:
+        repository: symphonyplatformsolutions/wdk-federation-client
+        path: federation
+
     - uses: gradle/gradle-build-action@v2
       with:
+        build-root-directory: federation
+        arguments: build
+
+    - uses: actions/checkout@v3
+      with:
+        path: studio
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: 'yarn'
+        cache-dependency-path: studio/web/yarn.lock
+
+    - run: cd studio/web && yarn install && yarn build && cp -r dist ../src/main/resources/static/
+
+    - uses: gradle/gradle-build-action@v2
+      with:
+        build-root-directory: studio
         arguments: botJar
+
+    - run: cp federation/lib/*.jar studio/lib/
 
     - uses: actions/cache/save@v3
       with:
         key: ${{ github.sha }}
-        path: lib
+        path: studio/lib
 
     - uses: actions/cache/save@v3
       with:
         key: wdk-bot-${{ github.sha }}
-        path: workflow-bot-app.jar
+        path: studio/workflow-bot-app.jar
 
   release-to-dev2:
     needs: build
