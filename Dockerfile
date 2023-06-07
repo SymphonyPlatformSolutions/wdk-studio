@@ -9,7 +9,6 @@ FROM debian:bullseye-slim
 WORKDIR /data/symphony
 COPY --from=0 /jre /custom/jre
 COPY workflow-bot-app.jar /wdk.jar
-COPY federation/* staging/
 COPY lib/* staging/
 COPY application.yaml application.yaml
 EXPOSE 8080
