@@ -8,6 +8,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/setup-java@v3
+      with:
+        distribution: corretto
+        java-version: 11
+
     - uses: actions/checkout@v3
 
     - uses: actions/setup-node@v3
@@ -18,14 +23,21 @@ jobs:
 
     - run: cd web && yarn install && yarn build && cp -r dist ../src/main/resources/static/
 
-    - uses: actions/setup-java@v3
-      with:
-        distribution: corretto
-        java-version: 11
-
     - uses: gradle/gradle-build-action@v2
       with:
         arguments: botJar
+
+    - uses: actions/checkout@v3
+      with:
+        repository: symphonyplatformsolutions/wdk-federation-client
+        path: federation
+
+    - uses: gradle/gradle-build-action@v2
+      with:
+        build-root-directory: federation
+        arguments: build
+
+    - run: cp federation/lib/*.jar lib/
 
     - uses: actions/cache/save@v3
       with:
